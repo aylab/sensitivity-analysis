@@ -30,7 +30,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/resource.h>
 #include <fcntl.h>
 #include <cstdio>
-
+#include <sys/stat.h>
+#include <errno.h>
 using namespace std;
 
 struct input_params{	
@@ -41,14 +42,18 @@ struct input_params{
 	int processes;
 	int sim_args_num;
 	int dims;
-	double percentage;
-	double* nominal;
+	double percentage; //Max percentage by which we will perturb parameters +/-
+	int points; //Number of points between the nominal and the max percentage +/- to generate data for
+	double* nominal; //Array for storing the nominal parameter set.
 	streambuf* cout_orig;
 	ofstream* null_stream;
 	char* nominal_file;
 	char* verbose_file;
+	char* data_dir;
 	char* sim_exec;
 	char** simulation_args;
+	char* failure;
+	int failcode;
 	
 	input_params(){
 		sim_args = false;
@@ -57,11 +62,15 @@ struct input_params{
 		sim_args = false;
 	 	dims= 0;
 	 	percentage = 5;
+	 	points = 10;
 		nominal_file = (char*)"nominal.params";
-		verbose_file = (char*)"verbose.txt";			
+		verbose_file = (char*)"verbose.txt";
+		data_dir = (char*)"sim-data";		
 		sim_exec = (char*) "../deterministic";
 		simulation_args = NULL;
 		null_stream = NULL;
+		failure = NULL;
+		failcode = 0;
 	}
 	
 	~input_params(){
@@ -70,11 +79,45 @@ struct input_params{
 	}
 };
 
+//Struct for holding all the sets that need to be simulated.
+struct sim_set{
+	int dims;
+	int sets_per_dim; //Number of sets to simulate for data per dimension that will be perturbed.
+	int points;
+	double step_per_set; //Decimal difference between perturbations.
+	double** dim_sets;
+	
+	void sim_set(input_params& ip){
+		this.dims = ip.dims;
+		this.points = ip.points;
+		sets_per_dim = 2*ip.points + 1;
+		step_per_set = (ip.percentage /( (double)100*ip.points ));
+		
+		dim_sets = new double*[dims];
+		this->fill(ip.nominal);
+		
+	}
+	~sim_set(){
+		for(int i = 0; i < dims; i++){
+			delete[] dim_sets[i];
+		}
+		delete[] dim_sets;
+	}
+	void fill(double* nominal){
+		for(int i = 0; i < dims; i++){
+			dim_sets[i] = new double[sets_per_dim]
+			for(int j; j < sets_per_dim; j++){
+				dim_sets[i][j] = nominal[i] * ((double)1 + step_per_set*(double)(j - points);
+			}
+		}
+	}
+};
+
 void init_seed (input_params& );
 void accept_params (int , char** , input_params& );
 void ensure_nonempty (const char* , const char* );
 void cout_switch(bool , input_params& );
 void usage(const char*, int);
-
+void make_dir(char*);
 
 #endif

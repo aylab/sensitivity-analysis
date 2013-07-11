@@ -53,6 +53,9 @@ void accept_params (int num_args, char** args, input_params& ip) {
 			} else if (strcmp(option, "-n") == 0 || strcmp(option, "--nominal-file") == 0) {
 				ensure_nonempty(option, value);
 				ip.nominal_file = value;
+			} else if (strcmp(option, "-d") == 0 || strcmp(option, "--data-dir") == 0) {
+				ensure_nonempty(option, value);
+				ip.data_dir = value;
 			} else if (strcmp(option, "-v") == 0 || strcmp(option, "--verbose-file") == 0) {
 				if(value == NULL || value[0] == '-'){
 					i--;
@@ -96,6 +99,9 @@ void accept_params (int num_args, char** args, input_params& ip) {
 	//Setting up quiet mode.
 	if(ip.quiet) cout_switch(true, ip);
 	
+	//Making the directory in which all of the simulation data will be stored.
+	make_dir(ip.data_dir);
+	
 	//Initializing some arguments that are always passed into the simulation program.
 	if(!ip.sim_args){
 		ip.simulation_args = new char*[6];
@@ -129,7 +135,8 @@ void cout_switch(bool turn_off, input_params& ip){
 }
 
 void usage(const char* message, int error){
-	exit(0);
+	cerr << message << "\n\tError: " << error << endl;
+	exit(error);
 }
 
 void init_seed (input_params& ip) {
@@ -139,3 +146,8 @@ void init_seed (input_params& ip) {
 	srand(ip.random_seed);
 }
 
+void make_dir(char* dir){
+	if(-1 == mkdir((const char*)dir, S_IRWXU) && errno != EEXIST){
+		usage("Could not make directory.", errno);
+	}
+}

@@ -23,13 +23,30 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using namespace std;
 
 int main(int argc, char** argv){
+	//Setup the parameter struct based on arguments.
 	input_params ip;
 	accept_params(argc, argv, ip);
+	
+	//Read in the nominal parameter set from file.
 	read_nominal(ip);
 	if(ip.nominal == NULL) usage("Could not read nominal parameter set.", 0);
 	
+	//Initializes the struct that holds sets that will be simulated and fills it in with the appropriate values.
+	sim_set ss(ip);
+	
+	generate_data(ip, ss);
 	return 0;
 }
+
+void generate_data(input_params& ip, sim_set& ss){
+	//Dispatch the sets for perturbations of each dimension to the simulation program.
+	int first_dim = 0;
+	for(; first_dim  
+}
+
+
+
+
 
 
 

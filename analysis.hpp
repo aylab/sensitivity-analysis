@@ -19,4 +19,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define ANALYSIS_HPP
 
 
+void generate_data(input_params&, sim_set&);
+
 #endif
