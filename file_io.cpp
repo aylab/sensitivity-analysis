@@ -105,7 +105,7 @@ char*** make_args(int first_dim, input_params& ip,int** pipes){
 				pipe_loc++;
 			} else if(j == 6){
 				strlen_num = len_num(first_dim + i);
-				child_args[i][j] = malloc(sizeof(char)*(dd_len + 1 + dim_len + strlen_num + 1));
+				child_args[i][j] = (char*)malloc(sizeof(char)*(data_len + 1 + dim_len + strlen_num + 1));
 				sprintf(child_args[i][j], "%s/%s%d", ip.data_dir, ip.dim_dir, first_dim + i);    
 			} else if (ip.simulation_args[j] == NULL){
 				child_args[i][j] = NULL;
@@ -148,7 +148,7 @@ void simulate_samples(int first_dim, input_params& ip, sim_set& ss ){
     	ip.failure = strdup("!!! Failure: could not pipe !!!\n");
     	return;
     }
-    char*** child_args = make_args(ip, pipes);
+    char*** child_args = make_args(first_dim, ip, pipes);
     
     pid_t simpids[ip.processes];
     for(int i = 0; i < ip.processes; i++){
@@ -160,7 +160,9 @@ void simulate_samples(int first_dim, input_params& ip, sim_set& ss ){
         //Child runs simulation.  
 		if (simpids[i] == 0) {  
 			if (-1 == execv(ip.sim_exec, child_args[i])){
-				ip.failure = strdup("!!! Failure: could not exec deterministic !!!\n");
+				const char* fail_prefix = "!!! Failure: could not exec ";
+				ip.failure = (char*)malloc(sizeof(char)*(strlen(fail_prefix)+strlen(ip.sim_exec) + 5 + 1));
+				sprintf(ip.failure, "%s%s !!!\n", fail_prefix, ip.sim_exec);
 				break;
 			}
 		}   	
@@ -174,11 +176,10 @@ void simulate_samples(int first_dim, input_params& ip, sim_set& ss ){
     // Parent gives sets and processes results. Writes params to simpipe[1], reads results from simpipe[0].
     for(int i = 0; i < ip.processes; i++){
 		write_info(pipes[i][1], ss);
-		write_dim_sets(pipes[i][1], first_dim + i, ip.nominal, ss)
+		write_dim_sets(pipes[i][1], first_dim + i, ip.nominal, ss);
 	}
 
 	//Loop for waiting on children and checking their exit status.		
-    ssize_t result; //For reading purposes.
     for(int i = 0; i < ip.processes; i++){ 
 		int status = 0; 
 		waitpid(simpids[i], &status, WUNTRACED);
@@ -218,7 +219,7 @@ void simulate_samples(int first_dim, input_params& ip, sim_set& ss ){
 
 void write_info(int fd, sim_set& ss){
 	//Send the number of parameters that are used for each simulation .
-	int_str = malloc(sizeof(int));
+	char* int_str = (char*)malloc(sizeof(int));
 	memcpy(int_str, &ss.dims, sizeof(int));
 	write(fd, int_str, sizeof(int));
  
@@ -231,7 +232,7 @@ void write_info(int fd, sim_set& ss){
 void write_dim_sets(int fd, int dim, double* nominal, sim_set& ss){
 	double nom_hold = nominal[dim];
 	double* inserts = ss.dim_sets[dim];
-	for(int i = 0; i < num_inserts; i++){
+	for(int i = 0; i < ss.sets_per_dim; i++){
 		nominal[dim] = inserts[i];
 		write(fd, nominal, sizeof(double)*ss.dims);
 	}

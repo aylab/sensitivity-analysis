@@ -68,7 +68,7 @@ struct input_params{
 		verbose_file = (char*)"verbose.txt";
 		data_dir = (char*)"sim-data";
 		dim_dir = (char*)"dim-";		
-		sim_exec = (char*) "../deterministic";
+		sim_exec = (char*) "../sogen-deterministic/deterministic";
 		simulation_args = NULL;
 		null_stream = NULL;
 		failure = NULL;
@@ -89,9 +89,9 @@ struct sim_set{
 	double step_per_set; //Decimal difference between perturbations.
 	double** dim_sets;
 	
-	void sim_set(input_params& ip){
-		this.dims = ip.dims;
-		this.points = ip.points;
+	sim_set(input_params& ip){
+		dims = ip.dims;
+		points = ip.points;
 		sets_per_dim = 2*ip.points + 1;
 		step_per_set = (ip.percentage /( (double)100*ip.points ));
 		
@@ -107,9 +107,9 @@ struct sim_set{
 	}
 	void fill(double* nominal){
 		for(int i = 0; i < dims; i++){
-			dim_sets[i] = new double[sets_per_dim]
+			dim_sets[i] = new double[sets_per_dim];
 			for(int j; j < sets_per_dim; j++){
-				dim_sets[i][j] = nominal[i] * ((double)1 + step_per_set*(double)(j - points);
+				dim_sets[i][j] = nominal[i] * ((double)1 + step_per_set*(double)(j - points));
 			}
 		}
 	}

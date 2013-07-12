@@ -34,6 +34,7 @@ int main(int argc, char** argv){
 	//Initializes the struct that holds sets that will be simulated and fills it in with the appropriate values.
 	sim_set ss(ip);
 	
+	//Send out the sets that need to be simulated to get data stored in files.
 	generate_data(ip, ss);
 	
 	if(ip.failure != NULL){

@@ -25,4 +25,13 @@ void read_nominal(input_params& );
 int count_params(FILE* );
 bool fill_doubles(FILE* , int , double* );
 
+bool make_pipes(int , int** );
+void del_pipes(int , int** , bool );
+char*** make_args(int , input_params& ,int** );
+void del_args(input_params& , char*** );
+void segs_per_sim(int , int , int* );
+void simulate_samples(int , input_params& , sim_set&  );
+void write_info(int , sim_set& );
+void write_dim_sets(int , int , double* , sim_set& );
+
 #endif 
