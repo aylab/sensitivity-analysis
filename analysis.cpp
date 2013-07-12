@@ -35,14 +35,27 @@ int main(int argc, char** argv){
 	sim_set ss(ip);
 	
 	generate_data(ip, ss);
+	
+	if(ip.failure != NULL){
+		usage(ip.failure, ip.failcode);
+	}
 	return 0;
 }
 
 void generate_data(input_params& ip, sim_set& ss){
 	//Dispatch the sets for perturbations of each dimension to the simulation program.
 	int first_dim = 0;
-	for(; first_dim  
+	int proc = ip.processes;
+	for(; first_dim < ip.dims; first_dim += proc){
+		if( (ip.dims - first_dim) < proc ){
+			ip.processes = ip.dims - first_dim;
+		}
+		simulate_samples(first_dim, ip, ss);
+		if(ip.failure != NULL) break;
+	}
+	ip.processes = proc;
 }
+
 
 
 

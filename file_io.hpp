@@ -25,6 +25,4 @@ void read_nominal(input_params& );
 int count_params(FILE* );
 bool fill_doubles(FILE* , int , double* );
 
-#define is_num(c) (('1' <= c && c <= '9') || (c == '0') || (c == '.'))
-
 #endif 

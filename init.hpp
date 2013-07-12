@@ -50,6 +50,7 @@ struct input_params{
 	char* nominal_file;
 	char* verbose_file;
 	char* data_dir;
+	char* dim_dir;
 	char* sim_exec;
 	char** simulation_args;
 	char* failure;
@@ -65,7 +66,8 @@ struct input_params{
 	 	points = 10;
 		nominal_file = (char*)"nominal.params";
 		verbose_file = (char*)"verbose.txt";
-		data_dir = (char*)"sim-data";		
+		data_dir = (char*)"sim-data";
+		dim_dir = (char*)"dim-";		
 		sim_exec = (char*) "../deterministic";
 		simulation_args = NULL;
 		null_stream = NULL;
@@ -119,5 +121,8 @@ void ensure_nonempty (const char* , const char* );
 void cout_switch(bool , input_params& );
 void usage(const char*, int);
 void make_dir(char*);
+
+#define is_num(c) (('1' <= c && c <= '9') || (c == '0') || (c == '.'))
+#define len_num(num) ( log10(num+1)+1 )
 
 #endif
