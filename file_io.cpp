@@ -91,7 +91,7 @@ char*** make_args(int first_dim, input_params& ip,int** pipes){
 	int strlen_num;
 	int pipe_loc;
 	int data_len = strlen(ip.data_dir); //For copying over directory names.
-	int dim_len = strlen(ip.dim_dir);
+	int dim_len = strlen(ip.dim_file);
 	char*** child_args = (char***)malloc(sizeof(char**)*ip.processes);
 	for(int i = 0; i < ip.processes; i++){
 		pipe_loc = 0; 			
@@ -105,7 +105,7 @@ char*** make_args(int first_dim, input_params& ip,int** pipes){
 			} else if(j == 6){
 				strlen_num = len_num(first_dim + i);
 				child_args[i][j] = (char*)malloc(sizeof(char)*(data_len + 1 + dim_len + strlen_num + 1));
-				sprintf(child_args[i][j], "%s/%s%d", ip.data_dir, ip.dim_dir, first_dim + i);    
+				sprintf(child_args[i][j], "%s/%s%d", ip.data_dir, ip.dim_file, first_dim + i);    
 			} else if (ip.simulation_args[j] == NULL){
 				child_args[i][j] = NULL;
 			} else{

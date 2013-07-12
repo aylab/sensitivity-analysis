@@ -125,7 +125,7 @@ void accept_params (int num_args, char** args, input_params& ip) {
 	ip.simulation_args[0] = ip.sim_exec;
 	ip.simulation_args[1] = (char*)"--pipe-in";
 	ip.simulation_args[3] = (char*)"--pipe-out";
-	ip.simulation_args[5] = (char*)"--print-cons";
+	ip.simulation_args[5] = (char*)"--print-osc-features";
 	ip.simulation_args[sim_args_index] = NULL;
 	//Initializing the random seed.
 	init_seed(ip);

@@ -50,7 +50,7 @@ struct input_params{
 	char* nominal_file;
 	char* verbose_file;
 	char* data_dir;
-	char* dim_dir;
+	char*dim_file;
 	char* sim_exec;
 	char** simulation_args;
 	char* failure;
@@ -68,7 +68,7 @@ struct input_params{
 		nominal_file = (char*)"nominal.params";
 		verbose_file = (char*)"verbose.txt";
 		data_dir = (char*)"sim-data";
-		dim_dir = (char*)"dim-";		
+		dim_file = (char*)"dim_";		
 		sim_exec = (char*) "../sogen-deterministic/deterministic";
 		simulation_args = NULL;
 		null_stream = NULL;
@@ -125,5 +125,5 @@ void make_dir(char*);
 
 #define is_num(c) (('1' <= c && c <= '9') || (c == '0') || (c == '.'))
 #define len_num(num) ( log10(num+1)+1 )
-
+#define abs(num) ( ( num < 0 ? -1*num : num) )
 #endif
