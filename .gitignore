@@ -17,3 +17,7 @@
 
 #Executable
 *s_a
+
+#Something annoying
+*.sconsign*
+
