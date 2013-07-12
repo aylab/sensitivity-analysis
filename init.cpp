@@ -69,11 +69,25 @@ void accept_params (int num_args, char** args, input_params& ip) {
 				if (ip.random_seed < 1) {
 					usage("You must use a postivie, non-zero integer for the ranodm seed you would like to perform.", 0);
 				}
-			} else if (strcmp(option, "-p") == 0 || strcmp(option, "--processes") == 0) {
+			} else if (strcmp(option, "-l") == 0 || strcmp(option, "--processes") == 0) {
 				ensure_nonempty(option, value);
 				ip.processes = atoi(value);
 				if (ip.processes < 1) {
 					usage("I doubt you want a zero or negative amount of processes to run.", 0);
+				}
+			} else if (strcmp(option, "-P") == 0 || strcmp(option, "--points") == 0) {
+				ensure_nonempty(option, value);
+				ip.points = atoi(value);
+				if (ip.points < 1) {
+					usage("I doubt you want a zero or negative amount of points to analyze.", 0);
+				}
+			} else if (strcmp(option, "-p") == 0 || strcmp(option, "--percentage") == 0) {
+				ensure_nonempty(option, value);
+				ip.percentage = atof(value);
+				if (ip.percentage == 0) {
+					usage("I doubt you want a zero percent perturbation.", 0);
+				} else if(ip.percentage < 0){
+					ip.percentage = -1*ip.percentage;
 				}
 			} else if (strcmp(option, "-q") == 0 || strcmp(option, "--quiet") == 0) {
 				ip.quiet = true;
@@ -136,7 +150,35 @@ void cout_switch(bool turn_off, input_params& ip){
 }
 
 void usage(const char* message, int error){
-	cerr << message << "\n\tError: " << error << endl;
+	cout << message << endl;
+	if(error){
+		cerr << "\tError: " << error << endl;
+	}
+	cout << "Usage: [-option [value]]. . . [--option [value]]. . ." << endl;	
+	cout << "-n, --nominal-file   [filename]   : the relative name of the file from which the nominal parameter set should\
+                                                 be read, default=nominal.params" << endl;
+	cout << "-d, --data-dir       [filename]   : the relative name of the directory to which the raw simulation data\
+                                                 will be stored, default=sim-data" << endl;
+	cout << "-v, --verbose-file   [filename]   : the relative name of the file to which verbose information will be written,\
+                                                 default=none" << endl;
+	cout << "-p, --percentage     [float]      : the maximum percentage by which nominal values will be perturbed (+/-),\
+	                                             default=5" << endl;
+	cout << "-P, --points         [int]        : the number of data points to collect on either side (+/-) of the nominal set,\
+                                                 default=10" << endl; 
+	cout << "-s, --random-seed    [int]        : the postivie integer value to be used as a seed in the random\
+                                                 number generation for simulations, default is randomly generated\
+                                                 based on system time and process id" << endl;
+	cout << "-l, --processes      [int]        : the number of processes to which parameter sets can be sent for\
+                                                 parallel data collection, default=2" << endl;
+	cout << "-q, --quiet          [N/A]        : include this to turn off printing messages to standard output,\
+                                                 disabled by default" << endl;
+	cout << "-e, --exec           [path]       : if included, the simulations are run by executing the program\
+                                                 specified by path. The path argument should be the full path,\
+                                                 but the default uses the relative path: \"../sogen-deterministic/deterministic\"." << endl;
+	cout << "-a, --sim-args       [args]       : if included, any argument after this will be passed to the simulation\
+                                                 program. If -h is one of these arguments, the simulation help will be\
+                                                 printed and the program will not run." << endl;
+	cout << "-h, --help           [N/A]        : print out this help menu." << endl; 			
 	exit(error);
 }
 

@@ -30,7 +30,7 @@ int main(int argc, char** argv){
 	//Read in the nominal parameter set from file.
 	read_nominal(ip);
 	if(ip.nominal == NULL) usage("Could not read nominal parameter set.", 0);
-	
+
 	//Initializes the struct that holds sets that will be simulated and fills it in with the appropriate values.
 	sim_set ss(ip);
 	

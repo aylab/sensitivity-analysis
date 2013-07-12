@@ -45,7 +45,6 @@ int count_params(FILE* file_pointer){
 		}
 		in_num = is_num(c);
 	}
-	cout << "I am a plane:\n"; 
 	rewind(file_pointer);
 	return count;	
 }
@@ -121,9 +120,11 @@ char*** make_args(int first_dim, input_params& ip,int** pipes){
 void del_args(input_params& ip, char*** child_args){
 	for(int i = 0; i < ip.processes; i++){
 		for(int j = 0; j < ip.sim_args_num; j++){
-			if(child_args[i][j] != NULL) 
+			if(child_args[i][j] != NULL)
+				cout << child_args[i][j] << " "; 
 				free(child_args[i][j]);	
 		}
+		cout << endl;
 		free(child_args[i]);	
 	}
 	free(child_args);
@@ -184,7 +185,7 @@ void simulate_samples(int first_dim, input_params& ip, sim_set& ss ){
 		int status = 0; 
 		waitpid(simpids[i], &status, WUNTRACED);
 
-		if(WIFEXITED(status)){
+		if(WIFEXITED(status) && WEXITSTATUS(status) != 6){
 			cout << "Child (" << simpids[i] << ") exited properly with status: " << WEXITSTATUS(status) << "\n";	
 		} else if (ip.failure == NULL){
 			if(WIFSIGNALED(status)){
