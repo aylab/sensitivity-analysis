@@ -37,6 +37,9 @@ int main(int argc, char** argv){
 	//Send out the sets that need to be simulated to get data stored in files.
 	generate_data(ip, ss);
 	
+	//Ready to calculate the sensitivity!
+	sensitivity(ip, ss);
+	
 	if(ip.failure != NULL){
 		usage(ip.failure, ip.failcode);
 	}
@@ -57,10 +60,35 @@ void generate_data(input_params& ip, sim_set& ss){
 	ip.processes = proc;
 }
 
+void sensitivity(input_params& ip, sim_set& ss){
+
+}
+
+/*
+If Y is the output function (amplitude, period, etc), p_ j is the j’th parameter, and p’ is the nominal parameter set, then non-dimensional sensitivity S_ j can be evaluated by:
+	S_ j = (p’_ j/Y(p’)) * (∆Y(p’)/∆p_j)
+
+Here, ∆ refers to taking the delta of a partial derivative, but is approximate because we are evaluating the output at finitely many points.
+
+To normalize the sensitivities across the parameter set, for m parameters, the following gives a quantitative measure of ranking and allows comparisons over time (Taylor et al):
+
+	N_ j = (S_ j) / (m j =1|S_ j|)
+
+Both of the above can be applied to time-dependent output. The sensitivity at a particular time point will be dependent on the evaluation of the output function at that time point. 
+
+The sloppy-stiff method allows us to see the change when multiple parameters are varied. If the function Y has multiple outputs, let Y_i be the i’th output. Let V be a vector of parameter values (like a bunch of p’s from above) and V’ the nominal parameter set. Then the cost function X2 when there are n output variables is evaluated by:
+X2(V) = n i =1[ (w_i / 2T) ∫0T [ (Y_i(V, t) – Y_i(V’,t))/q_i]2 dt ]
+
+where w and q are weighting terms; w might be used to de/emphasize the influence of particular output; q might be the maximum over the time period to normalize values to a range of zero to one.  Note that for an output function with only one output that is not time-dependent, the evaluation reduces to:
+
+	X2(V) = w * [ ( Y(V) – Y(V’) ) / q ]2 
+ 
+We may calculate the influence of different parameters on period with this equation, because period is a single output we do not expect to change. For the traveling wave extension we will probably evaluate it at discrete times/levels of Hes6, but we could look at the time average for a simulation as well.
+
+	Once the method of evaluation is clear, performing LSA on large parameter sets can create global sensitivity values. The evaluation is done by using each parameter set as the nominal value (V’) and calculating the sensitivity when varying a particular parameter/subset of parameters. Compiling the results can be done in numerous ways, and we have to decide which is most representative of our system. Averaging the sensitivity with respect to a particular parameter is simplest, but not very representative. Figure 5b from Taylor et al. provides a good demonstration for single-parameter sensitivity: each parameter has its own curve plotted on a Number of points (parameter values) vs. Normalized sensitivity graph. A figure like this would be a good inclusion in our analysis. 
 
 
-
-
+*/
 
 
 

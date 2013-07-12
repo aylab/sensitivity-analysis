@@ -121,10 +121,10 @@ void del_args(input_params& ip, char*** child_args){
 	for(int i = 0; i < ip.processes; i++){
 		for(int j = 0; j < ip.sim_args_num; j++){
 			if(child_args[i][j] != NULL)
-				cout << child_args[i][j] << " "; 
+				//cout << child_args[i][j] << " "; 
 				free(child_args[i][j]);	
 		}
-		cout << endl;
+		//cout << endl;
 		free(child_args[i]);	
 	}
 	free(child_args);
@@ -176,9 +176,17 @@ void simulate_samples(int first_dim, input_params& ip, sim_set& ss ){
 
     // Parent gives sets and processes results. Writes params to simpipe[1], reads results from simpipe[0].
     for(int i = 0; i < ip.processes; i++){
-		write_info(pipes[i][1], ss);
-		write_dim_sets(pipes[i][1], first_dim + i, ip.nominal, ss);
+		if(!(write_info(pipes[i][1], ss) && write_dim_sets(pipes[i][1], first_dim + i, ip.nominal, ss))){
+			ip.failure = strdup("!!! Failure: could not write to pipe !!!");
+			ip.failcode = pipes[i][1];
+			break;
+		}
 	}
+	if(ip.failure != NULL){
+    	del_args(ip,child_args);
+		del_pipes(ip.processes, pipes, true);
+		return;  
+    }
 
 	//Loop for waiting on children and checking their exit status.		
     for(int i = 0; i < ip.processes; i++){ 
@@ -218,25 +226,34 @@ void simulate_samples(int first_dim, input_params& ip, sim_set& ss ){
 	del_pipes(ip.processes, pipes, true); 
 }
 
-void write_info(int fd, sim_set& ss){
+bool write_info(int fd, sim_set& ss){
 	//Send the number of parameters that are used for each simulation .
 	char* int_str = (char*)malloc(sizeof(int));
 	memcpy(int_str, &ss.dims, sizeof(int));
-	write(fd, int_str, sizeof(int));
- 
+	if(sizeof(int) != write(fd, int_str, sizeof(int)) ){
+		free (int_str);
+		return false;
+ 	}
 	//Send number of sets that will be sent.
 	memcpy(int_str,  &ss.sets_per_dim, sizeof(int)); 
-	write(fd, int_str, sizeof(int)); 
-
+	if (sizeof(int) != write(fd, int_str, sizeof(int)) ){
+		free(int_str);
+		return false;
+	} 
+	free(int_str);
+	return true;
 }
 
-void write_dim_sets(int fd, int dim, double* nominal, sim_set& ss){
+bool write_dim_sets(int fd, int dim, double* nominal, sim_set& ss){
 	double nom_hold = nominal[dim];
 	double* inserts = ss.dim_sets[dim];
+	bool good_write = true;
 	for(int i = 0; i < ss.sets_per_dim; i++){
 		nominal[dim] = inserts[i];
-		write(fd, nominal, sizeof(double)*ss.dims);
+		good_write = (int)sizeof(double)*ss.dims == write(fd, nominal, sizeof(double)*ss.dims);
+		if(!good_write) break;
 	}
 	nominal[dim] = nom_hold;
+	return good_write;
 }
 
