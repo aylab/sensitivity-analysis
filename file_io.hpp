@@ -32,6 +32,7 @@ char*** make_all_args(int , input_params& ,int** );
 void make_arg(int first_dim, int sim_args_num, int* pipes, char* dir_name, char* dim_name, char** simulation_args, char** destination);
 
 void del_args(int, int, char*** );
+void del_arg(int sim_args_num, char** arg);
 void segs_per_sim(int , int , int* );
 void simulate_samples(int , input_params& , sim_set&  );
 bool write_info(int , int, int);

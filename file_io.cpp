@@ -141,17 +141,18 @@ void make_arg(int dim_num, int sim_args_num, int* pipes, char* dir_name, char* d
 /*	Deleting the arguments that were used.*/
 void del_args(int processes, int sim_args_num, char*** child_args){
 	for(int i = 0; i < processes; i++){
-		for(int j = 0; j < sim_args_num; j++){
-			if(child_args[i][j] != NULL)
-				cout << child_args[i][j] << " "; 
-				free(child_args[i][j]);	
-		}
-		cout << endl;
-		free(child_args[i]);	
+		del_arg(sim_args_num, child_args[i]);
 	}
 	free(child_args);
 }
 
+void del_arg(int sim_args_num, char** arg){
+	for(int j = 0; j < sim_args_num; j++){
+		if(arg[j] != NULL)
+			free(arg[j]);	
+		}
+	free(arg);
+}
 /*	Determines how many parameter sets shoudl be passed to each child by distributing them evenly. If the
 number of children does not divide the number of sets, the remainder r is distributed among the first r children.*/
 void segs_per_sim(int segments, int processes, int* distribution){
@@ -236,7 +237,7 @@ void simulate_nominal(input_params& ip){
 	simpid = fork();
 	if (simpid == -1) {
 		ip.failure = strdup("!!! Failure: could not fork !!!\n");
-		del_args(1, ip.sim_args_num, &child_args);
+		del_arg( ip.sim_args_num, child_args);
 		del_pipes(1, &pipes, true);
 		
 	}
@@ -247,7 +248,7 @@ void simulate_nominal(input_params& ip){
 			ip.failure = (char*)malloc(sizeof(char)*(strlen(fail_prefix)+strlen(ip.sim_exec) + 5 + 1));
 			sprintf(ip.failure, "%s%s !!!\n", fail_prefix, ip.sim_exec);
 			
-			del_args(1, ip.sim_args_num, &child_args);
+			del_arg( ip.sim_args_num, child_args);
 			del_pipes(1, &pipes, true);
 			return;  
 		}
@@ -256,17 +257,17 @@ void simulate_nominal(input_params& ip){
 	if(!write_nominal(ip, pipes[1])){
 		ip.failure = strdup("!!! Failure: could not write to pipe !!!");
 		ip.failcode = pipes[1];
-    	del_args(1, ip.sim_args_num, &child_args);
+    	del_arg( ip.sim_args_num, child_args);
 		del_pipes(1, &pipes, true);
 		return;  
     }
 
 	//Waiting on child and checking their exit status.		
-	int status = 0; 
+	int status; 
 	waitpid(simpid, &status, WUNTRACED);
 	check_status(status, simpid, &ip.failcode, ip.failure);
 	//Children are done, so we know we can delete the argument array.
-	del_args(1, ip.sim_args_num, &child_args);
+	del_arg( ip.sim_args_num, child_args);
 	del_pipes(1, &pipes, true);
 	return;
 
