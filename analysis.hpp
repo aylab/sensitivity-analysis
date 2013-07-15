@@ -20,5 +20,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 void generate_data(input_params&, sim_set&);
-
+void sensitivity(input_params& ip, sim_set& ss);
 #endif

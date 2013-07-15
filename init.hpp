@@ -93,7 +93,7 @@ struct sim_set{
 	sim_set(input_params& ip){
 		dims = ip.dims;
 		points = ip.points;
-		sets_per_dim = 2*ip.points + 1;
+		sets_per_dim = 2*ip.points;
 		step_per_set = (ip.percentage /( (double)100*ip.points ));
 		
 		dim_sets = new double*[dims];
@@ -109,8 +109,13 @@ struct sim_set{
 	void fill(double* nominal){
 		for(int i = 0; i < dims; i++){
 			dim_sets[i] = new double[sets_per_dim];
-			for(int j; j < sets_per_dim; j++){
+			int j = 0;
+			for(; j < points; j++){
 				dim_sets[i][j] = nominal[i] * ((double)1 + step_per_set*(double)(j - points));
+			}
+			j++;
+			for(; j < sets_per_dim + 1; j++){
+				dim_sets[i][j-1] = nominal[i] * ((double)1 + step_per_set*(double)(j - points));
 			}
 		}
 	}

@@ -61,7 +61,7 @@ void generate_data(input_params& ip, sim_set& ss){
 }
 
 void sensitivity(input_params& ip, sim_set& ss){
-
+	return;
 }
 
 /*
