@@ -47,9 +47,12 @@ int main(int argc, char** argv){
 }
 
 void generate_data(input_params& ip, sim_set& ss){
+	//Run the simulation on the nominal set 
+	simulate_nominal(ip);
+	
 	//Dispatch the sets for perturbations of each dimension to the simulation program.
 	int first_dim = 0;
-	int proc = ip.processes;
+	int proc = ip.processes; //Temporarily holds on to the number of processes set for the input params so that the struct can have its value modified.
 	for(; first_dim < ip.dims; first_dim += proc){
 		if( (ip.dims - first_dim) < proc ){
 			ip.processes = ip.dims - first_dim;
@@ -60,7 +63,10 @@ void generate_data(input_params& ip, sim_set& ss){
 	ip.processes = proc;
 }
 
+/*	This function calculates the local sensitivity around the the nominal parameter set with respect to
+each parameter. It then normalizes the sensitivities based on their fraction of the total sensitivity of the system.*/
 void sensitivity(input_params& ip, sim_set& ss){
+	
 	return;
 }
 

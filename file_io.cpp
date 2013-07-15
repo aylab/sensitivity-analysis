@@ -87,14 +87,12 @@ void del_pipes(int processes, int** pipes, bool close_write){
 
 /*	Mallocs an array of char** that are needed for passing arguments to the execv call for each child simulation. 
 It fills in the appropriate argument space with the file descriptor of the pipe the children will read/write with.*/
-char*** make_args(int first_dim, input_params& ip,int** pipes){
-	int strlen_num;
-	int pipe_loc;
-	int data_len = strlen(ip.data_dir); //For copying over directory names.
-	int dim_len = strlen(ip.dim_file);
+char*** make_all_args(int first_dim, input_params& ip,int** pipes){
+
 	char*** child_args = (char***)malloc(sizeof(char**)*ip.processes);
 	for(int i = 0; i < ip.processes; i++){
-		pipe_loc = 0; 			
+		make_arg(first_dim+i, ip.sim_args_num, pipes[i], ip.data_dir, ip.dim_file, ip.simulation_args, child_args[i]);
+		/*pipe_loc = 0; 			
 		child_args[i] = (char**)malloc(sizeof(char*)*ip.sim_args_num);
 		for(int j = 0; j < ip.sim_args_num; j++){
 			if(j == 2 || j == 4){
@@ -111,15 +109,40 @@ char*** make_args(int first_dim, input_params& ip,int** pipes){
 			} else{
 				child_args[i][j] = strdup((const char*) ip.simulation_args[j]);
 			}
-		}
+		}*/
 	}
 	return child_args;
 }
 
+void make_arg(int dim_num, int sim_args_num, int* pipes, char* dir_name, char* dim_name, char** simulation_args, char** destination){
+	int pipe_loc = 0;
+	int data_len = strlen(dir_name);
+	int dim_len = strlen(dim_name);	
+	int strlen_num;	
+	destination = (char**)malloc(sizeof(char*)*sim_args_num);
+	for(int j = 0; j < sim_args_num; j++){
+		if(j == 2 || j == 4){
+			strlen_num = len_num( pipes[pipe_loc] );
+			destination[j]= (char*)malloc(sizeof(char)*(strlen_num+1));
+			sprintf(destination[j], "%d", pipes[pipe_loc]);
+			pipe_loc++;
+		} else if(j == 6){
+			strlen_num = len_num(dim_num);
+			destination[j] = (char*)malloc(sizeof(char)*(data_len + 1 + dim_len + strlen_num + 1));
+			sprintf(destination[j], "%s/%s%d", dir_name, dim_name, dim_num);    
+		} else if (simulation_args[j] == NULL){
+			destination[j] = NULL;
+		} else{
+			destination[j] = strdup((const char*) simulation_args[j]);
+		}
+	}
+
+}
+
 /*	Deleting the arguments that were used.*/
-void del_args(input_params& ip, char*** child_args){
-	for(int i = 0; i < ip.processes; i++){
-		for(int j = 0; j < ip.sim_args_num; j++){
+void del_args(int processes, int sim_args_num, char*** child_args){
+	for(int i = 0; i < processes; i++){
+		for(int j = 0; j < sim_args_num; j++){
 			if(child_args[i][j] != NULL)
 				//cout << child_args[i][j] << " "; 
 				free(child_args[i][j]);	
@@ -149,7 +172,7 @@ void simulate_samples(int first_dim, input_params& ip, sim_set& ss ){
     	ip.failure = strdup("!!! Failure: could not pipe !!!\n");
     	return;
     }
-    char*** child_args = make_args(first_dim, ip, pipes);
+    char*** child_args = make_all_args(first_dim, ip, pipes);
     
     pid_t simpids[ip.processes];
     for(int i = 0; i < ip.processes; i++){
@@ -169,21 +192,21 @@ void simulate_samples(int first_dim, input_params& ip, sim_set& ss ){
 		}   	
     }
     if(ip.failure != NULL){
-    	del_args(ip,child_args);
+    	del_args(ip.processes, ip.sim_args_num,child_args);
 		del_pipes(ip.processes, pipes, true);
 		return;  
     }
 
     // Parent gives sets and processes results. Writes params to simpipe[1], reads results from simpipe[0].
     for(int i = 0; i < ip.processes; i++){
-		if(!(write_info(pipes[i][1], ss) && write_dim_sets(pipes[i][1], first_dim + i, ip.nominal, ss))){
+		if(!(write_info(pipes[i][1], ss.dims, ss.sets_per_dim) && write_dim_sets(pipes[i][1], first_dim + i, ip.nominal, ss))){
 			ip.failure = strdup("!!! Failure: could not write to pipe !!!");
 			ip.failcode = pipes[i][1];
 			break;
 		}
 	}
 	if(ip.failure != NULL){
-    	del_args(ip,child_args);
+    	del_args(ip.processes, ip.sim_args_num,child_args);
 		del_pipes(ip.processes, pipes, true);
 		return;  
     }
@@ -192,50 +215,105 @@ void simulate_samples(int first_dim, input_params& ip, sim_set& ss ){
     for(int i = 0; i < ip.processes; i++){ 
 		int status = 0; 
 		waitpid(simpids[i], &status, WUNTRACED);
-
-		if(WIFEXITED(status) && WEXITSTATUS(status) != 6){
-			cout << "Child (" << simpids[i] << ") exited properly with status: " << WEXITSTATUS(status) << "\n";	
-		} else if (ip.failure == NULL){
-			if(WIFSIGNALED(status)){
-				ip.failcode = WTERMSIG(status);
-				#ifdef WCOREDUMP
-				if(WCOREDUMP(status)){
-					ip.failure = strdup("!!! Failure: child experienced core dump !!!");
-				} else{
-					ip.failure = strdup("!!! Failure: child received signal stop !!!");
-				}
-				#else
-					ip.failure = strdup("!!! Failure: child received some kind of signal. Exact status is uncertain because your OS does not support core dump reporting.\n");
-				#endif
-			} else if(WIFSTOPPED(status)){
-				ip.failure = strdup("!!! Failure: child stopped by delivery of a signal !!!");
-				ip.failcode = WSTOPSIG(status);
-			} else{
-				ip.failure = strdup("!!! Failure: child process did not exit properly !!!");
-				ip.failcode = simpids[i];
-			}
-		}
+		check_status(status, simpids[i], &ip.failcode, ip.failure);
 	}
 	//Children are done, so we know we can delete the argument array.
-	del_args(ip,child_args);
-	if(ip.failure != NULL){
-		del_pipes(ip.processes, pipes, true);   
-		return ; 
-	}
-
+	del_args(ip.processes, ip.sim_args_num,child_args);
 	del_pipes(ip.processes, pipes, true); 
 }
 
-bool write_info(int fd, sim_set& ss){
+void simulate_nominal(input_params& ip){
+	int* pipes = new int[2];
+	if (pipe(pipes) == -1) {
+		delete[] pipes;
+		ip.failure = strdup("!!! Failure: could not pipe !!!\n");
+		return;
+	}
+	char** child_args;
+	make_arg(0, ip.sim_args_num, pipes, ip.data_dir, (char*)"nominal", ip.simulation_args, child_args);
+
+    pid_t simpid;
+	simpid = fork();
+	if (simpid == -1) {
+		ip.failure = strdup("!!! Failure: could not fork !!!\n");
+		del_args(1, ip.sim_args_num, &child_args);
+		del_pipes(1, &pipes, true);
+		
+	}
+    //Child runs simulation.  
+	if (simpid == 0) {  
+		if (-1 == execv(ip.sim_exec, child_args)){
+			const char* fail_prefix = "!!! Failure: with nominal set, could not exec ";
+			ip.failure = (char*)malloc(sizeof(char)*(strlen(fail_prefix)+strlen(ip.sim_exec) + 5 + 1));
+			sprintf(ip.failure, "%s%s !!!\n", fail_prefix, ip.sim_exec);
+			
+			del_args(1, ip.sim_args_num, &child_args);
+			del_pipes(1, &pipes, true);
+			return;  
+		}
+	}
+    // Parent gives sets and processes results. 
+	if(!write_nominal(ip, pipes[1])){
+		ip.failure = strdup("!!! Failure: could not write to pipe !!!");
+		ip.failcode = pipes[1];
+    	del_args(1, ip.sim_args_num, &child_args);
+		del_pipes(1, &pipes, true);
+		return;  
+    }
+
+	//Waiting on child and checking their exit status.		
+	int status = 0; 
+	waitpid(simpid, &status, WUNTRACED);
+	check_status(status, simpid, &ip.failcode, ip.failure);
+	//Children are done, so we know we can delete the argument array.
+	del_args(1, ip.sim_args_num, &child_args);
+	del_pipes(1, &pipes, true);
+	return;
+
+}
+
+bool check_status(int status, int simpid, int* failcode, char* failure){
+	if(WIFEXITED(status) && WEXITSTATUS(status) != 6){
+		cout << "Child (" << simpid << ") exited properly with status: " << WEXITSTATUS(status) << "\n";
+		return true;	
+	} else{
+		if(WIFSIGNALED(status)){
+			*failcode = WTERMSIG(status);
+			#ifdef WCOREDUMP
+			if(WCOREDUMP(status)){
+				failure = strdup("!!! Failure: child experienced core dump !!!");
+			} else{
+				failure = strdup("!!! Failure: child received signal stop !!!");
+			}
+			#else
+				failure = strdup("!!! Failure: child received some kind of signal. Exact status is uncertain because your OS does not support core dump reporting.\n");
+			#endif
+		} else if(WIFSTOPPED(status)){
+			failure = strdup("!!! Failure: child stopped by delivery of a signal !!!");
+			*failcode = WSTOPSIG(status);
+		} else{
+			failure = strdup("!!! Failure: child process did not exit properly !!!");
+			*failcode = simpid;
+		}
+	}
+	return false;
+}
+
+bool write_nominal(input_params& ip, int fd){
+	if(!write_info(fd, ip.dims, 1)) return false;
+	return ((int)sizeof(double)*ip.dims == write(fd, ip.nominal, sizeof(double)*ip.dims) );
+}
+
+bool write_info(int fd, int dims, int sets_per_dim){
 	//Send the number of parameters that are used for each simulation .
 	char* int_str = (char*)malloc(sizeof(int));
-	memcpy(int_str, &ss.dims, sizeof(int));
+	memcpy(int_str, &dims, sizeof(int));
 	if(sizeof(int) != write(fd, int_str, sizeof(int)) ){
 		free (int_str);
 		return false;
  	}
 	//Send number of sets that will be sent.
-	memcpy(int_str,  &ss.sets_per_dim, sizeof(int)); 
+	memcpy(int_str,  &sets_per_dim, sizeof(int)); 
 	if (sizeof(int) != write(fd, int_str, sizeof(int)) ){
 		free(int_str);
 		return false;
