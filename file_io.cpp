@@ -91,9 +91,9 @@ char*** make_all_args(int first_dim, input_params& ip,int** pipes){
 
 	char*** child_args = (char***)malloc(sizeof(char**)*ip.processes);
 	for(int i = 0; i < ip.processes; i++){
+		child_args[i] = (char**)malloc(sizeof(char*)*ip.sim_args_num);
 		make_arg(first_dim+i, ip.sim_args_num, pipes[i], ip.data_dir, ip.dim_file, ip.simulation_args, child_args[i]);
 		/*pipe_loc = 0; 			
-		child_args[i] = (char**)malloc(sizeof(char*)*ip.sim_args_num);
 		for(int j = 0; j < ip.sim_args_num; j++){
 			if(j == 2 || j == 4){
 				strlen_num = len_num( pipes[i][pipe_loc] );
@@ -119,7 +119,6 @@ void make_arg(int dim_num, int sim_args_num, int* pipes, char* dir_name, char* d
 	int data_len = strlen(dir_name);
 	int dim_len = strlen(dim_name);	
 	int strlen_num;	
-	destination = (char**)malloc(sizeof(char*)*sim_args_num);
 	for(int j = 0; j < sim_args_num; j++){
 		if(j == 2 || j == 4){
 			strlen_num = len_num( pipes[pipe_loc] );
@@ -144,10 +143,10 @@ void del_args(int processes, int sim_args_num, char*** child_args){
 	for(int i = 0; i < processes; i++){
 		for(int j = 0; j < sim_args_num; j++){
 			if(child_args[i][j] != NULL)
-				//cout << child_args[i][j] << " "; 
+				cout << child_args[i][j] << " "; 
 				free(child_args[i][j]);	
 		}
-		//cout << endl;
+		cout << endl;
 		free(child_args[i]);	
 	}
 	free(child_args);
@@ -182,7 +181,7 @@ void simulate_samples(int first_dim, input_params& ip, sim_set& ss ){
        		break;
         }
         //Child runs simulation.  
-		if (simpids[i] == 0) {  
+		if (simpids[i] == 0) {
 			if (-1 == execv(ip.sim_exec, child_args[i])){
 				const char* fail_prefix = "!!! Failure: could not exec ";
 				ip.failure = (char*)malloc(sizeof(char)*(strlen(fail_prefix)+strlen(ip.sim_exec) + 5 + 1));
@@ -191,6 +190,7 @@ void simulate_samples(int first_dim, input_params& ip, sim_set& ss ){
 			}
 		}   	
     }
+    
     if(ip.failure != NULL){
     	del_args(ip.processes, ip.sim_args_num,child_args);
 		del_pipes(ip.processes, pipes, true);
@@ -229,7 +229,7 @@ void simulate_nominal(input_params& ip){
 		ip.failure = strdup("!!! Failure: could not pipe !!!\n");
 		return;
 	}
-	char** child_args;
+	char** child_args = (char**)malloc(sizeof(char*)*ip.sim_args_num);
 	make_arg(0, ip.sim_args_num, pipes, ip.data_dir, (char*)"nominal", ip.simulation_args, child_args);
 
     pid_t simpid;
