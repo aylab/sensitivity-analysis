@@ -48,7 +48,7 @@ int main(int argc, char** argv){
 
 void generate_data(input_params& ip, sim_set& ss){
 	//Run the simulation on the nominal set 
-	simulate_nominal(ip);
+	//simulate_nominal(ip);
 	
 	//Dispatch the sets for perturbations of each dimension to the simulation program.
 	int first_dim = 0;
