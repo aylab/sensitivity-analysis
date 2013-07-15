@@ -63,7 +63,7 @@ struct input_params{
 		sim_args = false;
 	 	dims= 0;
 	 	percentage = 5;
-	 	points = 10;
+	 	points = 2;
 	 	processes = 2;
 		nominal_file = (char*)"nominal.params";
 		verbose_file = (char*)"verbose.txt";
