@@ -95,9 +95,9 @@ void accept_params (int num_args, char** args, input_params& ip) {
 				i--;
 			} else if (strcmp(option, "-a") == 0 || strcmp(option, "--sim-args") == 0) {
 				ip.sim_args = true;
-				ip.simulation_args = new char*[num_args - i  + 7];
-				ip.sim_args_num = num_args - i  + 7;
-				sim_args_index = 7;
+				ip.simulation_args = new char*[num_args - i  + 9];
+				ip.sim_args_num = num_args - i  + 9;
+				sim_args_index = 9;
 				i--;
 			} else if (strcmp(option, "-h") == 0 || strcmp(option, "--help") == 0) {
 				const char* mess = "Welcome to the help options.\n Possible command line arguments are:\n"; 
@@ -117,19 +117,22 @@ void accept_params (int num_args, char** args, input_params& ip) {
 	//Making the directory in which all of the simulation data will be stored.
 	make_dir(ip.data_dir);
 	
+	//Initializing the random seed.
+	init_seed(ip);
+	
 	//Initializing some arguments that are always passed into the simulation program.
 	if(!ip.sim_args){
-		ip.simulation_args = new char*[8];
-		ip.sim_args_num = 8;
-		sim_args_index = 7;
+		ip.simulation_args = new char*[10];
+		ip.sim_args_num = 10;
+		sim_args_index = 9;
 	}	
 	ip.simulation_args[0] = ip.sim_exec;
 	ip.simulation_args[1] = (char*)"--pipe-in";
 	ip.simulation_args[3] = (char*)"--pipe-out";
 	ip.simulation_args[5] = (char*)"--print-osc-features";
+	ip.simulation_args[7] = (char*)"-s";
 	ip.simulation_args[sim_args_index] = NULL;
-	//Initializing the random seed.
-	//init_seed(ip);
+	
 }
 
 void ensure_nonempty (const char* flag, const char* arg) {

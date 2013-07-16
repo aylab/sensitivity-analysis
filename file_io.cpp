@@ -62,28 +62,34 @@ bool fill_doubles(FILE* file_pointer, int param_num, double* nominal){
 	return true;
 }
 
-double** load_output(int num_values, int* num_types, char* file_name, char*** hold_names){
+double** load_output(int num_values, int* num_types, char* file_name, char*** output_names){
 	FILE* file_pointer = fopen(file_name, "r");
 	//Count how many types of output there are, and fill keep track of their (possibly partial) names.
 	int output_types = 0;
-	char** output_names = new char*[100];
-	output_names[0] = new char[50];
+	bool name_store = (output_names != NULL);
+	if(name_store){
+		(*output_names) = new char*[100];
+		(*output_names)[0] = new char[50];
+	}
 	int o_n_index = 0;
+	fscanf(file_pointer, "set,"); // skip the first column containing set number
 	for(char c = ' '; c != '\n'; fscanf(file_pointer, "%c", &c)){
 		if( c == ','){
 			output_types ++;
-			output_names[output_types] = new char[50];
+			if(name_store) (*output_names)[output_types] = new char[50];
 			o_n_index = 0;
 		} else{
 			o_n_index ++;
-			if (o_n_index < 50) 
-				output_names[output_types][o_n_index] = c;
+			if (o_n_index < 50 && name_store) 
+				(*output_names)[output_types][o_n_index] = c;
 		}
 	}
+	if(name_store) delete[] (*output_names)[output_types];
 	*num_types = output_types;
 	//Initialize the arrays of values for each output type, fill them 
 	double** out= new double*[output_types];
 	for(int i = 0; i < num_values; i++){
+		fscanf(file_pointer, "%*d,"); // skip the first column containing set number
 		for(int j = 0; j < output_types; j++){
 			if( i == 0) out[j] = new double[num_values];
 			fscanf(file_pointer, "%lf%*[,;]", out[j] + i);
@@ -91,14 +97,7 @@ double** load_output(int num_values, int* num_types, char* file_name, char*** ho
 		fscanf(file_pointer, "\n");
 	}
 	fclose(file_pointer);
-	if(hold_names == NULL){
-		for(int i = 0; i < output_types; i++){
-			delete[] output_names[i];
-		}
-		delete[] output_names;
-	} else{
-		hold_names[0] = output_names;
-	}
+	
 	return out;
 }
 
@@ -157,29 +156,12 @@ char*** make_all_args(int first_dim, input_params& ip,int** pipes){
 	char*** child_args = (char***)malloc(sizeof(char**)*ip.processes);
 	for(int i = 0; i < ip.processes; i++){
 		child_args[i] = (char**)malloc(sizeof(char*)*ip.sim_args_num);
-		make_arg(first_dim+i, ip.sim_args_num, pipes[i], ip.data_dir, ip.dim_file, ip.simulation_args, child_args[i]);
-		/*pipe_loc = 0; 			
-		for(int j = 0; j < ip.sim_args_num; j++){
-			if(j == 2 || j == 4){
-				strlen_num = len_num( pipes[i][pipe_loc] );
-				child_args[i][j]= (char*)malloc(sizeof(char)*(strlen_num+1));
-				sprintf(child_args[i][j], "%d", pipes[i][pipe_loc]);
-				pipe_loc++;
-			} else if(j == 6){
-				strlen_num = len_num(first_dim + i);
-				child_args[i][j] = (char*)malloc(sizeof(char)*(data_len + 1 + dim_len + strlen_num + 1));
-				sprintf(child_args[i][j], "%s/%s%d", ip.data_dir, ip.dim_file, first_dim + i);    
-			} else if (ip.simulation_args[j] == NULL){
-				child_args[i][j] = NULL;
-			} else{
-				child_args[i][j] = strdup((const char*) ip.simulation_args[j]);
-			}
-		}*/
+		make_arg(first_dim+i, ip.sim_args_num, ip.random_seed, pipes[i], ip.data_dir, ip.dim_file, ip.simulation_args, child_args[i]);
 	}
 	return child_args;
 }
 
-void make_arg(int dim_num, int sim_args_num, int* pipes, char* dir_name, char* dim_name, char** simulation_args, char** destination){
+void make_arg(int dim_num, int sim_args_num, int seed, int* pipes, char* dir_name, char* dim_name, char** simulation_args, char** destination){
 	int pipe_loc = 0;
 	int strlen_num;	
 	for(int j = 0; j < sim_args_num; j++){
@@ -190,7 +172,11 @@ void make_arg(int dim_num, int sim_args_num, int* pipes, char* dir_name, char* d
 			pipe_loc++;
 		} else if(j == 6){
 			destination[j] = make_name(dir_name, dim_name, dim_num);  
-		} else if (simulation_args[j] == NULL){
+		} else if(j== 8){
+			strlen_num = len_num( seed );
+			destination[j]= (char*)malloc(sizeof(char)*(strlen_num+1));
+			sprintf(destination[j], "%d", seed);
+		}else if (simulation_args[j] == NULL){
 			destination[j] = NULL;
 		} else{
 			destination[j] = strdup((const char*) simulation_args[j]);
@@ -297,7 +283,7 @@ void simulate_nominal(input_params& ip){
 		return;
 	}
 	char** child_args = (char**)malloc(sizeof(char*)*ip.sim_args_num);
-	make_arg(0, ip.sim_args_num, pipes, ip.data_dir, (char*)"nominal", ip.simulation_args, child_args);
+	make_arg(0, ip.sim_args_num, ip.random_seed, pipes, ip.data_dir, (char*)"nominal", ip.simulation_args, child_args);
 
     pid_t simpid;
 	simpid = fork();

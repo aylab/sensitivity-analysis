@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using namespace std;
 
 int main(int argc, char** argv){
+
 	//Setup the parameter struct based on arguments.
 	input_params ip;
 	accept_params(argc, argv, ip);
@@ -36,15 +37,18 @@ int main(int argc, char** argv){
 	sim_set ss(ip);
 	
 	//Send out the sets that need to be simulated to get data stored in files.
+	cout << "\n ~ Generating data ~ \n";
 	generate_data(ip, ss);
 	
 	//Ready to calculate the LSA_all_dims!
+	cout << "\n ~ Calculating sensitivity ~ \n"; 
 	double** lsa_values = LSA_all_dims(ip, ss);
 	del_double_2d(ip.dims, lsa_values);
 	
 	if(ip.failure != NULL){
 		usage(ip.failure, ip.failcode);
 	}
+	cout << "\n ~ Exiting ~ \n";
 	return 0;
 }
 
@@ -70,8 +74,8 @@ each parameter. It then normalizes the sensitivities based on their fraction of 
 double** LSA_all_dims(input_params& ip, sim_set& ss){
 	int num_dependent = -1;
 	char* file_name = make_name(ip.data_dir, (char*)"nominal", 0);
-	char** output_names;
-	double** nominal_output = load_output(1, &num_dependent, file_name, &output_names);
+	char** output_names[1];
+	double** nominal_output = load_output(1, &num_dependent, file_name, output_names);
 	free(file_name);
 	
 	double** dim_output;
@@ -83,17 +87,16 @@ double** LSA_all_dims(input_params& ip, sim_set& ss){
 		dim_output = load_output(ss.sets_per_dim, &num_dependent,file_name, NULL);
 		free(file_name);
 		// Fills LSA array with derivative values 
-		lsa[i] = fin_dif_one_dim(ss.sets_per_dim, num_dependent, ss.step_per_set, dim_output);
+		lsa[i] = fin_dif_one_dim(ss.sets_per_dim, num_dependent, (ip.nominal[i] * ss.step_per_set), dim_output);
 		// Scale each sensitivity value to remove dimensionalization
 		for (int j = 0; j < num_dependent; j++){
 			lsa[i][j] = non_dim_sense(ip.nominal[i], nominal_output[j][0], lsa[i][j]); 
 		}
 		del_double_2d(num_dependent, dim_output);
 	}
-	write_sensitivity(ip.dims, num_dependent, output_names, lsa, (char*)"LSA.csv");
+	//write_sensitivity(ip.dims, num_dependent, output_names[0], lsa, (char*)"LSA.csv");
 	del_double_2d(num_dependent, nominal_output);
-	del_char_2d(num_dependent, output_names);
-	
+	del_char_2d(num_dependent, output_names[0]);
 	return lsa;
 }
 
@@ -102,6 +105,9 @@ double* fin_dif_one_dim(int accuracy, int num_dependent, double independent_step
 	double* fin_dif = new double[num_dependent];
 	for(int i = 0; i < num_dependent; i++){
 		fdy_fdx( accuracy, independent_step, dependent_values[i], fin_dif + i, &round_error);
+		if(round_error >= independent_step){
+			cout << "Bad round error for output " << i << "\n";
+		}
 	}
 	
 	return fin_dif;
@@ -118,6 +124,19 @@ void del_char_2d(int rows, char** victim){
 		delete[] victim[i];
 	}
 	delete[] victim;
+}
+
+void normalize(int dims, int num_dependent, double** lsa_values){
+	double sum;
+	for( int i = 0; i < num_dependent; i++){
+		sum = 0;
+		for( int j = 0; j < dims; j++){
+			sum += abs(lsa_values[j][i]);
+		}
+		for( int j = 0; j < dims; j++){
+			lsa_values[j][i] /= sum;
+		}
+	}
 }
 /*
 If Y is the output function (amplitude, period, etc), p_ j is the j’th parameter, and p’ is the nominal parameter set, then non-dimensional LSA_all_dims S_ j can be evaluated by:
