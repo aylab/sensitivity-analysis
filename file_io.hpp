@@ -24,7 +24,9 @@ using namespace std;
 void read_nominal(input_params& );
 int count_params(FILE* );
 bool fill_doubles(FILE* , int , double* );
-double** load_output(int, int*, char* );
+double** load_output(int, int*, char*, char*** );
+void write_sensitivity(int , int , char** , double** , char*  );
+
 
 bool make_pipes(int , int** );
 void del_pipes(int , int** , bool );

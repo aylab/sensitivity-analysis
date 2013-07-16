@@ -62,7 +62,7 @@ bool fill_doubles(FILE* file_pointer, int param_num, double* nominal){
 	return true;
 }
 
-double** load_output(int num_values, int* num_types, char* file_name){
+double** load_output(int num_values, int* num_types, char* file_name, char*** hold_names){
 	FILE* file_pointer = fopen(file_name, "r");
 	//Count how many types of output there are, and fill keep track of their (possibly partial) names.
 	int output_types = 0;
@@ -91,7 +91,41 @@ double** load_output(int num_values, int* num_types, char* file_name){
 		fscanf(file_pointer, "\n");
 	}
 	fclose(file_pointer);
+	if(hold_names == NULL){
+		for(int i = 0; i < output_types; i++){
+			delete[] output_names[i];
+		}
+		delete[] output_names;
+	} else{
+		hold_names[0] = output_names;
+	}
 	return out;
+}
+
+void write_sensitivity(int dims, int output_types, char** output_names, double** lsa_values, char* file_name ){
+	ofstream file_out;
+	double x;
+	file_out.open(file_name);
+	if ( !file_out ) {
+		cout << "  Could not open the output file.\n";
+		exit ( 1 );
+	}
+	file_out << "parameter,";
+	for(int i = 0; i < output_types; i++){
+		file_out << output_names[i] << ',';
+	}
+
+	for (int i = 0; i < dims; i++ ){
+		file_out << "\n" << i << ',';
+		for ( int j = 0; j < output_types; j++ ){
+			x = (double)lsa_values[i][j];
+			file_out << x << ",";
+		}
+	}
+	file_out << '\n';
+	file_out.close( );
+
+return;
 }
 
 /*	Establishing a communication pipe from the parent (sampler) to each simulation child for the passing

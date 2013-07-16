@@ -34,6 +34,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <errno.h>
 using namespace std;
 
+//Handy math macros
+#define is_num(c) (('1' <= c && c <= '9') || (c == '0') || (c == '.'))
+#define len_num(num) ( log10(num+1)+1 )
+#define abs(num) ( ( num < 0 ? -1*num : num) )
+#define non_dim_sense(nom_param, nom_out, dout_dparam) ( ((double)nom_param * (double)dout_dparam) / (double)nom_out)
+
 struct input_params{	
 	bool sim_args;
 	bool quiet;
@@ -128,7 +134,4 @@ void cout_switch(bool , input_params& );
 void usage(const char*, int);
 void make_dir(char*);
 
-#define is_num(c) (('1' <= c && c <= '9') || (c == '0') || (c == '.'))
-#define len_num(num) ( log10(num+1)+1 )
-#define abs(num) ( ( num < 0 ? -1*num : num) )
 #endif
