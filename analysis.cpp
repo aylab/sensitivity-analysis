@@ -37,8 +37,8 @@ int main(int argc, char** argv){
 	//Send out the sets that need to be simulated to get data stored in files.
 	generate_data(ip, ss);
 	
-	//Ready to calculate the sensitivity!
-	sensitivity(ip, ss);
+	//Ready to calculate the LSA_all_dims!
+	LSA_all_dims(ip, ss);
 	
 	if(ip.failure != NULL){
 		usage(ip.failure, ip.failcode);
@@ -63,15 +63,31 @@ void generate_data(input_params& ip, sim_set& ss){
 	ip.processes = proc;
 }
 
-/*	This function calculates the local sensitivity around the the nominal parameter set with respect to
-each parameter. It then normalizes the sensitivities based on their fraction of the total sensitivity of the system.*/
-void sensitivity(input_params& ip, sim_set& ss){
+/*	This function calculates the local LSA_all_dims around the the nominal parameter set with respect to
+each parameter. It then normalizes the sensitivities based on their fraction of the total LSA_all_dims of the system.*/
+void LSA_all_dims(input_params& ip, sim_set& ss){
+	char* file_name = make_name(ip.data_dir, (char*)"nominal", 0);
+	double** nominal_output = load_output(1, file_name);
+	free(file_name);
 	
+	double** dim_output;
+	int num_dependent = -1;
+	int i = 0;
+	for(; i < ip.dims; i++){
+		char* file_name = make_name(ip.data_dir, ip.dim_file, i);
+		dim_output = load_output(ss.sets_per_dim, &num_dependent,file_name);
+		free(file_name);
+		
+		LSA_one_dim(ss.sets_per_dim, num_dependent, ss.step_per_set, dim_output);
+	}
 	return;
 }
 
+void LSA_one_dim(int accuracy, int num_dependent, double independent_step, double** dependent_values){
+
+}
 /*
-If Y is the output function (amplitude, period, etc), p_ j is the j’th parameter, and p’ is the nominal parameter set, then non-dimensional sensitivity S_ j can be evaluated by:
+If Y is the output function (amplitude, period, etc), p_ j is the j’th parameter, and p’ is the nominal parameter set, then non-dimensional LSA_all_dims S_ j can be evaluated by:
 	S_ j = (p’_ j/Y(p’)) * (∆Y(p’)/∆p_j)
 
 Here, ∆ refers to taking the delta of a partial derivative, but is approximate because we are evaluating the output at finitely many points.
@@ -80,7 +96,7 @@ To normalize the sensitivities across the parameter set, for m parameters, the f
 
 	N_ j = (S_ j) / (m j =1|S_ j|)
 
-Both of the above can be applied to time-dependent output. The sensitivity at a particular time point will be dependent on the evaluation of the output function at that time point. 
+Both of the above can be applied to time-dependent output. The LSA_all_dims at a particular time point will be dependent on the evaluation of the output function at that time point. 
 
 The sloppy-stiff method allows us to see the change when multiple parameters are varied. If the function Y has multiple outputs, let Y_i be the i’th output. Let V be a vector of parameter values (like a bunch of p’s from above) and V’ the nominal parameter set. Then the cost function X2 when there are n output variables is evaluated by:
 X2(V) = n i =1[ (w_i / 2T) ∫0T [ (Y_i(V, t) – Y_i(V’,t))/q_i]2 dt ]
@@ -91,7 +107,7 @@ where w and q are weighting terms; w might be used to de/emphasize the influence
  
 We may calculate the influence of different parameters on period with this equation, because period is a single output we do not expect to change. For the traveling wave extension we will probably evaluate it at discrete times/levels of Hes6, but we could look at the time average for a simulation as well.
 
-	Once the method of evaluation is clear, performing LSA on large parameter sets can create global sensitivity values. The evaluation is done by using each parameter set as the nominal value (V’) and calculating the sensitivity when varying a particular parameter/subset of parameters. Compiling the results can be done in numerous ways, and we have to decide which is most representative of our system. Averaging the sensitivity with respect to a particular parameter is simplest, but not very representative. Figure 5b from Taylor et al. provides a good demonstration for single-parameter sensitivity: each parameter has its own curve plotted on a Number of points (parameter values) vs. Normalized sensitivity graph. A figure like this would be a good inclusion in our analysis. 
+	Once the method of evaluation is clear, performing LSA on large parameter sets can create global LSA_all_dims values. The evaluation is done by using each parameter set as the nominal value (V’) and calculating the LSA_all_dims when varying a particular parameter/subset of parameters. Compiling the results can be done in numerous ways, and we have to decide which is most representative of our system. Averaging the LSA_all_dims with respect to a particular parameter is simplest, but not very representative. Figure 5b from Taylor et al. provides a good demonstration for single-parameter LSA_all_dims: each parameter has its own curve plotted on a Number of points (parameter values) vs. Normalized LSA_all_dims graph. A figure like this would be a good inclusion in our analysis. 
 
 
 */

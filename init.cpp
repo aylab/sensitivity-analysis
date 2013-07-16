@@ -129,7 +129,7 @@ void accept_params (int num_args, char** args, input_params& ip) {
 	ip.simulation_args[5] = (char*)"--print-osc-features";
 	ip.simulation_args[sim_args_index] = NULL;
 	//Initializing the random seed.
-	init_seed(ip);
+	//init_seed(ip);
 }
 
 void ensure_nonempty (const char* flag, const char* arg) {

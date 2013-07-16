@@ -62,6 +62,37 @@ bool fill_doubles(FILE* file_pointer, int param_num, double* nominal){
 	return true;
 }
 
+double** load_output(int num_values, int* num_types, char* file_name){
+	FILE* file_pointer = fopen(file_name, "r");
+	//Count how many types of output there are, and fill keep track of their (possibly partial) names.
+	int output_types = 0;
+	char** output_names = new char*[100];
+	output_names[0] = new char[50];
+	int o_n_index = 0;
+	for(char c = ' '; c != '\n'; fscanf(file_pointer, "%c", &c)){
+		if( c == ','){
+			output_types ++;
+			output_names[output_types] = new char[50];
+			o_n_index = 0;
+		} else{
+			o_n_index ++;
+			if (o_n_index < 50) 
+				output_names[output_types][o_n_index] = c;
+		}
+	}
+	*num_types = output_types;
+	//Initialize the arrays of values for each output type, fill them 
+	double** out= new double*[output_types];
+	for(int i = 0; i < num_values; i++){
+		for(int j = 0; j < output_types; j++){
+			if( i == 0) out[j] = new double[num_values];
+			fscanf(file_pointer, "%lf%*[,;]", out[j] + i);
+		}
+		fscanf(file_pointer, "\n");
+	}
+	fclose(file_pointer);
+	return out;
+}
 
 /*	Establishing a communication pipe from the parent (sampler) to each simulation child for the passing
 of parameter sets and results. */
@@ -116,8 +147,6 @@ char*** make_all_args(int first_dim, input_params& ip,int** pipes){
 
 void make_arg(int dim_num, int sim_args_num, int* pipes, char* dir_name, char* dim_name, char** simulation_args, char** destination){
 	int pipe_loc = 0;
-	int data_len = strlen(dir_name);
-	int dim_len = strlen(dim_name);	
 	int strlen_num;	
 	for(int j = 0; j < sim_args_num; j++){
 		if(j == 2 || j == 4){
@@ -126,16 +155,19 @@ void make_arg(int dim_num, int sim_args_num, int* pipes, char* dir_name, char* d
 			sprintf(destination[j], "%d", pipes[pipe_loc]);
 			pipe_loc++;
 		} else if(j == 6){
-			strlen_num = len_num(dim_num);
-			destination[j] = (char*)malloc(sizeof(char)*(data_len + 1 + dim_len + strlen_num + 1));
-			sprintf(destination[j], "%s/%s%d", dir_name, dim_name, dim_num);    
+			destination[j] = make_name(dir_name, dim_name, dim_num);  
 		} else if (simulation_args[j] == NULL){
 			destination[j] = NULL;
 		} else{
 			destination[j] = strdup((const char*) simulation_args[j]);
 		}
 	}
+}
 
+char* make_name(char* dir, char* file, int num){
+	char* name = (char*)malloc(sizeof(char)*(strlen(dir) + 1 + strlen(file) + len_num(num) + 1));
+	sprintf(name, "%s/%s%d", dir, file, num); 
+	return name;
 }
 
 /*	Deleting the arguments that were used.*/
