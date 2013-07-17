@@ -94,7 +94,7 @@ double** LSA_all_dims(input_params& ip, sim_set& ss){
 		}
 		del_double_2d(num_dependent, dim_output);
 	}
-	normalize(ip.dims, num_dependent, lsa);
+	//normalize(ip.dims, num_dependent, lsa);
 	write_sensitivity(ip.dims, num_dependent, output_names[0], lsa, (char*)"LSA.csv");
 
 	del_double_2d(num_dependent, nominal_output);
