@@ -130,11 +130,16 @@ void del_char_2d(int rows, char** victim){
 
 void normalize(int dims, int num_dependent, double** lsa_values){
 	cout << "norm\n";
-	double sum = 0;
+	double sum = 1;
+	volatile double val;
 	for( int i = 0; i < num_dependent; i++){
 		sum = 0;
 		for( int j = 0; j < dims; j++){
-			sum += abs(lsa_values[j][i]);
+			val = abs(lsa_values[j][i]);
+			if(val == val){
+				sum += val;
+			} 
+			
 		}
 		for( int j = 0; j < dims; j++){
 			lsa_values[j][i] = (lsa_values[j][i] *(double)100 ) / sum;
