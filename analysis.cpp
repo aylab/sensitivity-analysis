@@ -129,6 +129,7 @@ void del_char_2d(int rows, char** victim){
 }
 
 void normalize(int dims, int num_dependent, double** lsa_values){
+	cout << "norm\n";
 	double sum = 0;
 	for( int i = 0; i < num_dependent; i++){
 		sum = 0;
