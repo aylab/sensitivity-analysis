@@ -82,7 +82,7 @@ double** load_output(int num_values, int* num_types, char* file_name, char*** ou
 			o_n_index ++;
 			if (o_n_index < 49 && name_store) 
 				(*output_names)[output_types][o_n_index] = c;
-				(*output_names)[output_types][o_n_index+1] = '\n';
+				(*output_names)[output_types][o_n_index+1] = '\0';
 		}
 	}
 	if(name_store) delete[] (*output_names)[output_types];
