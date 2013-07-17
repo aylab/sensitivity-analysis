@@ -94,9 +94,9 @@ double** LSA_all_dims(input_params& ip, sim_set& ss){
 		}
 		del_double_2d(num_dependent, dim_output);
 	}
-	//normalize(ip.dims, num_dependent, lsa);
 	write_sensitivity(ip.dims, num_dependent, output_names[0], lsa, (char*)"LSA.csv");
-
+	normalize(ip.dims, num_dependent, lsa);
+	write_sensitivity(ip.dims, num_dependent, output_names[0], lsa, (char*)"normLSA.csv");
 	del_double_2d(num_dependent, nominal_output);
 	del_char_2d(num_dependent, output_names[0]);
 	return lsa;
@@ -129,14 +129,14 @@ void del_char_2d(int rows, char** victim){
 }
 
 void normalize(int dims, int num_dependent, double** lsa_values){
-	double sum;
+	double sum = 0;
 	for( int i = 0; i < num_dependent; i++){
 		sum = 0;
 		for( int j = 0; j < dims; j++){
 			sum += abs(lsa_values[j][i]);
 		}
 		for( int j = 0; j < dims; j++){
-			lsa_values[j][i] /= sum;
+			lsa_values[j][i] = (lsa_values[j][i] *(double)100 ) / sum;
 		}
 	}
 }

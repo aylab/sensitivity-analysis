@@ -80,8 +80,9 @@ double** load_output(int num_values, int* num_types, char* file_name, char*** ou
 			o_n_index = 0;
 		} else{
 			o_n_index ++;
-			if (o_n_index < 50 && name_store) 
+			if (o_n_index < 49 && name_store) 
 				(*output_names)[output_types][o_n_index] = c;
+				(*output_names)[output_types][o_n_index+1] = '\n';
 		}
 	}
 	if(name_store) delete[] (*output_names)[output_types];
