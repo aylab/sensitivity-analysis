@@ -56,17 +56,30 @@ double finite_difference(int num_points, double step_size, double* function_valu
 void fdy_fdx(int accuracy, double delta_independent, double* dependent, double* fin_dif_output, double* round_error){
 	fin_dif_coef fdc(accuracy);
 	double numerator = sum_num(dependent, fdc);
-	double fin_dif  = numerator / delta_independent;
-	if(round_error != NULL){
-	 *round_error = numerator - (fin_dif * delta_independent);
+	double fin_dif;
+	if(numerator == INFINITY){
+		fin_dif = 0;
+		if(round_error != NULL){
+			*round_error =  INFINITY;
+		}
+	} else{
+		fin_dif  = numerator / delta_independent;
+		if(round_error != NULL){
+		 *round_error = numerator - (fin_dif * delta_independent);
+		}
 	}
 	*fin_dif_output = fin_dif;
 }
 
 double sum_num(double* dependent, fin_dif_coef& fdc){
 	double numerator = 0;
+	double next = 0;
 	for(int i = 0; i < fdc.accuracy; i++){
-		numerator += dependent[i]*fdc.coef[i];
+		next = dependent[i];
+		if(abs(next) == INFINITY || next != next){
+			return INFINITY;
+		}
+		numerator += next*fdc.coef[i];
 	}
 	return numerator;
 }

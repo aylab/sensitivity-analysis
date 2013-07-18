@@ -40,7 +40,7 @@ int main(int argc, char** argv){
 	cout << "\n ~ Generating data ~ \n";
 	generate_data(ip, ss);
 	
-	//Ready to calculate the LSA_all_dims!
+	//Ready to calculate the sensitivity!
 	cout << "\n ~ Calculating sensitivity ~ \n"; 
 	double** lsa_values = LSA_all_dims(ip, ss);
 	del_double_2d(ip.dims, lsa_values);
@@ -86,7 +86,8 @@ double** LSA_all_dims(input_params& ip, sim_set& ss){
 		char* file_name = make_name(ip.data_dir, ip.dim_file, i);
 		dim_output = load_output(ss.sets_per_dim, &num_dependent,file_name, NULL);
 		free(file_name);
-		// Fills LSA array with derivative values 
+		// Fills LSA array with derivative values
+		cout << "Parameter: " << i << "\n\t"; 
 		lsa[i] = fin_dif_one_dim(ss.sets_per_dim, num_dependent, (ip.nominal[i] * ss.step_per_set), dim_output);
 		// Scale each sensitivity value to remove dimensionalization
 		for (int j = 0; j < num_dependent; j++){
@@ -108,7 +109,7 @@ double* fin_dif_one_dim(int accuracy, int num_dependent, double independent_step
 	for(int i = 0; i < num_dependent; i++){
 		fdy_fdx( accuracy, independent_step, dependent_values[i], fin_dif + i, &round_error);
 		if(round_error >= independent_step){
-			cout << "Bad round error for output " << i << "\n";
+			cout << "Bad round error ("<< round_error << ") for output: " << i << "\n";
 		}
 	}
 	
@@ -129,7 +130,7 @@ void del_char_2d(int rows, char** victim){
 }
 
 void normalize(int dims, int num_dependent, double** lsa_values){
-	cout << "norm\n";
+	//cout << "norm\n";
 	double sum = 1;
 	volatile double val;
 	for( int i = 0; i < num_dependent; i++){
@@ -142,7 +143,9 @@ void normalize(int dims, int num_dependent, double** lsa_values){
 			
 		}
 		for( int j = 0; j < dims; j++){
-			lsa_values[j][i] = (lsa_values[j][i] *(double)100 ) / sum;
+			if(sum != 0 && sum != INFINITY){
+				lsa_values[j][i] = abs(lsa_values[j][i] *(double)100 ) / sum;
+			}
 		}
 	}
 }
