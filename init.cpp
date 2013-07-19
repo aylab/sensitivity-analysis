@@ -54,17 +54,25 @@ void accept_params (int num_args, char** args, input_params& ip) {
 			} else if (strcmp(option, "-n") == 0 || strcmp(option, "--nominal-file") == 0) {
 				ensure_nonempty(option, value);
 				ip.nominal_file = value;
-			} else if (strcmp(option, "-d") == 0 || strcmp(option, "--data-dir") == 0) {
+			} else if (strcmp(option, "-D") == 0 || strcmp(option, "--data-dir") == 0) {
 				ensure_nonempty(option, value);
 				ip.data_dir = value;
-			} else if (strcmp(option, "-v") == 0 || strcmp(option, "--verbose-file") == 0) {
-				if(value == NULL || value[0] == '-'){
-					i--;
-				} else{
-					ip.verbose_file = value;
+			} else if (strcmp(option, "-d") == 0 || strcmp(option, "--sense-dir") == 0) {
+				ensure_nonempty(option, value);
+				ip.sense_dir = value;
+			} else if (strcmp(option, "-c") == 0 || strcmp(option, "--nominal-count") == 0) {
+				ensure_nonempty(option, value);
+				ip.num_nominal = atoi(value);
+				if (ip.num_nominal < 1) {
+					usage("You must use a postivie, non-zero integer for the number of nominal sets from the file you would like to analyze.", 0);
 				}
-				ip.verbose = true;
-			} else if (strcmp(option, "-s") == 0 || strcmp(option, "--random-seed") == 0) {
+			}else if (strcmp(option, "-k") == 0 || strcmp(option, "--skip") == 0) {
+				ensure_nonempty(option, value);
+				ip.line_skip = atoi(value);
+				if (ip.line_skip < 0) {
+					usage("You must use a postivie integer for the number of nominal sets you would like to skip.", 0);
+				}
+			}else if (strcmp(option, "-s") == 0 || strcmp(option, "--random-seed") == 0) {
 				ensure_nonempty(option, value);
 				ip.random_seed = atoi(value);
 				if (ip.random_seed < 1) {
@@ -90,6 +98,9 @@ void accept_params (int num_args, char** args, input_params& ip) {
 				} else if(ip.percentage < 0){
 					ip.percentage = -1*ip.percentage;
 				}
+			} else if (strcmp(option, "-y") == 0 || strcmp(option, "--recycle") == 0) {
+				ip.recycle = true;
+				i--;
 			} else if (strcmp(option, "-q") == 0 || strcmp(option, "--quiet") == 0) {
 				ip.quiet = true;
 				i--;
@@ -114,8 +125,15 @@ void accept_params (int num_args, char** args, input_params& ip) {
 	//Setting up quiet mode.
 	if(ip.quiet) cout_switch(true, ip);
 	
+	//
+	if(ip.data_dir == NULL){
+		ip.data_dir = (char*)malloc(sizeof(char)*(strlen("sim-data-") + len_num(getpid()) + 1));
+		sprintf(ip.data_dir, "%s%d", (char*)"sim-data-", getpid()); 
+	}
+	
 	//Making the directory in which all of the simulation data will be stored.
 	make_dir(ip.data_dir);
+	make_dir(ip.sense_dir);
 	
 	//Initializing the random seed.
 	init_seed(ip);
@@ -161,19 +179,29 @@ void usage(const char* message, int error){
 	cout << "Usage: [-option [value]]. . . [--option [value]]. . ." << endl;	
 	cout << "-n, --nominal-file   [filename]   : the relative name of the file from which the nominal parameter set should\
                                                  be read, default=nominal.params" << endl;
-	cout << "-d, --data-dir       [filename]   : the relative name of the directory to which the raw simulation data\
-                                                 will be stored, default=sim-data" << endl;
-	cout << "-v, --verbose-file   [filename]   : the relative name of the file to which verbose information will be written,\
-                                                 default=none" << endl;
+	cout << "-d, --sense-dir      [filename]   : the relative name of the directory to which the sensitivity results\
+                                                 will be stored, default=sensitivities" << endl;
+	cout << "-D, --data-dir       [filename]   : the relative name of the directory to which the raw simulation data\
+                                                 will be stored, default=sim-data\
+                                                 WARNING: IF RUNNING MULTIPLE INSTANCES OF THIS PROGRAM (e.g. on cluster)\
+                                                 EACH MUST HAVE A UNIQUE DATA DIRECTORY TO AVOID CONFLICT." << endl;
 	cout << "-p, --percentage     [float]      : the maximum percentage by which nominal values will be perturbed (+/-),\
 	                                             default=5" << endl;
 	cout << "-P, --points         [int]        : the number of data points to collect on either side (+/-) of the nominal set,\
                                                  default=10" << endl; 
+	cout << "-c, --nominal-count  [int]        : the number of nominal sets to read from the file, default=1" << endl;
+    
+    cout << "-k, --skip           [int]        : the number of nominal sets in the file to skip over, a.k.a. the\
+                                                 index of the line you would like to start reading from, default=0" << endl;
+    
 	cout << "-s, --random-seed    [int]        : the postivie integer value to be used as a seed in the random\
                                                  number generation for simulations, default is randomly generated\
                                                  based on system time and process id" << endl;
 	cout << "-l, --processes      [int]        : the number of processes to which parameter sets can be sent for\
                                                  parallel data collection, default=2" << endl;
+	cout << "-y, --recycle        [N/A]        : include this if the simulation output has already been\
+                                                 generated FOR EXACTLY THE SAME FILES AND ARGUMENTS YOU\
+                                                 ARE USING NOW, disabled by default" << endl;
 	cout << "-q, --quiet          [N/A]        : include this to turn off printing messages to standard output,\
                                                  disabled by default" << endl;
 	cout << "-e, --exec           [path]       : if included, the simulations are run by executing the program\

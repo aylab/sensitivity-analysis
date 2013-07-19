@@ -23,14 +23,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using namespace std;
 
 void read_nominal(input_params& ip){
+	//Opens the file for reading.
 	FILE* file_pointer = fopen(ip.nominal_file, "r");
-	ip.dims = count_params(file_pointer);
-	ip.nominal = new double[ip.dims];
+	//If this is the first nominal set that is read, we need to set our count of how many parameters there are and initiatlize the nominal array
+	if(ip.dims < 1){
+		ip.dims = count_params(file_pointer);
+		ip.nominal = new double[ip.dims];
+	}
+	//Skips over any lines that have already been used as nominal sets. Then increments the number of lines that will need to be skipped over in the future.
+	skip_lines( file_pointer, ip.line_skip);
+	ip.line_skip ++;
+	//A call to the fill_doubles founction with an error check.
 	if(! fill_doubles(file_pointer, ip.dims, ip.nominal)){
-		//cerr << "There are less than " << ip.dims << " values in the file " << ip.nominal_file << "\n";	
+		cerr << "There are less than " << ip.dims << " values in the file " << ip.nominal_file << "\n";	
 		delete[] ip.nominal;
 		ip.nominal = NULL;
 	}
+	//Close the nominal file.
 	fclose(file_pointer);
 }
 
@@ -39,12 +48,14 @@ int count_params(FILE* file_pointer){
 	bool  in_num = false;
 	char c = '\0';
 	int read = 1;
-	for(; c != '\n' && read == 1; read = fscanf(file_pointer, " %c", &c)){
+	//For every character in the first line of the file, increment the count for each sequence of decimal numbers.
+	for(; c != '\n' && read == 1; read = fscanf(file_pointer, "%c", &c)){
 		if(!in_num && is_num(c)){
 			count++;
 		}
 		in_num = is_num(c);
 	}
+	//Rewind the file pointer back to the beginning.
 	rewind(file_pointer);
 	return count;	
 }
@@ -62,28 +73,40 @@ bool fill_doubles(FILE* file_pointer, int param_num, double* nominal){
 	return true;
 }
 
+void skip_lines( FILE* file_pointer, int line_skip){
+	for(int i = 0; i < line_skip; i++){
+		fscanf(file_pointer, "%*s");
+	}
+}
+
 double** load_output(int num_values, int* num_types, char* file_name, char*** output_names){
+	//Open the file for reading.
 	FILE* file_pointer = fopen(file_name, "r");
 	//Count how many types of output there are, and fill keep track of their (possibly partial) names.
 	int output_types = 0;
+	//Only store the names if the call to the function has a place for it.
 	bool name_store = (output_names != NULL);
 	if(name_store){
 		(*output_names) = new char*[100];
 		(*output_names)[0] = new char[50];
 	}
+	//An index for putting characters within the output names array
 	int o_n_index = 0;
 	fscanf(file_pointer, "set,"); // skip the first column containing set number
-	for(char c = ' '; c != '\n'; fscanf(file_pointer, "%c", &c)){
+	for(char c = '\0'; c != '\n'; fscanf(file_pointer, "%c", &c)){
 		if( c == ','){
 			output_types ++;
 			if(name_store) (*output_names)[output_types] = new char[50];
 			o_n_index = 0;
+			
 		} else{
-			o_n_index ++;
-			if (o_n_index < 49 && name_store){ 
+			if (o_n_index < 48 && name_store && alph_num_slash(c)){
+				//cout << c << " "; 
 				(*output_names)[output_types][o_n_index] = c;
 				(*output_names)[output_types][o_n_index+1] = '\0';
+				//cout <<"\n"<< (*output_names)[output_types][o_n_index] << "___" << (*output_names)[output_types];
 			}
+			o_n_index ++;
 		}
 	}
 	if(name_store) delete[] (*output_names)[output_types];
@@ -99,7 +122,6 @@ double** load_output(int num_values, int* num_types, char* file_name, char*** ou
 		fscanf(file_pointer, "\n");
 	}
 	fclose(file_pointer);
-	
 	return out;
 }
 

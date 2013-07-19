@@ -43,10 +43,12 @@ using namespace std;
 struct input_params{	
 	bool sim_args;
 	bool quiet;
-	bool verbose;
+	bool recycle;
 	int random_seed;
 	int processes;
 	int sim_args_num;
+	int num_nominal;
+	int line_skip;
 	int dims;
 	double percentage; //Max percentage by which we will perturb parameters +/-
 	int points; //Number of points between the nominal and the max percentage +/- to generate data for
@@ -54,7 +56,9 @@ struct input_params{
 	streambuf* cout_orig;
 	ofstream* null_stream;
 	char* nominal_file;
-	char* verbose_file;
+	char* sense_dir;
+	char* sense_file;
+	char* norm_file;
 	char* data_dir;
 	char*dim_file;
 	char* sim_exec;
@@ -65,15 +69,20 @@ struct input_params{
 	input_params(){
 		sim_args = false;
 		quiet = false;
-		verbose = false;
 		sim_args = false;
+		recycle = false;
 	 	dims= 0;
 	 	percentage = 5;
 	 	points = 2;
 	 	processes = 2;
+	 	num_nominal = 1;
+	 	line_skip = 0;
+	 	dims = -1;
 		nominal_file = (char*)"nominal.params";
-		verbose_file = (char*)"verbose.txt";
-		data_dir = (char*)"sim-data";
+		sense_dir = (char*)"sensitivities";
+		sense_file = (char*)"LSA_";
+		norm_file = (char*)"normalized_";
+		data_dir = NULL;
 		dim_file = (char*)"dim_";		
 		sim_exec = (char*) "../sogen-deterministic/deterministic";
 		simulation_args = NULL;
@@ -84,6 +93,7 @@ struct input_params{
 	
 	~input_params(){
 		if(nominal != NULL) delete[] nominal;
+		if(data_dir != NULL) free(data_dir);
 		if(simulation_args != NULL) delete[] simulation_args;
 	}
 };

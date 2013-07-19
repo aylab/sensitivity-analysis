@@ -19,11 +19,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef FILE_IO_HPP
 #define FILE_IO_HPP
 
+#define alph_num_slash( car ) ( ('a' <= car && car <= 'z') || ('A' <= car && car <= 'Z') || ('1' <= car && car <= '9') || (car == '0') || (car == '/') || (car == ' '))
+
 using namespace std;
 
 void read_nominal(input_params& );
 int count_params(FILE* );
 bool fill_doubles(FILE* , int , double* );
+void skip_lines( FILE* , int);
 double** load_output(int, int*, char*, char*** );
 void write_sensitivity(int , int , char** , double** , char*  );
 

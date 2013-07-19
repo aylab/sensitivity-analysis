@@ -24,29 +24,33 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using namespace std;
 
 int main(int argc, char** argv){
-
 	//Setup the parameter struct based on arguments.
 	input_params ip;
 	accept_params(argc, argv, ip);
 	
-	//Read in the nominal parameter set from file.
-	read_nominal(ip);
-	if(ip.nominal == NULL) usage("Could not read nominal parameter set.", 0);
+	//Loop for processign multiple nominal parameter sets.
+	for(int which_nominal = 0; which_nominal < ip.num_nominal;  which_nominal ++){
+		//Read in the nominal parameter set from file.
+		read_nominal(ip);
+		if(ip.nominal == NULL) usage("Could not read nominal parameter set.", which_nominal);
 
-	//Initializes the struct that holds sets that will be simulated and fills it in with the appropriate values.
-	sim_set ss(ip);
+		//Initializes the struct that holds sets that will be simulated and fills it in with the appropriate values.
+		sim_set ss(ip);
 	
-	//Send out the sets that need to be simulated to get data stored in files.
-	cout << "\n ~ Generating data ~ \n";
-	generate_data(ip, ss);
+		//Send out the sets that need to be simulated to get data stored in files. Recycle checks 
+		if(!ip.recycle){
+			cout << "\n ~ Set: " << which_nominal << " -- Generating data ~ \n";
+			generate_data(ip, ss);
+		}
+		//Ready to calculate the sensitivity!
+		cout << "\n ~ Set: " << which_nominal << " -- Calculating sensitivity ~ \n"; 
+		double** lsa_values = LSA_all_dims(ip, ss);
+		del_double_2d(ip.dims, lsa_values); //This probably doesn't need to be returned, but it seemed potentially useful at the time... fix when this is clear
 	
-	//Ready to calculate the sensitivity!
-	cout << "\n ~ Calculating sensitivity ~ \n"; 
-	double** lsa_values = LSA_all_dims(ip, ss);
-	del_double_2d(ip.dims, lsa_values);
-	
-	if(ip.failure != NULL){
-		usage(ip.failure, ip.failcode);
+		if(ip.failure != NULL){
+			usage(ip.failure, ip.failcode);
+			break;
+		}
 	}
 	cout << "\n ~ Exiting ~ \n";
 	return 0;
@@ -87,7 +91,7 @@ double** LSA_all_dims(input_params& ip, sim_set& ss){
 		dim_output = load_output(ss.sets_per_dim, &num_dependent,file_name, NULL);
 		free(file_name);
 		// Fills LSA array with derivative values
-		cout << "Parameter: " << i << "\n\t"; 
+		cout << "Parameter: " << i << "\n"; 
 		lsa[i] = fin_dif_one_dim(ss.sets_per_dim, num_dependent, (ip.nominal[i] * ss.step_per_set), dim_output);
 		// Scale each sensitivity value to remove dimensionalization
 		for (int j = 0; j < num_dependent; j++){
@@ -95,9 +99,17 @@ double** LSA_all_dims(input_params& ip, sim_set& ss){
 		}
 		del_double_2d(num_dependent, dim_output);
 	}
-	write_sensitivity(ip.dims, num_dependent, output_names[0], lsa, (char*)"LSA.csv");
+	
+	//Write out the sensitivity and normalized sensitivity to the correct directory/files
+	file_name = make_name(ip.sense_dir, ip.sense_file, ip.line_skip - 1);
+	write_sensitivity(ip.dims, num_dependent, output_names[0], lsa, file_name);
+	free(file_name);
+	
 	normalize(ip.dims, num_dependent, lsa);
-	write_sensitivity(ip.dims, num_dependent, output_names[0], lsa, (char*)"normLSA.csv");
+	file_name = make_name(ip.sense_dir, ip.norm_file, ip.line_skip - 1);
+	write_sensitivity(ip.dims, num_dependent, output_names[0], lsa, file_name);
+	free(file_name);
+	
 	del_double_2d(num_dependent, nominal_output);
 	del_char_2d(num_dependent, output_names[0]);
 	return lsa;
@@ -109,7 +121,7 @@ double* fin_dif_one_dim(int accuracy, int num_dependent, double independent_step
 	for(int i = 0; i < num_dependent; i++){
 		fdy_fdx( accuracy, independent_step, dependent_values[i], fin_dif + i, &round_error);
 		if(round_error >= independent_step){
-			cout << "Bad round error ("<< round_error << ") for output: " << i << "\n";
+			cout << "\tBad round error ("<< round_error << ") for output: " << i << "\n";
 		}
 	}
 	
