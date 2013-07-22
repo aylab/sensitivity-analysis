@@ -20,9 +20,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 void generate_data(input_params&, sim_set&);
-double** LSA_all_dims(input_params& ip, sim_set& ss);
+double** LSA_all_dims(input_params& , sim_set& );
 double* fin_dif_one_dim(int, int, double, double**);
-void normalize(int dims, int num_dependent, double** lsa_values);
-void del_double_2d(int rows, double** victim);
-void del_char_2d(int rows, char** victim);
+void normalize(int , int t, double** );
+void del_double_2d(int , double** );
+void del_char_2d(int , char** );
 #endif

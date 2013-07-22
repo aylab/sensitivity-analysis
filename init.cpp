@@ -125,7 +125,7 @@ void accept_params (int num_args, char** args, input_params& ip) {
 	//Setting up quiet mode.
 	if(ip.quiet) cout_switch(true, ip);
 	
-	//
+	//If a custom name is not included for data_dir, this gives data dir a name of the format "sim-data-[pid]" where the pid is useful to ensure unique working directory.
 	if(ip.data_dir == NULL){
 		ip.data_dir = (char*)malloc(sizeof(char)*(strlen("sim-data-") + len_num(getpid()) + 1));
 		sprintf(ip.data_dir, "%s%d", (char*)"sim-data-", getpid()); 

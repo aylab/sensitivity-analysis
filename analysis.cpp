@@ -109,22 +109,28 @@ double** LSA_all_dims(input_params& ip, sim_set& ss){
 		}
 		del_double_2d(num_dependent, dim_output);
 	}
-	
+	cout << "SKIP: ip.line_skip - 1" << endl;
 	//Write out the sensitivity and normalized sensitivity to the correct directory/files
 	file_name = make_name(ip.sense_dir, ip.sense_file, ip.line_skip - 1);
 	write_sensitivity(ip.dims, num_dependent, output_names[0], lsa, file_name);
 	free(file_name);
 	
+	//This call modifies lsa in place, so the array that is returned is the normalized sensitivities.
 	normalize(ip.dims, num_dependent, lsa);
 	file_name = make_name(ip.sense_dir, ip.norm_file, ip.line_skip - 1);
 	write_sensitivity(ip.dims, num_dependent, output_names[0], lsa, file_name);
 	free(file_name);
 	
+	//Delete the nominal data and ouput names.
 	del_double_2d(num_dependent, nominal_output);
 	del_char_2d(num_dependent, output_names[0]);
 	return lsa;
 }
 
+/*	Handles the call to the finite difference library which is simple to use.
+	In the case that the finite difference fills round_error with a value greater than the parameter perturbation size, this prints out a message but does not halt the program.
+	See finite_difference.cpp & .hpp 
+*/
 double* fin_dif_one_dim(int accuracy, int num_dependent, double independent_step, double** dependent_values){
 	double round_error = 0;
 	double* fin_dif = new double[num_dependent];
@@ -138,6 +144,8 @@ double* fin_dif_one_dim(int accuracy, int num_dependent, double independent_step
 	return fin_dif;
 }
 
+/*	Methods for deleting arrays.
+*/
 void del_double_2d(int rows, double** victim){
 	for(int i = 0; i < rows; i++){
 		delete[] victim[i];
@@ -151,6 +159,9 @@ void del_char_2d(int rows, char** victim){
 	delete[] victim;
 }
 
+/*	Calling this function performs a normalization by taking the sum of lsa values accross each parameter then then divides individual parameter sensitivity values by the sum and multiplies by 100 to give a percentage of total sensitivity.
+	The input double array is modified in place.
+*/
 void normalize(int dims, int num_dependent, double** lsa_values){
 	//cout << "norm\n";
 	double sum = 1;
