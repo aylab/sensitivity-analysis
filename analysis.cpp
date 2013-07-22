@@ -109,7 +109,7 @@ double** LSA_all_dims(input_params& ip, sim_set& ss){
 		}
 		del_double_2d(num_dependent, dim_output);
 	}
-	cout << "SKIP: ip.line_skip - 1" << endl;
+	cout << "SKIP: " << ip.line_skip - 1" << endl;
 	//Write out the sensitivity and normalized sensitivity to the correct directory/files
 	file_name = make_name(ip.sense_dir, ip.sense_file, ip.line_skip - 1);
 	write_sensitivity(ip.dims, num_dependent, output_names[0], lsa, file_name);
