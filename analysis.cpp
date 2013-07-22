@@ -23,12 +23,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace std;
 
+/*	The main() function does standard c++ main things -- it calls functions to initialze parameters based on commandline arguments, then distrbiutes the work to functions that perform the gathering of data and analysis.
+*/
 int main(int argc, char** argv){
-	//Setup the parameter struct based on arguments.
+	//Setup the parameter struct based on arguments. See init.cpp & init.hpp
 	input_params ip;
 	accept_params(argc, argv, ip);
 	
-	//Loop for processign multiple nominal parameter sets.
+	//Loop for processign multiple nominal parameter sets. Each step of the loop will do all of the work based on one nominal parameter set, then increment ip.line_skip which will cause proceeding steps of the loop to read other nominal sets from the input file.
 	for(int which_nominal = 0; which_nominal < ip.num_nominal;  which_nominal ++){
 		//Read in the nominal parameter set from file.
 		read_nominal(ip);
@@ -37,12 +39,13 @@ int main(int argc, char** argv){
 		//Initializes the struct that holds sets that will be simulated and fills it in with the appropriate values.
 		sim_set ss(ip);
 	
-		//Send out the sets that need to be simulated to get data stored in files. Recycle checks 
+		//Send out the sets that need to be simulated to get data stored in files. Recycle checks to see whether the user indicated that the data has already been generated and, if so, assumes it can read the necessary files. 
+		//The recycle option is prone to failure if commandline arguments are inconsistent with previous runs or if num_nominal is greater than 1. (There is a warning about this in the usage help.) 
 		if(!ip.recycle){
 			cout << "\n ~ Set: " << which_nominal << " -- Generating data ~ \n";
 			generate_data(ip, ss);
 		}
-		//Ready to calculate the sensitivity!
+		//Ready to calculate the sensitivity. The LSA_all_dims() function does all of the work.
 		cout << "\n ~ Set: " << which_nominal << " -- Calculating sensitivity ~ \n"; 
 		double** lsa_values = LSA_all_dims(ip, ss);
 		del_double_2d(ip.dims, lsa_values); //This probably doesn't need to be returned, but it seemed potentially useful at the time... fix when this is clear
@@ -56,6 +59,9 @@ int main(int argc, char** argv){
 	return 0;
 }
 
+/*	This function does exactly what its name implies. 
+	The sim_set struct handles the work of deciding how to parameter sets should be passed, and file_io takes care of the execution and parallelization. See init.hpp & file_io.cpp
+*/
 void generate_data(input_params& ip, sim_set& ss){
 	//Run the simulation on the nominal set 
 	simulate_nominal(ip);
@@ -73,15 +79,19 @@ void generate_data(input_params& ip, sim_set& ss){
 	ip.processes = proc;
 }
 
-/*	This function calculates the local LSA_all_dims around the the nominal parameter set with respect to
-each parameter. It then normalizes the sensitivities based on their fraction of the total LSA_all_dims of the system.*/
+/*	This function calculates the local LSA_all_dims around the the nominal parameter set with respect to each parameter. 
+	It then normalizes the sensitivities based on their fraction of the total LSA_all_dims of the system.
+	This also makes the calls to write out the information to appropriate files. See file_io.cpp
+*/
 double** LSA_all_dims(input_params& ip, sim_set& ss){
+	//First, load the output for the nominal set against which other values will be compared. This call also handles counting the number of output features and holding on to the output features names.
 	int num_dependent = -1;
 	char* file_name = make_name(ip.data_dir, (char*)"nominal", 0);
 	char** output_names[1];
 	double** nominal_output = load_output(1, &num_dependent, file_name, output_names);
 	free(file_name);
 	
+	//Based on the above count (num_dependent), calculate the sensitivities of each output for each dimension.
 	double** dim_output;
 	double** lsa = new double*[ip.dims];
 	int i = 0;
