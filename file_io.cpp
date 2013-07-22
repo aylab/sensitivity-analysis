@@ -209,7 +209,14 @@ void make_arg(int dim_num, int sim_args_num, int seed, int* pipes, char* dir_nam
 }
 
 char* make_name(char* dir, char* file, int num){
-	char* name = (char*)malloc(sizeof(char)*(strlen(dir) + 1 + strlen(file) + len_num(num) + 1));
+	int num_len = 0;
+	num = abs(num);
+	if(num > 0){
+		num_len = len_num(num);
+	} else {
+		num_len = 1;
+	} 
+	char* name = (char*)malloc(sizeof(char)*(strlen(dir) + 1 + strlen(file) + num_len + 1));
 	sprintf(name, "%s/%s%d", dir, file, num); 
 	return name;
 }
