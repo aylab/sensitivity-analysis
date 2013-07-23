@@ -266,6 +266,11 @@ void simulate_samples(int first_dim, input_params& ip, sim_set& ss ){
         }
         //Child runs simulation.  
 		if (simpids[i] == 0) {
+			/*cout << "woopdedoo: "<< ip.sim_args << " ";
+			for(int woopdedoo = 0; woopdedoo < ip.sim_args_num; woopdedoo++){
+				cout << child_args[i][woopdedoo] << " ";
+			}
+			cout << endl;*/
 			if (-1 == execv(ip.sim_exec, child_args[i])){
 				const char* fail_prefix = "!!! Failure: could not exec ";
 				ip.failure = (char*)malloc(sizeof(char)*(strlen(fail_prefix)+strlen(ip.sim_exec) + 5 + 1));
