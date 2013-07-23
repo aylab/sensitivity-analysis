@@ -35,7 +35,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using namespace std;
 
 //Handy math macros
-#define is_num(c) (('1' <= c && c <= '9') || (c == '0') || (c == '.'))
+#define is_num(c) (('1' <= c && c <= '9') || (c == '0') || (c == '.') || (c == 'e'))
 #define alph_num_slash( car ) ( ('a' <= car && car <= 'z') || ('A' <= car && car <= 'Z') || ('1' <= car && car <= '9') || (car == '0') || (car == '/') || (car == ' '))
 
 #define len_num(num) ( log10(num+1)+1 )

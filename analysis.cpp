@@ -87,10 +87,9 @@ double** LSA_all_dims(input_params& ip, sim_set& ss){
 	//First, load the output for the nominal set against which other values will be compared. This call also handles counting the number of output features and holding on to the output features names.
 	int num_dependent = -1;
 	char* file_name = make_name(ip.data_dir, (char*)"nominal", 0);
-	char** output_names[1];
+	char*** output_names = new char**[1];
 	double** nominal_output = load_output(1, &num_dependent, file_name, output_names);
 	free(file_name);
-	
 	//Based on the above count (num_dependent), calculate the sensitivities of each output for each dimension.
 	double** dim_output;
 	double** lsa = new double*[ip.dims];
@@ -109,7 +108,6 @@ double** LSA_all_dims(input_params& ip, sim_set& ss){
 		}
 		del_double_2d(num_dependent, dim_output);
 	}
-	cout << "SKIP: " << ip.line_skip - 1 << endl;
 	//Write out the sensitivity and normalized sensitivity to the correct directory/files
 	file_name = make_name(ip.sense_dir, ip.sense_file, ip.line_skip - 1);
 	write_sensitivity(ip.dims, num_dependent, output_names[0], lsa, file_name);
@@ -124,6 +122,7 @@ double** LSA_all_dims(input_params& ip, sim_set& ss){
 	//Delete the nominal data and ouput names.
 	del_double_2d(num_dependent, nominal_output);
 	del_char_2d(num_dependent, output_names[0]);
+	delete[] output_names;
 	return lsa;
 }
 

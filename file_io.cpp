@@ -87,7 +87,7 @@ double** load_output(int num_values, int* num_types, char* file_name, char*** ou
 	//Only store the names if the call to the function has a place for it.
 	bool name_store = (output_names != NULL);
 	if(name_store){
-		(*output_names) = new char*[100];
+		(*output_names) = new char*[150];
 		(*output_names)[0] = new char[50];
 	}
 	//An index for putting characters within the output names array
@@ -119,7 +119,7 @@ double** load_output(int num_values, int* num_types, char* file_name, char*** ou
 			if( i == 0) out[j] = new double[num_values];
 			fscanf(file_pointer, "%lf%*[,;]", out[j] + i);
 		}
-		fscanf(file_pointer, "\n");
+		if(i != num_values-1) fscanf(file_pointer, "\n");
 	}
 	fclose(file_pointer);
 	return out;
