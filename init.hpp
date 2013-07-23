@@ -36,6 +36,8 @@ using namespace std;
 
 //Handy math macros
 #define is_num(c) (('1' <= c && c <= '9') || (c == '0') || (c == '.'))
+#define alph_num_slash( car ) ( ('a' <= car && car <= 'z') || ('A' <= car && car <= 'Z') || ('1' <= car && car <= '9') || (car == '0') || (car == '/') || (car == ' '))
+
 #define len_num(num) ( log10(num+1)+1 )
 #define abs(num) ( ( num < 0 ? -1*num : num) )
 #define non_dim_sense(nom_param, nom_out, dout_dparam) ( ((double)nom_param * (double)dout_dparam) / (double)nom_out)

@@ -39,7 +39,6 @@ void accept_params (int num_args, char** args, input_params& ip) {
 			Check for each possible argument option and overrides the default value for each specified option. If the option isn't recognized or the value given for an option doesn't appear valid then the usage information for the program is printed with an error message and no simulations are run. The code should be fairly self-explanatory with a few exceptions:
 			1) atoi converts a string to an integer, atof converts a string to a floating point number (i.e. rational)
 			2) strings should always be compared using strcmp, not ==, and strcmp returns 0 if the two strings match
-			3) usage(true) prints the usage information with an error message while usage(false) prints it without one
 			*/
 			if(ip.sim_args){
 				ip.simulation_args[sim_args_index] = option;
