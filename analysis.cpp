@@ -162,20 +162,18 @@ void del_char_2d(int rows, char** victim){
 	The input double array is modified in place.
 */
 void normalize(int dims, int num_dependent, double** lsa_values){
-	//cout << "norm\n";
 	double sum = 1;
 	volatile double val;
 	for( int i = 0; i < num_dependent; i++){
 		sum = 0;
 		for( int j = 0; j < dims; j++){
 			val = abs(lsa_values[j][i]);
-			if(val == val){
+			if(isnan(val) == 0){
 				sum += val;
 			} 
-			
 		}
 		for( int j = 0; j < dims; j++){
-			if(sum != 0 && sum != INFINITY){
+			if(sum != 0 && isinf(sum) == 0){
 				lsa_values[j][i] = abs(lsa_values[j][i] *(double)100 ) / sum;
 			}
 		}
@@ -203,9 +201,4 @@ where w and q are weighting terms; w might be used to de/emphasize the influence
 We may calculate the influence of different parameters on period with this equation, because period is a single output we do not expect to change. For the traveling wave extension we will probably evaluate it at discrete times/levels of Hes6, but we could look at the time average for a simulation as well.
 
 	Once the method of evaluation is clear, performing LSA on large parameter sets can create global LSA_all_dims values. The evaluation is done by using each parameter set as the nominal value (V’) and calculating the LSA_all_dims when varying a particular parameter/subset of parameters. Compiling the results can be done in numerous ways, and we have to decide which is most representative of our system. Averaging the LSA_all_dims with respect to a particular parameter is simplest, but not very representative. Figure 5b from Taylor et al. provides a good demonstration for single-parameter LSA_all_dims: each parameter has its own curve plotted on a Number of points (parameter values) vs. Normalized LSA_all_dims graph. A figure like this would be a good inclusion in our analysis. 
-
-
 */
-
-
-

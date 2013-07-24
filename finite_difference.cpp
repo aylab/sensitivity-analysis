@@ -57,8 +57,8 @@ void fdy_fdx(int accuracy, double delta_independent, double* dependent, double* 
 	fin_dif_coef fdc(accuracy);
 	double numerator = sum_num(dependent, fdc);
 	double fin_dif;
-	if(numerator == INFINITY){
-		fin_dif = 0;
+	if( isinf(numerator) != 0 || delta_independent == 0){
+		fin_dif = INFINITY;
 		if(round_error != NULL){
 			*round_error =  INFINITY;
 		}
@@ -76,7 +76,7 @@ double sum_num(double* dependent, fin_dif_coef& fdc){
 	double next = 0;
 	for(int i = 0; i < fdc.accuracy; i++){
 		next = dependent[i];
-		if(abs(next) == INFINITY || next != next){
+		if( isinf(next) != 0 || isnan(next) != 0){
 			return INFINITY;
 		}
 		numerator += next*fdc.coef[i];
