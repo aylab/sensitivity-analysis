@@ -42,10 +42,15 @@ using namespace std;
 #define abs(num) ( ( num < 0 ? -1*num : num) )
 #define non_dim_sense(nom_param, nom_out, dout_dparam) ( ((double)nom_param * (double)dout_dparam) / (double)nom_out)
 
+//Declaring this here so it can be used by the destructor.
+void unmake_dir(char*);
+
+//Structs
 struct input_params{	
 	bool sim_args;
 	bool quiet;
 	bool recycle;
+	bool delete_data;
 	int random_seed;
 	int processes;
 	int sim_args_num;
@@ -73,6 +78,7 @@ struct input_params{
 		quiet = false;
 		sim_args = false;
 		recycle = false;
+		delete_data = false;
 	 	dims= 0;
 	 	percentage = 5;
 	 	points = 2;
@@ -94,8 +100,11 @@ struct input_params{
 	}
 	
 	~input_params(){
-		if(nominal != NULL) delete[] nominal;
+		if(delete_data){
+			unmake_dir(data_dir);
+		}
 		if(data_dir != NULL) free(data_dir);
+		if(nominal != NULL) delete[] nominal;
 		if(simulation_args != NULL) delete[] simulation_args;
 	}
 };
@@ -139,6 +148,8 @@ struct sim_set{
 	}
 };
 
+
+//Init functions
 void init_seed (input_params& );
 void accept_params (int , char** , input_params& );
 void ensure_nonempty (const char* , const char* );
