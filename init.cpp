@@ -180,41 +180,41 @@ void usage(const char* message, int error){
 	}
 	cout << "Usage: [-option [value]]. . . [--option [value]]. . ." << endl;	
 	cout << "\
--n, --nominal-file   [filename]   : the relative name of the file from which the nominal parameter set should\
-                                     be read, default=nominal.params\
--d, --sense-dir      [filename]   : the relative name of the directory to which the sensitivity results\
-                                     will be stored, default=sensitivities\
--D, --data-dir       [filename]   : the relative name of the directory to which the raw simulation data\
-                                     will be stored, default=sim-data\
-                                     WARNING: IF RUNNING MULTIPLE INSTANCES OF THIS PROGRAM (e.g. on cluster)\
-                                     EACH MUST HAVE A UNIQUE DATA DIRECTORY TO AVOID CONFLICT.\
--p, --percentage     [float]      : the maximum percentage by which nominal values will be perturbed (+/-),\
-                                     default=5\
--P, --points         [int]        : the number of data points to collect on either side (+/-) of the nominal set,\
-                                     default=10\
--c, --nominal-count  [int]        : the number of nominal sets to read from the file, default=1\
--k, --skip           [int]        : the number of nominal sets in the file to skip over, a.k.a. the\
-                                     index of the line you would like to start reading from, default=0\
--s, --random-seed    [int]        : the postivie integer value to be used as a seed in the random\
-                                     number generation for simulations, default is randomly generated\
-                                     based on system time and process id\
--l, --processes      [int]        : the number of processes to which parameter sets can be sent for\
-                                     parallel data collection, default=2\
--y, --recycle        [N/A]        : include this if the simulation output has already been\
-                                     generated FOR EXACTLY THE SAME FILES AND ARGUMENTS YOU\
-                                     ARE USING NOW, disabled by default\
--z, --delete-data    [N/A]        : include this to delete oscillation features data when the program\
-                                     exits. This will preserve sensitivity directory but remove the\
-                                     directory specified by -D, disabled by default.\
--q, --quiet          [N/A]        : include this to turn off printing messages to standard output,\
-                                     disabled by default\
--e, --exec           [path]       : if included, the simulations are run by executing the program\
-                                     specified by path. The path argument should be the full path,\
-                                     but the default uses the relative path: \"../sogen-deterministic/deterministic\".\
--a, --sim-args       [args]       : if included, any argument after this will be passed to the simulation\
-                                     program. If -h is one of these arguments, the simulation help will be\
-                                     printed and the program will not run.\
--h, --help           [N/A]        : print out this help menu." << endl;  			
+-n, --nominal-file   [filename]   : the relative name of the file from which the nominal parameter set should\n\
+                                     be read, default=nominal.params\n\
+-d, --sense-dir      [filename]   : the relative name of the directory to which the sensitivity results\n\
+                                     will be stored, default=sensitivities\n\
+-D, --data-dir       [filename]   : the relative name of the directory to which the raw simulation data\n\
+                                     will be stored, default=sim-data\n\
+                                     WARNING: IF RUNNING MULTIPLE INSTANCES OF THIS PROGRAM (e.g. on cluster)\n\
+                                     EACH MUST HAVE A UNIQUE DATA DIRECTORY TO AVOID CONFLICT.\n\
+-p, --percentage     [float]      : the maximum percentage by which nominal values will be perturbed (+/-),\n\
+                                     default=5\n\
+-P, --points         [int]        : the number of data points to collect on either side (+/-) of the nominal set,\n\
+                                     default=10\n\
+-c, --nominal-count  [int]        : the number of nominal sets to read from the file, default=1\n\
+-k, --skip           [int]        : the number of nominal sets in the file to skip over, a.k.a. the\n\
+                                     index of the line you would like to start reading from, default=0\n\
+-s, --random-seed    [int]        : the postivie integer value to be used as a seed in the random\n\
+                                     number generation for simulations, default is randomly generated\n\
+                                     based on system time and process id\n\
+-l, --processes      [int]        : the number of processes to which parameter sets can be sent for\n\
+                                     parallel data collection, default=2\n\
+-y, --recycle        [N/A]        : include this if the simulation output has already been\n\
+                                     generated FOR EXACTLY THE SAME FILES AND ARGUMENTS YOU\n\
+                                     ARE USING NOW, disabled by default\n\
+-z, --delete-data    [N/A]        : include this to delete oscillation features data when the program\n\
+                                     exits. This will preserve sensitivity directory but remove the\n\
+                                     directory specified by -D, disabled by default.\n\
+-q, --quiet          [N/A]        : include this to turn off printing messages to standard output,\n\
+                                     disabled by default\n\
+-e, --exec           [path]       : if included, the simulations are run by executing the program\n\
+                                     specified by path. The path argument should be the full path,\n\
+                                     but the default uses the relative path: \n\"../sogen-deterministic/deterministic\n\".\n\
+-a, --sim-args       [args]       : if included, any argument after this will be passed to the simulation\n\
+                                     program. If -h is one of these arguments, the simulation help will be\n\
+                                     printed and the program will not run.\n\
+-h, --help           [N/A]        : print out this help menu.\n" ; 		
 	exit(error);
 }
 
@@ -232,18 +232,19 @@ void make_dir(char* dir){
 	}
 }
 
-//Deletes a directory.
+//Deletes a directory -- does not work, so commented out.
 void unmake_dir(char* dir){
-	int made = mkdir((const char*)dir, S_IRWXU);
+	/*int made = mkdir((const char*)dir, S_IRWXU);
 	if( (-1 == made && errno == EEXIST) || made == 0){
 		int pid = fork();
 		if(pid == 0){
-			execl("rm", "-r", "-f", dir, (char*) NULL);
+			cout << "Removing " << dir << endl;
+			if( -1 == execl("/bin/rm", "--recursive", "-f", dir, (char*) NULL) )	cout << "Fail" << endl;
 		}
 		int status;
 		waitpid(pid, &status, 0);
 	} else{
 		usage("This can't be happening", errno);
-	}
+	}*/
 	return;
 }
