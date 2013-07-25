@@ -49,7 +49,7 @@ int main(int argc, char** argv){
 		cout << "\n ~ Set: " << which_nominal << " -- Calculating sensitivity ~ \n"; 
 		double** lsa_values = LSA_all_dims(ip, ss);
 		del_double_2d(ip.dims, lsa_values); //This probably doesn't need to be returned, but it seemed potentially useful at the time... fix when this is clear
-	
+		
 		if(ip.failure != NULL){
 			usage(ip.failure, ip.failcode);
 			break;
@@ -180,6 +180,34 @@ void normalize(int dims, int num_dependent, double** lsa_values){
 			}
 		}
 	}
+}
+
+/*	Creates elasticity of each output feature for each parameter.
+	Uses a similar structure to LSA_all_dims, this effectively finds the lines around the nominal parameter set instead of slope/sensitvity.
+*/
+void elasticity_all_dims(input_params& ip, sim_set& ss){
+	//First, load the output for the nominal set against which other values will be compared. This call also handles counting the number of output features and holding on to the output features names.
+	/*int num_dependent = -1;
+	char* file_name = make_name(ip.data_dir, (char*)"nominal", 0);
+	char*** output_names = new char**[1];
+	double** nominal_output = load_output(1, &num_dependent, file_name, output_names);
+	unmake_file(file_name, ip.delete_data);
+	free(file_name);
+	
+	//Based on the above count (num_dependent), check the elasticity for each feature.
+	double** dim_output;
+	double** lsa = new double*[ip.dims];
+	int i = 0;
+	for(; i < ip.dims; i++){
+		// Get output for this particular dimension
+		char* file_name = make_name(ip.data_dir, ip.dim_file, i);
+		dim_output = load_output(ss.sets_per_dim, &num_dependent,file_name, NULL);
+		unmake_file(file_name, ip.delete_data);
+		free(file_name);
+		
+		del_double_2d(num_dependent, dim_output);
+	}*/
+	return;
 }
 /*
 If Y is the output function (amplitude, period, etc), p_ j is the j’th parameter, and p’ is the nominal parameter set, then non-dimensional LSA_all_dims S_ j can be evaluated by:
