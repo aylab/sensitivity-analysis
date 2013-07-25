@@ -184,6 +184,9 @@ void normalize(int dims, int num_dependent, double** lsa_values){
 		sum = 0;
 		for( int j = 0; j < dims; j++){
 			val = abs(lsa_values[j][i]);
+			if(isinf(val)){
+				val = 500;
+			}
 			if(isnan(val) == 0){
 				sum += val;
 			} 
