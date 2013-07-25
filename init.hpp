@@ -111,11 +111,11 @@ struct input_params{
 
 //Struct for holding all the sets that need to be simulated.
 struct sim_set{
-	int dims;
+	int dims; //Just holds a copy of how many dimensions/parameters are being used.
 	int sets_per_dim; //Number of sets to simulate for data per dimension that will be perturbed.
-	int points;
+	int points; //Just holds a copy of the number of points to use.
 	double step_per_set; //Decimal difference between perturbations.
-	double** dim_sets;
+	double** dim_sets; //An array for holding the perturbed values. See fill() for a description of the structure of this array.
 	
 	sim_set(input_params& ip){
 		dims = ip.dims;
@@ -133,6 +133,18 @@ struct sim_set{
 		}
 		delete[] dim_sets;
 	}
+	
+	/*	This funciton fills the array dim_sets using the nominal parameter values and the calculated perterbation.
+		The rows of dim_sets are parameter indicies, the columns are the parameter values with increasing amounts of perturbation (from most-negative to most-positive).
+		For example, for a ten percent perturbation with points = 2, dim_sets looks like: 
+		{ {dim_0 - 10%, dim_0 - 5%, dim_0 + 5%, dim_0 + 10%}
+		  {dim_1 - 10%, dim_1 - 5%, dim_1 + 5%, dim_1 + 10%}
+		  ...
+		  {dim_n - 10%, dim_n - 5%, dim_n + 5%, dim_n + 10%}  }
+		Where dim_i is the nominal value for the i'th parameter (and the percentages are for that particular parameter).
+		
+		July 25, 2013 : Confirmed that this array is being filled with the correct values.			
+	*/
 	void fill(double* nominal){
 		for(int i = 0; i < dims; i++){
 			dim_sets[i] = new double[sets_per_dim];
