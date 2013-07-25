@@ -44,6 +44,7 @@ using namespace std;
 
 //Declaring this here so it can be used by the destructor.
 void unmake_dir(char*);
+void unmake_file(char* , bool );
 
 //Structs
 struct input_params{	

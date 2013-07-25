@@ -89,6 +89,7 @@ double** LSA_all_dims(input_params& ip, sim_set& ss){
 	char* file_name = make_name(ip.data_dir, (char*)"nominal", 0);
 	char*** output_names = new char**[1];
 	double** nominal_output = load_output(1, &num_dependent, file_name, output_names);
+	unmake_file(file_name, ip.delete_data);
 	free(file_name);
 	//Based on the above count (num_dependent), calculate the sensitivities of each output for each dimension.
 	double** dim_output;
@@ -98,6 +99,7 @@ double** LSA_all_dims(input_params& ip, sim_set& ss){
 		// Get output for this particular dimension
 		char* file_name = make_name(ip.data_dir, ip.dim_file, i);
 		dim_output = load_output(ss.sets_per_dim, &num_dependent,file_name, NULL);
+		unmake_file(file_name, ip.delete_data);
 		free(file_name);
 		// Fills LSA array with derivative values
 		cout << "Parameter: " << i << "\n"; 

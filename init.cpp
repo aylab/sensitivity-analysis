@@ -232,19 +232,23 @@ void make_dir(char* dir){
 	}
 }
 
-//Deletes a directory -- does not work, so commented out.
+//Deletes a directory that is empty. Could have the functionality to recursively remove contents if not empty, but doesn't currently.
 void unmake_dir(char* dir){
-	/*int made = mkdir((const char*)dir, S_IRWXU);
+	int made = mkdir((const char*)dir, S_IRWXU);
 	if( (-1 == made && errno == EEXIST) || made == 0){
-		int pid = fork();
-		if(pid == 0){
-			cout << "Removing " << dir << endl;
-			if( -1 == execl("/bin/rm", "--recursive", "-f", dir, (char*) NULL) )	cout << "Fail" << endl;
-		}
-		int status;
-		waitpid(pid, &status, 0);
+		if( -1 == rmdir((const char*)dir)){
+			cerr << "Could not remove directory." << endl;		
+		}		
 	} else{
 		usage("This can't be happening", errno);
-	}*/
+	}
 	return;
+}
+
+//Removes a file if remove is true, otherwise does nothing. Should put some error checking here.s
+void unmake_file(char* file_name, bool remove){
+	if(!remove){
+		return;
+	}
+	unlink((const char*)file_name);	
 }
