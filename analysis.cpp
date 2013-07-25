@@ -145,10 +145,10 @@ double* fin_dif_one_dim(int accuracy, int num_dependent, double independent_step
 	double round_error = 0;
 	double* fin_dif = new double[num_dependent];
 	for(int i = 0; i < num_dependent; i++){
-		cout << "Output: " << i << "  with delta x = " << independent_step << "\n output values: ";
+		/*cout << "Output: " << i << "  with delta x = " << independent_step << "\n output values: ";
 		for(int check = 0; check < accuracy; check++){
 			cout << dependent_values[i][check] << " , ";
-		}
+		}*/
 		cout << endl;
 		fdy_fdx( accuracy, independent_step, dependent_values[i], fin_dif + i, &round_error);
 		if(round_error >= independent_step){
