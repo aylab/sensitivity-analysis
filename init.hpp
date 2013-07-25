@@ -40,7 +40,7 @@ using namespace std;
 
 #define len_num(num) ( log10(num+1)+1 )
 #define abs(num) ( ( num < 0 ? -1*num : num) )
-#define non_dim_sense(nom_param, nom_out, dout_dparam) ( ((double)nom_param * (double)dout_dparam) / (double)nom_out)
+#define non_dim_sense(nom_param, nom_out, dout_dparam) ( ((double)nom_param / (double)nom_out) * (double)dout_dparam )
 
 //Declaring this here so it can be used by the destructor.
 void unmake_dir(char*);

@@ -26,6 +26,14 @@ using namespace std;
 /*	The main() function does standard c++ main things -- it calls functions to initialze parameters based on commandline arguments, then distrbiutes the work to functions that perform the gathering of data and analysis.
 */
 int main(int argc, char** argv){
+	/*double nomx = 8.56357;
+	double pertx[2] = {4.28179,  12.8454};
+	double out[2] = {24.1008163265306123435038898606, 35.4251515151515192769693385344};
+	double fdif;
+	double rounderr;
+	fdy_fdx(2, (nomx * (.5)), out, &fdif, &rounderr);
+	cout << "Finite dif = " << fdif << endl;
+	return 0;*/
 	//Setup the parameter struct based on arguments. See init.cpp & init.hpp
 	input_params ip;
 	accept_params(argc, argv, ip);
@@ -99,6 +107,7 @@ double** LSA_all_dims(input_params& ip, sim_set& ss){
 		// Get output for this particular dimension
 		char* file_name = make_name(ip.data_dir, ip.dim_file, i);
 		dim_output = load_output(ss.sets_per_dim, &num_dependent,file_name, NULL);
+		//if(i==0) write_sensitivity( num_dependent, 2, output_names[0], dim_output, (char*)"should_match_dim_0");
 		unmake_file(file_name, ip.delete_data);
 		free(file_name);
 		// Fills LSA array with derivative values
@@ -136,6 +145,11 @@ double* fin_dif_one_dim(int accuracy, int num_dependent, double independent_step
 	double round_error = 0;
 	double* fin_dif = new double[num_dependent];
 	for(int i = 0; i < num_dependent; i++){
+		cout << "Output: " << i << "  with delta x = " << independent_step << "\n output values: ";
+		for(int check = 0; check < accuracy; check++){
+			cout << dependent_values[i][check] << " , ";
+		}
+		cout << endl;
 		fdy_fdx( accuracy, independent_step, dependent_values[i], fin_dif + i, &round_error);
 		if(round_error >= independent_step){
 			cout << "\tBad round error ("<< round_error << ") for output: " << i << "\n";

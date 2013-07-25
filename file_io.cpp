@@ -116,14 +116,21 @@ double** load_output(int num_values, int* num_types, char* file_name, char*** ou
 	for(int i = 0; i < num_values; i++){
 		fscanf(file_pointer, "%*d,"); // skip the first column containing set number
 		for(int j = 0; j < output_types; j++){
-			if( i == 0) out[j] = new double[num_values];
-			fscanf(file_pointer, "%lf%*[,;]", out[j] + i);
+			if( i == 0){
+				out[j] = new double[num_values];
+			}
+			fscanf(file_pointer, "%lf,", out[j] + i);
+			//cout << "\nNUMBER: " <<"("<<i<<","<<j<<")"<<"  " << out[j][i] << endl;
 		}
-		if(i != num_values-1) fscanf(file_pointer, "\n");
+		if(i != num_values-1){
+			fscanf(file_pointer, "%*s\n");
+		}
 	}
 	fclose(file_pointer);
 	return out;
 }
+//0,0.999999999999999888977697537484,29.8797435897436045593167364132,56.0505555846975624945116578601,1,1,0,0,0,-nan,-nan,PASSED
+//1,1,30.2323076923076676791879435768,166.255079755418790909970994107,1,1,0,0,0,-nan,-nan,PASSED
 
 void write_sensitivity(int dims, int output_types, char** output_names, double** lsa_values, char* file_name ){
 	ofstream file_out;
@@ -417,6 +424,11 @@ bool write_dim_sets(int fd, int dim, double* nominal, sim_set& ss){
 	bool good_write = true;
 	for(int i = 0; i < ss.sets_per_dim; i++){
 		nominal[dim] = inserts[i];
+		/*cout << "\n#Dimension " << dim << " Gets sets: \n";
+		for(int check = 0; check < ss.dims; check++){
+			cout << nominal[check] << ", ";
+		}
+		cout << "\n";*/
 		good_write = (int)sizeof(double)*ss.dims == write(fd, nominal, sizeof(double)*ss.dims);
 		if(!good_write) break;
 	}
