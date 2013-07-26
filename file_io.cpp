@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "init.hpp"
 #include "file_io.hpp"
-
+#define MAX_NUM_FEATS 150
 using namespace std;
 
 void read_nominal(input_params& ip){
@@ -79,6 +79,17 @@ void skip_lines( FILE* file_pointer, int line_skip){
 	}
 }
 
+/*	This functions puts output features data into a double[j][i] where j is the index of an output feature and i is the index of the value of that feature at a particular perturbation.
+This function also counts how many features there are and stores that value in num_types. Also, if ouptput_names is not NULL, this function puts the names of each output feature in a char** and has output_names point to that array.
+	Note that this function can be prone to misreading data if the format of output features files changes. Currently the file is expected to look like:
+
+set,post sync wildtype,post per wildtype,post amp wildtype,post per wildtype/wt,post amp wildtype/wt,ant sync wildtype,ant per wildtype,ant amp wildtype,ant per wildtype/wt,ant amp wildtype/wt,
+0,0.999999999999999888977697537484,29.8797435897436045593167364132,56.0505555846975624945116578601,1,1,0,0,0,-nan,-nan,PASSED
+1,1,30.2323076923076676791879435768,166.255079755418790909970994107,1,1,0,0,0,-nan,-nan,PASSED
+	
+	where the number of features can be arbitrary but 1) all values must be comma-seperated with no spaces, 2) the names line must contain a name for every feature, 3) the last value in non-name lines must be followed by a comma, but can have any string after that before the new line, 4) The maximum number of features that can be read is set by the macro MAX_NUM_FEATS and is currently 150. 
+	Also important is the fact that there should be no name for the "PASSED" or "FAILED" column which needs to be ignored.
+*/
 double** load_output(int num_values, int* num_types, char* file_name, char*** output_names){
 	//Open the file for reading.
 	FILE* file_pointer = fopen(file_name, "r");
@@ -87,7 +98,7 @@ double** load_output(int num_values, int* num_types, char* file_name, char*** ou
 	//Only store the names if the call to the function has a place for it.
 	bool name_store = (output_names != NULL);
 	if(name_store){
-		(*output_names) = new char*[150];
+		(*output_names) = new char*[MAX_NUM_FEATS];
 		(*output_names)[0] = new char[50];
 	}
 	//An index for putting characters within the output names array
@@ -96,6 +107,7 @@ double** load_output(int num_values, int* num_types, char* file_name, char*** ou
 	for(char c = '\0'; c != '\n'; fscanf(file_pointer, "%c", &c)){
 		if( c == ','){
 			output_types ++;
+			//With a new comma, this assumes that another output type will be filled in.
 			if(name_store) (*output_names)[output_types] = new char[50];
 			o_n_index = 0;
 			
@@ -104,12 +116,15 @@ double** load_output(int num_values, int* num_types, char* file_name, char*** ou
 				//cout << c << " "; 
 				(*output_names)[output_types][o_n_index] = c;
 				(*output_names)[output_types][o_n_index+1] = '\0';
+				o_n_index ++;
 				//cout <<"\n"<< (*output_names)[output_types][o_n_index] << "___" << (*output_names)[output_types];
 			}
-			o_n_index ++;
+			
 		}
 	}
+	//Because the above loop creates a new item in output_names when a comma is found, one extra allocation will happen so the last allocation needs to be deleted.
 	if(name_store) delete[] (*output_names)[output_types];
+	//Fill in the function parameter with the output_types count.
 	*num_types = output_types;
 	//Initialize the arrays of values for each output type, fill them 
 	double** out= new double*[output_types];
@@ -129,8 +144,6 @@ double** load_output(int num_values, int* num_types, char* file_name, char*** ou
 	fclose(file_pointer);
 	return out;
 }
-//0,0.999999999999999888977697537484,29.8797435897436045593167364132,56.0505555846975624945116578601,1,1,0,0,0,-nan,-nan,PASSED
-//1,1,30.2323076923076676791879435768,166.255079755418790909970994107,1,1,0,0,0,-nan,-nan,PASSED
 
 void write_sensitivity(int dims, int output_types, char** output_names, double** lsa_values, char* file_name ){
 	ofstream file_out;
