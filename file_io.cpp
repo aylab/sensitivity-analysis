@@ -135,6 +135,9 @@ double** load_output(int num_values, int* num_types, char* file_name, char*** ou
 				out[j] = new double[num_values];
 			}
 			fscanf(file_pointer, "%lf,", out[j] + i);
+			if(isinf(out[j][i] != 0)){
+				out[j][i] = 500;
+			}
 			//cout << "\nNUMBER: " <<"("<<i<<","<<j<<")"<<"  " << out[j][i] << endl;
 		}
 		if(i != num_values-1){
@@ -171,104 +174,14 @@ void write_sensitivity(int dims, int output_types, char** output_names, double**
 return;
 }
 
-/*	Establishing a communication pipe from the parent (sampler) to each simulation child for the passing
-of parameter sets and results. */
-bool make_pipes(int processes, int** pipes){
-	for(int i = 0; i < processes; i++){
-		pipes[i] = new int[2];
-		if (pipe(pipes[i]) == -1) {
-			del_pipes(i+1, pipes, true);
-			return false;
-		}
-	}
-	return true;
-}
-/* 	Closes the reading end of each pipe and deletes the data needed to store them.
-	Child processes (../deterministic) are responsible for closing the writing end, but this will try to close them in case of child failure.*/
-void del_pipes(int processes, int** pipes, bool close_write){
-	for(int i = 0; i < processes && pipes[i] != NULL; i++){
-		close(pipes[i][0]);
-		if(close_write && fcntl(pipes[i][1], F_GETFD ) != -1) close(pipes[i][1]);
-		delete[] pipes[i];
-	}
-} 
-
-/*	Mallocs an array of char** that are needed for passing arguments to the execv call for each child simulation. 
-It fills in the appropriate argument space with the file descriptor of the pipe the children will read/write with.*/
-char*** make_all_args(int first_dim, input_params& ip,int** pipes){
-
-	char*** child_args = (char***)malloc(sizeof(char**)*ip.processes);
-	for(int i = 0; i < ip.processes; i++){
-		child_args[i] = (char**)malloc(sizeof(char*)*ip.sim_args_num);
-		make_arg(first_dim+i, ip.sim_args_num, ip.random_seed, pipes[i], ip.data_dir, ip.dim_file, ip.simulation_args, child_args[i]);
-	}
-	return child_args;
-}
-
-void make_arg(int dim_num, int sim_args_num, int seed, int* pipes, char* dir_name, char* dim_name, char** simulation_args, char** destination){
-	int pipe_loc = 0;
-	int strlen_num;	
-	for(int j = 0; j < sim_args_num; j++){
-		if(j == 2 || j == 4){
-			strlen_num = len_num( pipes[pipe_loc] );
-			destination[j]= (char*)malloc(sizeof(char)*(strlen_num+1));
-			sprintf(destination[j], "%d", pipes[pipe_loc]);
-			pipe_loc++;
-		} else if(j == 6){
-			destination[j] = make_name(dir_name, dim_name, dim_num);  
-		} else if(j== 8){
-			strlen_num = len_num( seed );
-			destination[j]= (char*)malloc(sizeof(char)*(strlen_num+1));
-			sprintf(destination[j], "%d", seed);
-		}else if (simulation_args[j] == NULL){
-			destination[j] = NULL;
-		} else{
-			destination[j] = strdup((const char*) simulation_args[j]);
-		}
-	}
-}
-
-char* make_name(char* dir, char* file, int num){
-	int num_len = 0;
-	num = abs(num);
-	if(num > 0){
-		num_len = len_num(num);
-	} else {
-		num_len = 1;
-	} 
-	char* name = (char*)malloc(sizeof(char)*(strlen(dir) + 1 + strlen(file) + num_len + 1));
-	sprintf(name, "%s/%s%d", dir, file, num); 
-	return name;
-}
-
-/*	Deleting the arguments that were used.*/
-void del_args(int processes, int sim_args_num, char*** child_args){
-	for(int i = 0; i < processes; i++){
-		del_arg(sim_args_num, child_args[i]);
-	}
-	free(child_args);
-}
-
-void del_arg(int sim_args_num, char** arg){
-	for(int j = 0; j < sim_args_num; j++){
-		if(arg[j] != NULL)
-			free(arg[j]);	
-		}
-	free(arg);
-}
-/*	Determines how many parameter sets shoudl be passed to each child by distributing them evenly. If the
-number of children does not divide the number of sets, the remainder r is distributed among the first r children.*/
-void segs_per_sim(int segments, int processes, int* distribution){
-	int remainder = segments % processes;
-	for(int i = 0; i < processes; i++){
-		distribution[i] = (remainder > 0 ? segments/processes + 1 : segments/processes);
-		remainder--; 
-	}
-}
+/*
+	The rest of the code is used for piping to/from deterministic.
+*/
 
 /*	This funciton takes care of running the simulation by forking and executing (execv)
 by calling ../deterministic. The parameter sets are passed to child processes and the results of
-the simulations are passed back via a read/write pipe pir for each child.*/
+the simulations are passed back via a read/write pipe pair for each child.
+*/
 void simulate_samples(int first_dim, input_params& ip, sim_set& ss ){	
     int* pipes[ip.processes];
     if(!make_pipes(ip.processes, pipes)){
@@ -298,8 +211,7 @@ void simulate_samples(int first_dim, input_params& ip, sim_set& ss ){
 				break;
 			}
 		}   	
-    }
-    
+    }  
     if(ip.failure != NULL){
     	del_args(ip.processes, ip.sim_args_num,child_args);
 		del_pipes(ip.processes, pipes, true);
@@ -331,6 +243,8 @@ void simulate_samples(int first_dim, input_params& ip, sim_set& ss ){
 	del_pipes(ip.processes, pipes, true); 
 }
 
+/*	This function is very similar to the above, except that it is designed for only writing out oen parameter set -- the nominal parameter set.
+*/
 void simulate_nominal(input_params& ip){
 	int* pipes = new int[2];
 	if (pipe(pipes) == -1) {
@@ -378,7 +292,101 @@ void simulate_nominal(input_params& ip){
 	del_arg( ip.sim_args_num, child_args);
 	del_pipes(1, &pipes, true);
 	return;
+}
 
+/*	Establishing a communication pipe from the parent (sampler) to each simulation child for the passing
+of parameter sets and results. */
+bool make_pipes(int processes, int** pipes){
+	for(int i = 0; i < processes; i++){
+		pipes[i] = new int[2];
+		if (pipe(pipes[i]) == -1) {
+			del_pipes(i+1, pipes, true);
+			return false;
+		}
+	}
+	return true;
+}
+/* 	Closes the reading end of each pipe and deletes the data needed to store them.
+	Child processes (../deterministic) are responsible for closing the writing end, but this will try to close them in case of child failure.*/
+void del_pipes(int processes, int** pipes, bool close_write){
+	for(int i = 0; i < processes && pipes[i] != NULL; i++){
+		close(pipes[i][0]);
+		if(close_write && fcntl(pipes[i][1], F_GETFD ) != -1) close(pipes[i][1]);
+		delete[] pipes[i];
+	}
+} 
+
+/*	Mallocs an array of char** that are needed for passing arguments to the execv call for each child simulation. 
+It fills in the appropriate argument space with the file descriptor of the pipe the children will read/write with.
+	make_arg is just a sub-function that handles the work for one argument.*/
+char*** make_all_args(int first_dim, input_params& ip,int** pipes){
+
+	char*** child_args = (char***)malloc(sizeof(char**)*ip.processes);
+	for(int i = 0; i < ip.processes; i++){
+		child_args[i] = (char**)malloc(sizeof(char*)*ip.sim_args_num);
+		make_arg(first_dim+i, ip.sim_args_num, ip.random_seed, pipes[i], ip.data_dir, ip.dim_file, ip.simulation_args, child_args[i]);
+	}
+	return child_args;
+}
+void make_arg(int dim_num, int sim_args_num, int seed, int* pipes, char* dir_name, char* dim_name, char** simulation_args, char** destination){
+	int pipe_loc = 0;
+	int strlen_num;	
+	for(int j = 0; j < sim_args_num; j++){
+		if(j == 2 || j == 4){
+			strlen_num = len_num( pipes[pipe_loc] );
+			destination[j]= (char*)malloc(sizeof(char)*(strlen_num+1));
+			sprintf(destination[j], "%d", pipes[pipe_loc]);
+			pipe_loc++;
+		} else if(j == 6){
+			destination[j] = make_name(dir_name, dim_name, dim_num);  
+		} else if(j== 8){
+			strlen_num = len_num( seed );
+			destination[j]= (char*)malloc(sizeof(char)*(strlen_num+1));
+			sprintf(destination[j], "%d", seed);
+		}else if (simulation_args[j] == NULL){
+			destination[j] = NULL;
+		} else{
+			destination[j] = strdup((const char*) simulation_args[j]);
+		}
+	}
+}
+
+char* make_name(char* dir, char* file, int num){
+	int num_len = 0;
+	num = abs(num);
+	if(num > 0){
+		num_len = len_num(num);
+	} else {
+		num_len = 1;
+	} 
+	char* name = (char*)malloc(sizeof(char)*(strlen(dir) + 1 + strlen(file) + num_len + 1));
+	sprintf(name, "%s/%s%d", dir, file, num); 
+	return name;
+}
+
+/*	Deleting the arguments that were used.*/
+void del_args(int processes, int sim_args_num, char*** child_args){
+	for(int i = 0; i < processes; i++){
+		del_arg(sim_args_num, child_args[i]);
+	}
+	free(child_args);
+}
+void del_arg(int sim_args_num, char** arg){
+	for(int j = 0; j < sim_args_num; j++){
+		if(arg[j] != NULL)
+			free(arg[j]);	
+		}
+	free(arg);
+}
+
+/*	Determines how many parameter sets shoudl be passed to each child by distributing them evenly. If the
+number of children does not divide the number of sets, the remainder r is distributed among the first r children.*/
+void segs_per_sim(int segments, int processes, int* distribution){
+	int remainder = segments % processes;
+	for(int i = 0; i < processes; i++){
+		distribution[i] = (remainder > 0 ? segments/processes + 1 : segments/processes);
+		remainder--; 
+	}
 }
 
 bool check_status(int status, int simpid, int* failcode, char* failure){
