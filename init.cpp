@@ -152,7 +152,7 @@ void accept_params (int num_args, char** args, input_params& ip) {
 	ip.simulation_args[5] = (char*)"--print-osc-features";
 	ip.simulation_args[7] = (char*)"--seed";
 	ip.simulation_args[sim_args_index] = NULL;
-}
+	}
 
 void ensure_nonempty (const char* flag, const char* arg) {
 	if (arg == NULL) {

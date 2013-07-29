@@ -17,14 +17,17 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef FINITE_DIFFERENCE_HPP
-#define FINITE_DIFFERENCE_HPP
 
+#ifndef INIT_HPP
+//This if checks to see if the sensitivity analysis init.hpp file has already been included -- if so, these don't need to be included again.
 #include <stdlib.h>
 #include <cstring>
 #include <cmath>
-#include <cstdio>
 #include <errno.h>
+#endif
+
+#ifndef FINITE_DIFFERENCE_HPP
+#define FINITE_DIFFERENCE_HPP
 
 #define minmax(min, num, max) ( min >= num ? min : ( max < num ? max : num))
 #define ACC_MAX 8

@@ -18,6 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef IO_HPP
 #define IO_HPP
+#include <fcntl.h>		//(Needed to check on open pipes when closing them.)
+#include <sys/wait.h>	//(Waiting on processes to finish and reading their return status. )
 
 using namespace std;
 //Function declarations:

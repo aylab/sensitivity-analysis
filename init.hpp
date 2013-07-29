@@ -18,17 +18,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef INIT_HPP
 #define INIT_HPP
 //include <library> 	//(What the library is for)
+#include <stdlib.h>		//(Standard library.)
+#include <cstring>		//(Used for strdup, memcpy, etc.)
 #include <iostream>		//(Reading/writing files, and for setting cout in quiet mode.)
 #include <streambuf>	//(Setting cout in quiet mode.)
 #include <fstream>		//(Reading/writing files.)
-#include <stdlib.h>		//(Standard library.)
-#include <cstring>		//()
-#include <unistd.h>		//(Forking processes and piping data.)
-#include <sys/wait.h>	//(Waiting on processes to finish and reading their return status. )
-#include <cmath>		//(Needed for INFINITY number macro)
-#include <fcntl.h>		//(Necessary?)
-#include <cstdio>		//(Standard library)
-#include <sys/stat.h>	//(Used for file and directory checking)
+#include <unistd.h>		//(Needed for removing files/directory, and by io for forking processes and piping data)
+#include <cmath>		//(Needed for isinf() checks and log10 call.)
+#include <sys/stat.h>	//(Used for file and directory checking and making)
 #include <errno.h>		//(Some libraries use error codes that are useful for checking things, like mkdir)
 using namespace std;
 
