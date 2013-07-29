@@ -28,4 +28,4 @@ else:
 
 env = Environment(CXX='g++')
 env.Append(CXXFLAGS=compile_flags, LINKFLAGS=link_flags)
-env.Program(target='s_a', source=['analysis.cpp', 'init.cpp', 'file_io.cpp', 'finite_difference.cpp'])
+env.Program(target='s_a', source=['analysis.cpp', 'init.cpp', 'io.cpp', 'finite_difference.cpp'])

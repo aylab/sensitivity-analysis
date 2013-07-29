@@ -20,31 +20,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 Summary of sensitivity analysis:
 
 If Y is the output function (amplitude, period, etc), p_ j is the j’th parameter, and p’ is the nominal parameter set, then non-dimensional LSA_all_dims S_ j can be evaluated by:
-	S_ j = (p’_ j/Y(p’)) * (∆Y(p’)/∆p_j)
+	S_ j = (p’_ j/Y(p’)) * (dY(p’)/dp_j)
 
-Here, ∆ refers to taking the delta of a partial derivative, but is approximate because we are evaluating the output at finitely many points.
+Here, d refers to taking the delta of a partial derivative, but is approximate because we are evaluating the output at finitely many points.
 
 To normalize the sensitivities across the parameter set, for m parameters, the following gives a quantitative measure of ranking and allows comparisons over time (Taylor et al):
 
 	N_ j = (S_ j) / (m j =1|S_ j|)
 
-Both of the above can be applied to time-dependent output. The LSA_all_dims at a particular time point will be dependent on the evaluation of the output function at that time point. 
-
-The sloppy-stiff method allows us to see the change when multiple parameters are varied. If the function Y has multiple outputs, let Y_i be the i’th output. Let V be a vector of parameter values (like a bunch of p’s from above) and V’ the nominal parameter set. Then the cost function X2 when there are n output variables is evaluated by:
-X2(V) = n i =1[ (w_i / 2T) ∫0T [ (Y_i(V, t) – Y_i(V’,t))/q_i]2 dt ]
-
-where w and q are weighting terms; w might be used to de/emphasize the influence of particular output; q might be the maximum over the time period to normalize values to a range of zero to one.  Note that for an output function with only one output that is not time-dependent, the evaluation reduces to:
-
-	X2(V) = w * [ ( Y(V) – Y(V’) ) / q ]2 
- 
-We may calculate the influence of different parameters on period with this equation, because period is a single output we do not expect to change. For the traveling wave extension we will probably evaluate it at discrete times/levels of Hes6, but we could look at the time average for a simulation as well.
-
-	Once the method of evaluation is clear, performing LSA on large parameter sets can create global LSA_all_dims values. The evaluation is done by using each parameter set as the nominal value (V’) and calculating the LSA_all_dims when varying a particular parameter/subset of parameters. Compiling the results can be done in numerous ways, and we have to decide which is most representative of our system. Averaging the LSA_all_dims with respect to a particular parameter is simplest, but not very representative. Figure 5b from Taylor et al. provides a good demonstration for single-parameter LSA_all_dims: each parameter has its own curve plotted on a Number of points (parameter values) vs. Normalized LSA_all_dims graph. A figure like this would be a good inclusion in our analysis. 
 */
 
 #include "init.hpp"
 #include "analysis.hpp"
-#include "file_io.hpp"
+#include "io.hpp"
 #include "finite_difference.hpp"
 
 using namespace std;
@@ -60,7 +48,8 @@ int main(int argc, char** argv){
 	for(int which_nominal = 0; which_nominal < ip.num_nominal;  which_nominal ++){
 		//Read in the nominal parameter set from file.
 		read_nominal(ip);
-		if(ip.nominal == NULL) usage("Could not read nominal parameter set.", which_nominal);
+		//If ip.nominal is set to NULL after the read_nominal() call, this function exits.
+		if(ip.nominal == NULL) usage("Could not read nominal parameter set.", which_nominal); 
 
 		//Initializes the struct that holds sets that will be simulated and fills it in with the appropriate values.
 		sim_set ss(ip);
@@ -73,8 +62,7 @@ int main(int argc, char** argv){
 		}
 		//Ready to calculate the sensitivity. The LSA_all_dims() function does all of the work.
 		cout << "\n ~ Set: " << which_nominal << " -- Calculating sensitivity ~ \n"; 
-		double** lsa_values = LSA_all_dims(ip, ss);
-		del_double_2d(ip.dims, lsa_values); //This probably doesn't need to be returned, but it seemed potentially useful at the time... fix when this is clear
+		LSA_all_dims(ip, ss);
 		
 		if(ip.failure != NULL){
 			usage(ip.failure, ip.failcode);
@@ -86,7 +74,8 @@ int main(int argc, char** argv){
 }
 
 /*	This function does exactly what its name implies. 
-	The sim_set struct handles the work of deciding how to parameter sets should be passed, and file_io takes care of the execution and parallelization. See init.hpp & file_io.cpp
+	The sim_set struct handles the work of how perterbations of parameter sets should be stored,
+	the simulate_samples() function in file_io takes care of the execution and parallelization. See init.hpp & io.cpp
 */
 void generate_data(input_params& ip, sim_set& ss){
 	//Run the simulation on the nominal set 
@@ -107,9 +96,9 @@ void generate_data(input_params& ip, sim_set& ss){
 
 /*	This function calculates the local LSA_all_dims around the the nominal parameter set with respect to each parameter. 
 	It then normalizes the sensitivities of each feature to each parameter based on the parameter's fraction of the total sensitivity from all parameters. (See the normalize function)
-	This also makes the calls to write out the information to appropriate files. See file_io.cpp
+	This also makes the calls to write out the information to appropriate files. See io.cpp
 */
-double** LSA_all_dims(input_params& ip, sim_set& ss){
+void LSA_all_dims(input_params& ip, sim_set& ss){
 	//First, load the output for the nominal set against which other values will be compared. This call also handles counting the number of output features and holding on to the output features names.
 	int num_dependent;
 	char* file_name = make_name(ip.data_dir, (char*)"nominal", 0); //Make name just mallocs a string based on a directory+filename+integer combination.
@@ -125,6 +114,7 @@ double** LSA_all_dims(input_params& ip, sim_set& ss){
 		// Get output for this particular dimension
 		file_name = make_name(ip.data_dir, ip.dim_file, i);
 		dim_output = load_output(ss.sets_per_dim, &num_dependent,file_name, NULL);
+		unmake_file(file_name, ip.delete_data);
 		free(file_name);
 		// Fills LSA array with derivative values
 		cout << "Parameter: " << i << "\n"; 
@@ -140,7 +130,7 @@ double** LSA_all_dims(input_params& ip, sim_set& ss){
 	write_sensitivity(ip.dims, num_dependent, output_names[0], lsa, file_name);
 	free(file_name);
 	
-	//This call modifies lsa in place, so the array that is returned is the normalized sensitivities.
+	//This call modifies lsa in place, so after the call to normalize(), lsa contains the normalized sensitivities.
 	normalize(ip.dims, num_dependent, lsa);
 	file_name = make_name(ip.sense_dir, ip.norm_file, ip.line_skip - 1);
 	write_sensitivity(ip.dims, num_dependent, output_names[0], lsa, file_name);
@@ -150,7 +140,8 @@ double** LSA_all_dims(input_params& ip, sim_set& ss){
 	del_double_2d(num_dependent, nominal_output);
 	del_char_2d(num_dependent, output_names[0]);
 	delete[] output_names;
-	return lsa;
+	del_double_2d(ip.dims, lsa);
+	return;
 }
 
 /*	Handles the call to the finite difference library which is simple to use.

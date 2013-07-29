@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "init.hpp"
-#include "file_io.hpp"
+#include "io.hpp"
 #define MAX_NUM_FEATS 150
 using namespace std;
 
