@@ -140,7 +140,7 @@ void accept_params (int num_args, char** args, input_params& ip) {
 	//Initializing the random seed.
 	init_seed(ip);
 	
-	//Initializing some arguments that are always passed into the simulation program.
+	//Initializing some arguments that are always passed into the simulation program. The arguments that need to be filled in are taken care of by file_io.cpp in make_arg()
 	if(!ip.sim_args){
 		ip.simulation_args = new char*[10];
 		ip.sim_args_num = 10;
@@ -150,9 +150,8 @@ void accept_params (int num_args, char** args, input_params& ip) {
 	ip.simulation_args[1] = (char*)"--pipe-in";
 	ip.simulation_args[3] = (char*)"--pipe-out";
 	ip.simulation_args[5] = (char*)"--print-osc-features";
-	ip.simulation_args[7] = (char*)"-s";
+	ip.simulation_args[7] = (char*)"--seed";
 	ip.simulation_args[sim_args_index] = NULL;
-	
 }
 
 void ensure_nonempty (const char* flag, const char* arg) {
@@ -163,6 +162,8 @@ void ensure_nonempty (const char* flag, const char* arg) {
 	}
 }
 
+/*	Function for turning quit mode on/off by redirecting cout.
+*/
 void cout_switch(bool turn_off, input_params& ip){
 	if(turn_off){
 		ip.cout_orig = cout.rdbuf();
@@ -245,7 +246,7 @@ void unmake_dir(char* dir){
 	return;
 }
 
-//Removes a file if remove is true, otherwise does nothing. Should put some error checking here.s
+//Removes a file if remove is true, otherwise does nothing. Should put some error checking here.
 void unmake_file(char* file_name, bool remove){
 	if(!remove){
 		return;

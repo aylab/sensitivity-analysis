@@ -74,6 +74,11 @@ void fdy_fdx(int accuracy, double delta_independent, double* dependent, double* 
 	*fin_dif_output = fin_dif;
 }
 
+/*	Simple function for adding up the numerator for the finite difference calculation.
+Each term is scaled by the appropriate coefficient as determined by the fin_dif_coef struct.
+If each term of the sum is infinite, this returns a sum of zero -- i.e. the function values are not changing.
+If the numerator contains at least one finite and one infinite value, the sum returns INFINITY -- i.e. infinite slope.
+*/
 double sum_num(double* dependent, fin_dif_coef& fdc){
 	double numerator = 0;
 	double next = 0;

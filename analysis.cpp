@@ -123,10 +123,8 @@ double** LSA_all_dims(input_params& ip, sim_set& ss){
 	int i = 0;
 	for(; i < ip.dims; i++){
 		// Get output for this particular dimension
-		char* file_name = make_name(ip.data_dir, ip.dim_file, i);
+		file_name = make_name(ip.data_dir, ip.dim_file, i);
 		dim_output = load_output(ss.sets_per_dim, &num_dependent,file_name, NULL);
-		//if(i==0) write_sensitivity( num_dependent, 2, output_names[0], dim_output, (char*)"should_match_dim_0");
-		unmake_file(file_name, ip.delete_data);
 		free(file_name);
 		// Fills LSA array with derivative values
 		cout << "Parameter: " << i << "\n"; 
@@ -220,32 +218,4 @@ void del_char_2d(int rows, char** victim){
 	delete[] victim;
 }
 
-/*	Creates elasticity of each output feature for each parameter.
-	Uses a similar structure to LSA_all_dims, this effectively finds the lines around the nominal parameter set instead of slope/sensitvity.
-	This function may not actually prove useful, commenting it out for now.
-*/
-void elasticity_all_dims(input_params& ip, sim_set& ss){
-	//First, load the output for the nominal set against which other values will be compared. This call also handles counting the number of output features and holding on to the output features names.
-	/*int num_dependent = -1;
-	char* file_name = make_name(ip.data_dir, (char*)"nominal", 0);
-	char*** output_names = new char**[1];
-	double** nominal_output = load_output(1, &num_dependent, file_name, output_names);
-	unmake_file(file_name, ip.delete_data);
-	free(file_name);
-	
-	//Based on the above count (num_dependent), check the elasticity for each feature.
-	double** dim_output;
-	double** lsa = new double*[ip.dims];
-	int i = 0;
-	for(; i < ip.dims; i++){
-		// Get output for this particular dimension
-		char* file_name = make_name(ip.data_dir, ip.dim_file, i);
-		dim_output = load_output(ss.sets_per_dim, &num_dependent,file_name, NULL);
-		unmake_file(file_name, ip.delete_data);
-		free(file_name);
-		
-		del_double_2d(num_dependent, dim_output);
-	}*/
-	return;
-}
 

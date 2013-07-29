@@ -38,7 +38,7 @@ but an accuracy of (∆x)^8 should be adequate, if not superfuous due to computa
 #define C_TWO {-1*((double)1)/2,  ((double)1)/2}
 
 using namespace std;
-
+//Struct declaration
 struct fin_dif_coef{
 	int accuracy;
 	double* coef;
@@ -82,18 +82,16 @@ struct fin_dif_coef{
 	}
 };
 
+//Function declarations.
 double finite_difference(int num_points, double step_size, double* function_values);
-
 void fdy_fdx(int accuracy, double delta_independent, double* dependent, double* fin_dif_output, double* round_error);
-
 double sum_num(double* dependent, fin_dif_coef& fdc);
 
 /*
--1*((double)1)/2,  ((double)1)/2
-((double)1)/12, -1*((double)2)/3,  ((double)2)/3,  -1*((double)1)/12
--1*((double)1)/60, ((double)3)/20, -1*((double)3)/4,  ((double)3)/4,  -1*((double)3)/20, ((double)1)/60
+Chart describign coefficient assignment for different levels of accuracy:
 
-Accuracy	−4		−3		−2		−1		0		1		2		3		4
+x-step	 	−4		−3		−2		−1		0		1		2		3		4
+Accuracy
 2	 	 	 						−1/2	0		1/2	 	 	 
 4	 	 					1/12	−2/3	0		2/3		−1/12	 	 
 6	 				−1/60	3/20	−3/4	0		3/4		−3/20	1/60	 

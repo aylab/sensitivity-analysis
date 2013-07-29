@@ -20,30 +20,29 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define FILE_IO_HPP
 
 using namespace std;
-
+//Function declarations:
+//File input
 void read_nominal(input_params& );
 int count_params(FILE* );
 bool fill_doubles(FILE* , int , double* );
 void skip_lines( FILE* , int);
 double** load_output(int, int*, char*, char*** );
+//File output
 void write_sensitivity(int , int , char** , double** , char*  );
 
-
-bool make_pipes(int , int** );
-void del_pipes(int , int** , bool );
-
+//Piping functions
+void simulate_samples(int , input_params& , sim_set&  );
 char*** make_all_args(int , input_params& ,int** );
 void make_arg(int , int , int, int* , char* , char* , char** , char** );
 char* make_name(char* , char* , int );
 void del_args(int, int, char*** );
 void del_arg(int , char** );
+bool make_pipes(int , int** );
+void del_pipes(int , int** , bool );
 void segs_per_sim(int , int , int* );
-void simulate_samples(int , input_params& , sim_set&  );
 bool write_info(int , int, int);
 bool write_dim_sets(int , int , double* , sim_set& );
-
 void simulate_nominal(input_params& );
-
 bool write_nominal(input_params& , int );
 bool check_status(int , int , int* , char* );
 

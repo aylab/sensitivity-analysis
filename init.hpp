@@ -17,36 +17,34 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #ifndef INIT_HPP
 #define INIT_HPP
-
-#include <iostream>
-#include <streambuf>
-#include <fstream>
-
-#include <stdlib.h>
-#include <cstring>
-#include <unistd.h>
-#include <sys/wait.h>
-#include <cmath>
-#include <sys/resource.h>
-#include <fcntl.h>
-#include <cstdio>
-#include <sys/stat.h>
-#include <errno.h>
+//include <library> 	//(What the library is for)
+#include <iostream>		//(Reading/writing files, and for setting cout in quiet mode.)
+#include <streambuf>	//(Setting cout in quiet mode.)
+#include <fstream>		//(Reading/writing files.)
+#include <stdlib.h>		//(Standard library.)
+#include <cstring>		//()
+#include <unistd.h>		//(Forking processes and piping data.)
+#include <sys/wait.h>	//(Waiting on processes to finish and reading their return status. )
+#include <cmath>		//(Needed for INFINITY number macro)
+#include <fcntl.h>		//(Necessary?)
+#include <cstdio>		//(Standard library)
+#include <sys/stat.h>	//(Used for file and directory checking)
+#include <errno.h>		//(Some libraries use error codes that are useful for checking things, like mkdir)
 using namespace std;
 
-//Handy math macros
+//Character checking macros used for parsing (by file_io.cpp)
 #define is_num(c) (('1' <= c && c <= '9') || (c == '0') || (c == '.') || (c == 'e'))
 #define alph_num_slash( car ) ( ('a' <= car && car <= 'z') || ('A' <= car && car <= 'Z') || ('1' <= car && car <= '9') || (car == '0') || (car == '/') || (car == ' '))
-
+//Handy math macros
 #define len_num(num) ( log10(num+1)+1 )
 #define abs(num) ( ( num < 0 ? -1*num : num) )
 #define non_dim_sense(nom_param, nom_out, dout_dparam) ( ((double)nom_param / (double)nom_out) * (double)dout_dparam )
 
-//Declaring this here so it can be used by the destructor.
+//Declaring this here so it can be used by the input_params destructor.
 void unmake_dir(char*);
 void unmake_file(char* , bool );
 
-//Structs
+//Struct for holding on to input arguments and values.
 struct input_params{	
 	bool sim_args;
 	bool quiet;
