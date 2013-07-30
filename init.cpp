@@ -1,5 +1,5 @@
 /*
-Deterministic simulator for zebrafish segmentation
+Local Sensitivity Analysis progam, designed for use with the Deterministic simulator for zebrafish segmentation.
 Copyright (C) 2013 Ahmet Ay, Jack Holland, Adriana Sperlea, Sebastian Sangervasi
 
 This program is free software: you can redistribute it and/or modify

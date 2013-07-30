@@ -1,5 +1,5 @@
 /*
-Deterministic simulator for zebrafish segmentation
+Local Sensitivity Analysis progam, designed for use with the Deterministic simulator for zebrafish segmentation.
 Copyright (C) 2013 Ahmet Ay, Jack Holland, Adriana Sperlea, Sebastian Sangervasi
 
 This program is free software: you can redistribute it and/or modify
@@ -18,21 +18,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef IO_HPP
 #define IO_HPP
+//include <library> 	//(What the library is for)
 #include <fcntl.h>		//(Needed to check on open pipes when closing them.)
 #include <sys/wait.h>	//(Waiting on processes to finish and reading their return status. )
 
 using namespace std;
-//Function declarations:
-//File input
+/* Function declarations */
+//File input:
 void read_nominal(input_params& );
 int count_params(FILE* );
 bool fill_doubles(FILE* , int , double* );
 void skip_lines( FILE* , int);
 double** load_output(int, int*, char*, char*** );
-//File output
+
+//File output:
 void write_sensitivity(int , int , char** , double** , char*  );
 
-//Piping functions
+//Piping functions:
 void simulate_samples(int , input_params& , sim_set&  );
 char*** make_all_args(int , input_params& ,int** );
 void make_arg(int , int , int, int* , char* , char* , char** , char** );
@@ -47,6 +49,5 @@ bool write_dim_sets(int , int , double* , sim_set& );
 void simulate_nominal(input_params& );
 bool write_nominal(input_params& , int );
 bool check_status(int , int , int* , char* );
-
 
 #endif 

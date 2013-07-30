@@ -22,27 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace std;
 
-/*	A wrapper function for taking the minimum arguments and returning the finite difference, 
-disregarding error unless it is greater than the step size.
-*/
-double finite_difference(int num_points, double step_size, double* function_values){
-	int output_shift = 0;
-	num_points -= num_points % 2;
-	if(num_points > ACC_MAX){
-		output_shift += ACC_MAX / 2;
-	}
-	
-	double round_error;
-	double fin_dif;
-	fdy_fdx(num_points - output_shift, step_size, function_values, &fin_dif, &round_error);
-	/*
-	if( round_error > step_size){
-		cerr << "Error was greater than step size (" << round_error << ">" << step_size << ").\n Value cannot be trusted.\n";
-	}
-	*/
-	return fin_dif;
-}
-
 /*	Function: 
 		"finite difference of y" / "finite difference of x" 
 	Where the input parameters are:
@@ -100,3 +79,21 @@ double sum_num(double* dependent, fin_dif_coef& fdc){
 		return INFINITY;
 	}
 }
+
+
+/*	A wrapper function for taking the minimum arguments and returning the finite difference, 
+disregarding error -- this is dangerous.
+*/
+double finite_difference(int num_points, double step_size, double* function_values){
+	int output_shift = 0;
+	num_points -= num_points % 2;
+	if(num_points > ACC_MAX){
+		output_shift += ACC_MAX / 2;
+	}
+	
+	double fin_dif;
+	fdy_fdx(num_points - output_shift, step_size, function_values, &fin_dif, NULL);
+
+	return fin_dif;
+}
+

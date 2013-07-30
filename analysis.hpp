@@ -1,5 +1,5 @@
 /*
-Deterministic simulator for zebrafish segmentation
+Local Sensitivity Analysis progam, designed for use with the Deterministic simulator for zebrafish segmentation.
 Copyright (C) 2013 Ahmet Ay, Jack Holland, Adriana Sperlea, Sebastian Sangervasi
 
 This program is free software: you can redistribute it and/or modify
@@ -17,11 +17,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #ifndef ANALYSIS_HPP
 #define ANALYSIS_HPP
+
+//	This macro is used when checking infinite values. 
+#define INF_SUBSTITUTE 500
+
 //Function declarations.
 void generate_data(input_params&, sim_set&);
 void LSA_all_dims(input_params& , sim_set& );
 double* fin_dif_one_dim(int, int, double, double**);
 void normalize(int , int t, double** );
+double check_num(double );
 void del_double_2d(int , double** );
 void del_char_2d(int , char** );
 #endif

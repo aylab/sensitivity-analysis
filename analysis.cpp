@@ -1,5 +1,5 @@
 /*
-Deterministic simulator for zebrafish segmentation
+Local Sensitivity Analysis progam, designed for use with the Deterministic simulator for zebrafish segmentation.
 Copyright (C) 2013 Ahmet Ay, Jack Holland, Adriana Sperlea, Sebastian Sangervasi
 
 This program is free software: you can redistribute it and/or modify
@@ -44,26 +44,27 @@ int main(int argc, char** argv){
 	input_params ip;
 	accept_params(argc, argv, ip);
 	
-	//Loop for processign multiple nominal parameter sets. Each step of the loop will do all of the work based on one nominal parameter set, then increment ip.line_skip which will cause proceeding steps of the loop to read other nominal sets from the input file.
+	//Loop for processign multiple nominal parameter sets. Each step of the loop will do all of the sensitivity analysis based on one nominal parameter set, then increment ip.line_skip which will cause proceeding steps of the loop to read other nominal sets from the input file.
 	for(int which_nominal = 0; which_nominal < ip.num_nominal;  which_nominal ++){
 		//Read in the nominal parameter set from file.
 		read_nominal(ip);
-		//If ip.nominal is set to NULL after the read_nominal() call, this function exits.
+		//If ip.nominal is set to NULL after the read_nominal() call, this check exits the program.
 		if(ip.nominal == NULL) usage("Could not read nominal parameter set.", which_nominal); 
 
 		//Initializes the struct that holds sets that will be simulated and fills it in with the appropriate values.
 		sim_set ss(ip);
 	
 		//Send out the sets that need to be simulated to get data stored in files. Recycle checks to see whether the user indicated that the data has already been generated and, if so, assumes it can read the necessary files. 
-		//The recycle option is prone to failure if commandline arguments are inconsistent with previous runs or if num_nominal is greater than 1. (There is a warning about this in the usage help.) 
+		//The recycle option is prone to failure if commandline arguments are inconsistent with previous runs. (There is a warning about this in the usage help.) 
 		if(!ip.recycle){
 			cout << "\n ~ Set: " << which_nominal << " -- Generating data ~ \n";
 			generate_data(ip, ss);
 		}
-		//Ready to calculate the sensitivity. The LSA_all_dims() function does all of the work.
+		//Ready to calculate the sensitivity. The LSA_all_dims() function takes care of reading the oscillations features files and performing the analysis.
 		cout << "\n ~ Set: " << which_nominal << " -- Calculating sensitivity ~ \n"; 
 		LSA_all_dims(ip, ss);
 		
+		//The failure message is not NULL iff there was an error in the program.
 		if(ip.failure != NULL){
 			usage(ip.failure, ip.failcode);
 			break;
@@ -75,15 +76,16 @@ int main(int argc, char** argv){
 
 /*	This function does exactly what its name implies. 
 	The sim_set struct handles the work of how perterbations of parameter sets should be stored,
-	the simulate_samples() function in file_io takes care of the execution and parallelization. See init.hpp & io.cpp
+	the simulate_samples() function in io.cpp takes care of the execution and parallelization. See init.hpp & io.cpp
 */
 void generate_data(input_params& ip, sim_set& ss){
 	//Run the simulation on the nominal set 
 	simulate_nominal(ip);
 	
 	//Dispatch the sets for perturbations of each dimension to the simulation program.
+	//Based on the input parameter for how many processes can be run, this will get ip.processes running deterministic simulatneously, each running the perturbed sets for a particular simulation dimension/parmater. 
 	int first_dim = 0;
-	int proc = ip.processes; //Temporarily holds on to the number of processes set for the input params so that the struct can have its value modified.
+	int proc = ip.processes; //Temporarily holds on to the number of processes set for the input params so that the struct can have its value modified before it is passed to simulate_samples().
 	for(; first_dim < ip.dims; first_dim += proc){
 		if( (ip.dims - first_dim) < proc ){
 			ip.processes = ip.dims - first_dim;
@@ -91,11 +93,11 @@ void generate_data(input_params& ip, sim_set& ss){
 		simulate_samples(first_dim, ip, ss);
 		if(ip.failure != NULL) break;
 	}
-	ip.processes = proc;
+	ip.processes = proc; //Put ip.processes back to its original value.
 }
 
 /*	This function calculates the local LSA_all_dims around the the nominal parameter set with respect to each parameter. 
-	It then normalizes the sensitivities of each feature to each parameter based on the parameter's fraction of the total sensitivity from all parameters. (See the normalize function)
+	It then normalizes the sensitivities of each feature to each parameter based on the parameter's fraction of the total sensitivity from all parameters. (See the normalize() function)
 	This also makes the calls to write out the information to appropriate files. See io.cpp
 */
 void LSA_all_dims(input_params& ip, sim_set& ss){
@@ -152,18 +154,19 @@ void LSA_all_dims(input_params& ip, sim_set& ss){
 double* fin_dif_one_dim(int accuracy, int num_dependent, double independent_step, double** dependent_values){
 	double round_error = 0;
 	double* fin_dif = new double[num_dependent];
+
 	for(int i = 0; i < num_dependent; i++){
-		/*cout << "Output: " << i << "  with delta x = " << independent_step << "\n output values: ";
-		for(int check = 0; check < accuracy; check++){
-			cout << dependent_values[i][check] << " , ";
+		//See the description of check_num() for a description of this check.
+		for(int j = 0; j < accuracy; j++){
+			dependent_values[i][j] = check_num(dependent_values[i][j]);
 		}
-		cout << endl;*/
+		//Call the finite difference function to get the derivative.
 		fdy_fdx( accuracy, independent_step, dependent_values[i], fin_dif + i, &round_error);
+		//Check the round error.
 		if(round_error >= independent_step){
 			cout << "\tBad round error ("<< round_error << ") for output: " << i << "\n";
 		}
 	}
-	
 	return fin_dif;
 }
 
@@ -173,25 +176,31 @@ double* fin_dif_one_dim(int accuracy, int num_dependent, double independent_step
 */
 void normalize(int dims, int num_dependent, double** lsa_values){
 	double sum = 1;
-	volatile double val;
 	for( int i = 0; i < num_dependent; i++){
 		sum = 0;
 		for( int j = 0; j < dims; j++){
-			val = abs(lsa_values[j][i]);
-			if(isinf(val)){
-				lsa_values[j][i] = 500;
-				val = 500;
-			}
-			if(isnan(val) == 0){
-				sum += val;
-			} 
+			//Normalization deals only with the absolute value of sensitivity -- not the direction (+/-) of the influence. See the description of check_num also.
+			sum += check_num( abs(lsa_values[j][i]) );
 		}
 		for( int j = 0; j < dims; j++){
 			if(sum != 0 && isinf(sum) == 0){
-				lsa_values[j][i] = abs(lsa_values[j][i] *(double)100 ) / sum;
+				//This calulates the percentage of the total sensitivity for each parameter by multiplying by 100 and dividing by the sum of all sensitivity.
+				lsa_values[j][i] =  ( check_num( abs(lsa_values[j][i]) ) *(double)100 ) / sum;
 			}
 		}
 	}
+}
+
+/*	These checks are primarily for the sensivitity of period -- when there are damped oscillations the period may be measured as INFINITY, in which case the sensitivity may become infinity.
+	In the case of a an "infinite" value (e.g. period), we choose to treat the infinite value as finite but higher than any functioning value, i.e. the INF_SUBSTITUTE macro.
+*/
+double check_num(double num){
+	if(isinf(num)){
+		return INF_SUBSTITUTE;
+	}else if (isnan(num)){
+		return 0;
+	}
+	return num;
 }
 
 /*	Methods for deleting arrays.
