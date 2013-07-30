@@ -98,6 +98,7 @@ void accept_params (int num_args, char** args, input_params& ip) {
 					ip.percentage = -1*ip.percentage;
 				}
 			} else if (strcmp(option, "-g") == 0 || strcmp(option, "--generate-only") == 0) {
+				cout << "\nDOING ONLY\n" << endl;
 				ip.generate_only = true;
 				i--;
 			} else if (strcmp(option, "-z") == 0 || strcmp(option, "--delete-data") == 0) {
