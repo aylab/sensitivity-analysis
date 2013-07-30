@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ANALYSIS_HPP
 #define ANALYSIS_HPP
 
-//	This macro is used when checking infinite values. 
+//	This macro is used when checking infinite values. See the check_num function in analysis.cpp.
 #define INF_SUBSTITUTE 500
 
 //Function declarations.
