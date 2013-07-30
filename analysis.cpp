@@ -60,10 +60,13 @@ int main(int argc, char** argv){
 			cout << "\n ~ Set: " << which_nominal << " -- Generating data ~ \n";
 			generate_data(ip, ss);
 		}
-		//Ready to calculate the sensitivity. The LSA_all_dims() function takes care of reading the oscillations features files and performing the analysis.
-		cout << "\n ~ Set: " << which_nominal << " -- Calculating sensitivity ~ \n"; 
-		LSA_all_dims(ip, ss);
 		
+		//Ready to calculate the sensitivity. The LSA_all_dims() function takes care of reading the oscillations features files and performing the analysis.
+		//The generate_only option is useful when you only want the features files based on the perurbed parameters and don't need the sensitivity results.
+		if(!ip.generate_only){
+			cout << "\n ~ Set: " << which_nominal << " -- Calculating sensitivity ~ \n"; 
+			LSA_all_dims(ip, ss);
+		}
 		//The failure message is not NULL iff there was an error in the program.
 		if(ip.failure != NULL){
 			usage(ip.failure, ip.failcode);

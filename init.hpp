@@ -47,6 +47,7 @@ struct input_params{
 	bool quiet;
 	bool recycle;
 	bool delete_data;
+	bool generate_only;
 	int random_seed;
 	int processes;
 	int sim_args_num;
@@ -70,11 +71,11 @@ struct input_params{
 	int failcode;
 	
 	input_params(){
-		sim_args = false;
 		quiet = false;
 		sim_args = false;
 		recycle = false;
 		delete_data = false;
+		generate_only = false;
 	 	dims= 0;
 	 	percentage = 5;
 	 	points = 2;

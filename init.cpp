@@ -97,6 +97,9 @@ void accept_params (int num_args, char** args, input_params& ip) {
 				} else if(ip.percentage < 0){
 					ip.percentage = -1*ip.percentage;
 				}
+			} else if (strcmp(option, "-g") == 0 || strcmp(option, "--generate-only") == 0) {
+				ip.generate_only = true;
+				i--;
 			} else if (strcmp(option, "-z") == 0 || strcmp(option, "--delete-data") == 0) {
 				ip.delete_data = true;
 				i--;
@@ -204,6 +207,11 @@ void usage(const char* message, int error){
 -y, --recycle        [N/A]        : include this if the simulation output has already been\n\
                                      generated FOR EXACTLY THE SAME FILES AND ARGUMENTS YOU\n\
                                      ARE USING NOW, disabled by default\n\
+-g, --generate_only  [N/A]        : include this to generate oscillations features files for\n\
+                                     perturbed parameter values without calculating sensitivity.\n\
+                                     This is the opposite of recycle. Including this command in\n\
+                                     conjunction with --recycle will cause the program to do nothing,\n\
+                                     disabled by default.\n\
 -z, --delete-data    [N/A]        : include this to delete oscillation features data when the program\n\
                                      exits. This will preserve sensitivity directory but remove the\n\
                                      directory specified by -D, disabled by default.\n\

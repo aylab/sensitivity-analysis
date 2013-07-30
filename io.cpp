@@ -148,6 +148,10 @@ double** load_output(int num_values, int* num_types, char* file_name, char*** ou
 	return out;
 }
 
+/*	This function writes the sensitivity results to the file specified by file_name.
+	The first line of the file contains the same names that were taken from oscillation features file(s) that was made by deterministic.
+	The file contains a line for each simulation parameter, with a sensitviti
+*/
 void write_sensitivity(int dims, int output_types, char** output_names, double** lsa_values, char* file_name ){
 	ofstream file_out;
 	double x;
@@ -243,7 +247,7 @@ void simulate_samples(int first_dim, input_params& ip, sim_set& ss ){
 	del_pipes(ip.processes, pipes, true); 
 }
 
-/*	This function is very similar to the above, except that it is designed for only writing out oen parameter set -- the nominal parameter set.
+/*	This function is very similar to the above, except that it is designed for only writing out only one parameter set -- the nominal parameter set.
 */
 void simulate_nominal(input_params& ip){
 	int* pipes = new int[2];
@@ -294,8 +298,10 @@ void simulate_nominal(input_params& ip){
 	return;
 }
 
-/*	Establishing a communication pipe from the parent (sampler) to each simulation child for the passing
-of parameter sets and results. */
+/*	This function establishes a communication pipe from the parent to each simulation child for the passing of parameter sets and results.
+	The communication is handled by writing to file descriptors whose values are simply integers.
+	The array pipes is two-dimensional because it contains an array that contains a read-end and a write-end file descriptor for each child process, e.g. pipes = { {child_1_read, child_1_write}, {child_2_read, child_2_write} }
+*/
 bool make_pipes(int processes, int** pipes){
 	for(int i = 0; i < processes; i++){
 		pipes[i] = new int[2];
@@ -317,8 +323,9 @@ void del_pipes(int processes, int** pipes, bool close_write){
 } 
 
 /*	Mallocs an array of char** that are needed for passing arguments to the execv call for each child simulation. 
-It fills in the appropriate argument space with the file descriptor of the pipe the children will read/write with.
-	make_arg is just a sub-function that handles the work for one argument.*/
+	It fills in the appropriate argument space with the file descriptor of the pipe the children will read/write with.
+	make_arg is just a sub-function that handles the work for one argument.
+*/
 char*** make_all_args(int first_dim, input_params& ip,int** pipes){
 
 	char*** child_args = (char***)malloc(sizeof(char**)*ip.processes);
@@ -351,6 +358,7 @@ void make_arg(int dim_num, int sim_args_num, int seed, int* pipes, char* dir_nam
 	}
 }
 
+/* This mallocs a string that can fit a full directory path, file name, and an integer for uniqe identification of the file. It then sprintf's to fill in the correct characters.*/
 char* make_name(char* dir, char* file, int num){
 	int num_len = 0;
 	num = abs(num);
@@ -380,7 +388,8 @@ void del_arg(int sim_args_num, char** arg){
 }
 
 /*	Determines how many parameter sets shoudl be passed to each child by distributing them evenly. If the
-number of children does not divide the number of sets, the remainder r is distributed among the first r children.*/
+	number of children does not divide the number of sets, the remainder r is distributed among the first r children.
+*/
 void segs_per_sim(int segments, int processes, int* distribution){
 	int remainder = segments % processes;
 	for(int i = 0; i < processes; i++){
@@ -389,6 +398,11 @@ void segs_per_sim(int segments, int processes, int* distribution){
 	}
 }
 
+/*	This function is used to check the status of a child process that has been waited on (i.e. it has finished). 
+	It returns true if the child exited normally/successfully, in which case the string failure and integer failcode are not changed.
+	It returns false if there was an error with the child process, in which case it allocates a message for failure and assigns failcode to be an appropriate status, or the pid of the failed child. 
+	The "#ifdef WCOREDUMP" is necessary to check whether the OS running the program has an implementation for checking for core dumps.
+*/
 bool check_status(int status, int simpid, int* failcode, char* failure){
 	if(WIFEXITED(status) && WEXITSTATUS(status) != 6){
 		cout << "Child (" << simpid << ") exited properly with status: " << WEXITSTATUS(status) << "\n";
@@ -416,11 +430,13 @@ bool check_status(int status, int simpid, int* failcode, char* failure){
 	return false;
 }
 
-bool write_nominal(input_params& ip, int fd){
-	if(!write_info(fd, ip.dims, 1)) return false;
-	return ((int)sizeof(double)*ip.dims == write(fd, ip.nominal, sizeof(double)*ip.dims) );
-}
+/*	The following functions are used for making write() calls to the parent-child communication pipes. 
+	Each returns a boolean that is true iff the write was successful.
+*/
 
+/*	This function is necessary for writing to the pipe specified by fd how many parameters the simulation should use and how many sets are going to be sent.
+	This information is assumed to come in exactly this format (two successive integers in a pipe) by sogen-deterministic/deterministic.
+*/
 bool write_info(int fd, int dims, int sets_per_dim){
 	//Send the number of parameters that are used for each simulation .
 	char* int_str = (char*)malloc(sizeof(int));
@@ -439,6 +455,9 @@ bool write_info(int fd, int dims, int sets_per_dim){
 	return true;
 }
 
+/*	After the necessary information has been sent to the simulation program, this function writes a byte stream to the pipe (fd) that contains the double values to use as simulation parameters.
+	The format in which the simulations reads and stores these values is determined by the integers it received from write_info() and the structure of the simulation program itself.
+*/
 bool write_dim_sets(int fd, int dim, double* nominal, sim_set& ss){
 	double nom_hold = nominal[dim];
 	double* inserts = ss.dim_sets[dim];
@@ -455,5 +474,12 @@ bool write_dim_sets(int fd, int dim, double* nominal, sim_set& ss){
 	}
 	nominal[dim] = nom_hold;
 	return good_write;
+}
+
+/*	This function wraps write_info() and write_dim_sets() together for the simple case of writing only the nominal parameter set. 
+*/
+bool write_nominal(input_params& ip, int fd){
+	if(!write_info(fd, ip.dims, 1)) return false;
+	return ((int)sizeof(double)*ip.dims == write(fd, ip.nominal, sizeof(double)*ip.dims) );
 }
 
