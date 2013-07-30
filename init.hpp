@@ -35,7 +35,8 @@ using namespace std;
 //Handy math macros
 #define len_num(num) ( log10(num+1)+1 )
 #define abs(num) ( ( num < 0 ? -1*num : num) )
-#define non_dim_sense(nom_param, nom_out, dout_dparam) ( ((double)nom_param / (double)nom_out) * (double)dout_dparam )
+//This macro is useful for zeroing-out negative values so that parmeter values will never be negative.
+#define at_least_zero(num) (num > 0.0 ? num : 0)
 
 //Declaring this here so it can be used by the input_params destructor.
 void unmake_dir(char*);
@@ -113,13 +114,11 @@ struct sim_set{
 	int points; //Just holds a copy of the number of points to use.
 	double step_per_set; //Decimal difference between perturbations.
 	double** dim_sets; //An array for holding the perturbed values. See fill() for a description of the structure of this array.
-	
 	sim_set(input_params& ip){
 		dims = ip.dims;
 		points = ip.points;
 		sets_per_dim = 2*ip.points;
 		step_per_set = (ip.percentage /( (double)100*ip.points ));
-		
 		dim_sets = new double*[dims];
 		this->fill(ip.nominal);
 		
@@ -140,18 +139,19 @@ struct sim_set{
 		  {dim_n - 10%, dim_n - 5%, dim_n + 5%, dim_n + 10%}  }
 		Where dim_i is the nominal value for the i'th parameter (and the percentages are for that particular parameter).
 		
-		July 25, 2013 : Confirmed that this array is being filled with the correct values.			
+		July 25, 2013: Confirmed that this array is being filled with the correct values.
+		July 30, 2013: Added in an at_least_zero() check that will ensure no negative values will be used, even if the perturbation percentage is >= 100%. 		
 	*/
 	void fill(double* nominal){
 		for(int i = 0; i < dims; i++){
 			dim_sets[i] = new double[sets_per_dim];
 			int j = 0;
 			for(; j < points; j++){
-				dim_sets[i][j] = nominal[i] * ((double)1 + step_per_set*(double)(j - points));
+				dim_sets[i][j] = at_least_zero( nominal[i] * ((double)1 + step_per_set*(double)(j - points)) );
 			}
 			j++;
 			for(; j < sets_per_dim + 1; j++){
-				dim_sets[i][j-1] = nominal[i] * ((double)1 + step_per_set*(double)(j - points));
+				dim_sets[i][j-1] = at_least_zero( nominal[i] * ((double)1 + step_per_set*(double)(j - points)) );
 			}
 		}
 	}

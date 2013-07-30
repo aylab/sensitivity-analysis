@@ -229,7 +229,8 @@ void usage(const char* message, int error){
 -a, --sim-args       [args]       : if included, any argument after this will be passed to the simulation\n\
                                      program. If -h is one of these arguments, the simulation help will be\n\
                                      printed and the program will not run.\n\
--h, --help           [N/A]        : print out this help menu.\n" ; 		
+-h, --help           [N/A]        : print out this help menu.\n" ;
+	cout << endl << "Example: ./s_a -c 2 -k 4 -l 6 -p 100 -P 10 -s 112358 -n ~/sensitivity-analysis/nominal.params -d  ~/sensitivity-analysis/sensitivity_data  -D  ~/sensitivity-analysis/simulation_data  -e ~/sogen-deterministic/deterministic --sim-args -u ~/sogen-deterministic/input.perturb" << endl;
 	exit(error);
 }
 

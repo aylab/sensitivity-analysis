@@ -1,4 +1,4 @@
-sensitivity-analysis
+Sensitivity Analysis
 ====================
 
 Repository for creating the program(s) necessary for analyzing the sensitivity of sogen-deterministic simulations to each parameter.
@@ -47,9 +47,53 @@ If SCons cannot be installed on the machine, instead make the appriprate call to
 	
 1.1. Compilation options
 ************************
+TBA
 
 2. Running Sensitivity Analysis
 -------------------------------
+
+2.0. Command-line arguments
+***************************
+-n, --nominal-file   [filename]   : the relative name of the file from which the nominal parameter set should\n\
+                                     be read, default=nominal.params\n\
+-d, --sense-dir      [filename]   : the relative name of the directory to which the sensitivity results\n\
+                                     will be stored, default=sensitivities\n\
+-D, --data-dir       [filename]   : the relative name of the directory to which the raw simulation data\n\
+                                     will be stored, default=sim-data\n\
+                                     WARNING: IF RUNNING MULTIPLE INSTANCES OF THIS PROGRAM (e.g. on cluster)\n\
+                                     EACH MUST HAVE A UNIQUE DATA DIRECTORY TO AVOID CONFLICT.\n\
+-p, --percentage     [float]      : the maximum percentage by which nominal values will be perturbed (+/-),\n\
+                                     default=5\n\
+-P, --points         [int]        : the number of data points to collect on either side (+/-) of the nominal set,\n\
+                                     default=10\n\
+-c, --nominal-count  [int]        : the number of nominal sets to read from the file, default=1\n\
+-k, --skip           [int]        : the number of nominal sets in the file to skip over, a.k.a. the\n\
+                                     index of the line you would like to start reading from, default=0\n\
+-s, --random-seed    [int]        : the postivie integer value to be used as a seed in the random\n\
+                                     number generation for simulations, default is randomly generated\n\
+                                     based on system time and process id\n\
+-l, --processes      [int]        : the number of processes to which parameter sets can be sent for\n\
+                                     parallel data collection, default=2\n\
+-y, --recycle        [N/A]        : include this if the simulation output has already been\n\
+                                     generated FOR EXACTLY THE SAME FILES AND ARGUMENTS YOU\n\
+                                     ARE USING NOW, disabled by default\n\
+-g, --generate_only  [N/A]        : include this to generate oscillations features files for\n\
+                                     perturbed parameter values without calculating sensitivity.\n\
+                                     This is the opposite of recycle. Including this command in\n\
+                                     conjunction with --recycle will cause the program to do nothing,\n\
+                                     disabled by default.\n\
+-z, --delete-data    [N/A]        : include this to delete oscillation features data when the program\n\
+                                     exits. This will preserve sensitivity directory but remove the\n\
+                                     directory specified by -D, disabled by default.\n\
+-q, --quiet          [N/A]        : include this to turn off printing messages to standard output,\n\
+                                     disabled by default\n\
+-e, --exec           [path]       : if included, the simulations are run by executing the program\n\
+                                     specified by path. The path argument should be the full path,\n\
+                                     but the default uses the relative path: \n\"../sogen-deterministic/deterministic\n\".\n\
+-a, --sim-args       [args]       : if included, any argument after this will be passed to the simulation\n\
+                                     program. If -h is one of these arguments, the simulation help will be\n\
+                                     printed and the program will not run.\n\
+-h, --help           [N/A]        : print out this help menu.\n" ; 		
 
 3. Creating figures
 -------------------
