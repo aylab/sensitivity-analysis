@@ -40,7 +40,7 @@ using namespace std;
 /*	The main() function does standard c++ main things -- it calls functions to initialze parameters based on commandline arguments, then distrbiutes the work to functions that perform the gathering of data and analysis.
 */
 int main(int argc, char** argv){
-	cout << "\nDOING THIS\n";
+	cout << "\nDOING THIS\n" << endl;
 	//Setup the parameter struct based on arguments. See init.cpp & init.hpp
 	input_params ip;
 	accept_params(argc, argv, ip);
