@@ -21,11 +21,8 @@ Summary of sensitivity analysis:
 
 If Y is the output function (amplitude, period, etc), p_ j is the j’th parameter, and p’ is the nominal parameter set, then non-dimensional LSA_all_dims S_ j can be evaluated by:
 	S_ j = (p’_ j/Y(p’)) * (dY(p’)/dp_j)
-
 Here, d refers to taking the delta of a partial derivative, but is approximate because we are evaluating the output at finitely many points.
-
-To normalize the sensitivities across the parameter set, for m parameters, the following gives a quantitative measure of ranking and allows comparisons over time (Taylor et al):
-
+To normalize the sensitivities across the parameter set, for m parameters, the following gives a quantitative measure of ranking and allows comparisons over time:
 	N_ j = (S_ j) / (m j =1|S_ j|)
 
 */
