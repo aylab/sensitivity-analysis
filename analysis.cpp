@@ -40,16 +40,13 @@ using namespace std;
 /*	The main() function does standard c++ main things -- it calls functions to initialze parameters based on commandline arguments, then distrbiutes the work to functions that perform the gathering of data and analysis.
 */
 int main(int argc, char** argv){
-	cout << "\nDOING THIS\n" << endl;
 	//Setup the parameter struct based on arguments. See init.cpp & init.hpp
 	input_params ip;
 	accept_params(argc, argv, ip);
-	cout << "\nDOING That\n" << endl;
 	//Loop for processign multiple nominal parameter sets. Each step of the loop will do all of the sensitivity analysis based on one nominal parameter set, then increment ip.line_skip which will cause proceeding steps of the loop to read other nominal sets from the input file.
 	for(int which_nominal = 0; which_nominal < ip.num_nominal;  which_nominal ++){
 		//Read in the nominal parameter set from file.
 		read_nominal(ip);
-		cout << "\nDOING The\n" << endl;
 		//If ip.nominal is set to NULL after the read_nominal() call, this check exits the program.
 		if(ip.nominal == NULL) usage("Could not read nominal parameter set.", which_nominal); 
 

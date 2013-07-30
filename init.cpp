@@ -98,7 +98,6 @@ void accept_params (int num_args, char** args, input_params& ip) {
 					ip.percentage = -1*ip.percentage;
 				}
 			} else if (strcmp(option, "-g") == 0 || strcmp(option, "--generate-only") == 0) {
-				cout << "\nDOING ONLY\n" << endl;
 				ip.generate_only = true;
 				i--;
 			} else if (strcmp(option, "-z") == 0 || strcmp(option, "--delete-data") == 0) {
@@ -120,6 +119,12 @@ void accept_params (int num_args, char** args, input_params& ip) {
 				const char* mess = "Welcome to the help options.\n Possible command line arguments are:\n"; 
 				usage(mess,0);	
 				i--;
+			} else{
+				const char* message_0 = "'";
+				const char* message_1 = "' is not a valid option! Please check that every argument matches one available in the following usage information.";
+				char* message = (char*)malloc(sizeof(char) * (strlen(message_0) + strlen(option) + strlen(message_1) + 1));
+				sprintf(message, "%s%s%s", message_0, option, message_1);
+				usage(message, 0);
 			}
 		}
 	}
