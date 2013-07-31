@@ -6,20 +6,20 @@ A program for evaluting the sensitvity of Zebrafish Somitogenesis simulations to
 Table of contents
 -----------------
 
-0. Compatibility and system requirements
-  0. Sensitivity progam requirements
-  1. Simulation requirements
-1. Compilation
-  0. Compiling with and without SCons
-  1. Compilation options
+0: Compatibility and system requirements
+  0: Sensitivity progam requirements
+  1: Simulation requirements
+1: Compilation
+  0: Compiling with and without SCons
+  1: Compilation options
   
-2. Running Sensitivity Analysis
-  0. Overview of Local Sensitvity Analysis
-  1. Command-line arguments
-  2. Calling the program -- example 
-3. Creating figures
+2: Running Sensitivity Analysis
+  0: Overview of Local Sensitvity Analysis
+  1: Command-line arguments
+  2: Calling the program -- example 
+3: Creating figures
   
-4. Authorship and licensing
+4: Authorship and licensing
 
 0. Compatibility and system requirements
 ----------------------------------------
