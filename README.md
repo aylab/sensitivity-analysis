@@ -7,19 +7,16 @@ Table of contents
 -----------------
 
 0: Compatibility and system requirements
-****************************************
 	0.0: Sensitivity progam requirements
 
 	0.1: Simulation requirements
 
 1: Compilation
-**************
 	1.0: Compiling with and without SCons
 
 	1.1: Compilation options
 
 2: Running Sensitivity Analysis
-*******************************
 	2.0: Overview of Local Sensitvity Analysis
 
 	2.1: Command-line arguments
@@ -27,15 +24,13 @@ Table of contents
 	2.2: Calling the program -- example 
 
 3: Creating figures
-*******************
 	3.0: Scripts
 
 4: Authorship and licensing
-***************************
 	4.0: GNU GPL
 
 0: Compatibility and system requirements
-****************************************
+----------------------------------------
 
 0.0. Sensitivity progam requirements
 ***********************************
@@ -71,7 +66,7 @@ All applications come with at least three compilation options, 'profile', 'debug
 
 For more information on these options, see "Debugging, profiling, and memory tracking" in 'sogen-deterministic/README.md'.
 
-2. Running Sensitivity Analysis
+2: Running Sensitivity Analysis
 -------------------------------
 
 2.0. Overview of Local Sensitivity Analysis
@@ -165,12 +160,18 @@ For information on the arguments that can be passed to the the simulation progra
 	
 	"./deterministic -h".
 
-3. Creating figures
+3: Creating figures
 -------------------
 
-4. Authorship and licensing
+3.0: Scripts
+************
+
+
+4: Authorship and licensing
 ---------------------------
-Licensing:
+
+4.0 GNU GPL
+***********
 
 This is a Local Sensitivity Analysis progam, designed for use with the Deterministic simulator for zebrafish segmentation.
 
