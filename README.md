@@ -1,7 +1,7 @@
 Sensitivity Analysis
 ====================
 
-Repository for creating the program(s) necessary for analyzing the sensitivity of sogen-deterministic simulations to each parameter.
+A program for evaluting the sensitvity of Zebrafish Somitogenesis simulations to input parameters.
 
 Table of contents
 -----------------
@@ -54,7 +54,9 @@ If SCons cannot be installed on the machine, instead make the appriprate call to
 	
 1.1. Compilation options
 ************************
-TBA
+All applications come with at least three compilation options, 'profile', 'debug', and 'memtrack'. By entering 'scons profile=1', 'scons debug=1', or 'scons memtrack=1', the application is compiled with compile and link flags designed for profiling, debugging, and memory tracking, respectively. Profiling adds the '-pg' compile and link flags, which adds extra code that enables gprof profiling analysis. Debugging adds the '-g' compile flag, which adds extra code that enables GDB debugging. Memory tracking adds the '-D MEMTRACK' compile flag, which adds a custom macro indicating the program should track its heap memory allocation. 
+
+For more information on these options, see "Debugging, profiling, and memory tracking" in 'sogen-deterministic/README.md'.
 
 2. Running Sensitivity Analysis
 -------------------------------
@@ -146,7 +148,7 @@ Some notes about how this could go wrong:
   4. Running more processes requires more system memory, so it is possible that, even if the quantity specified by '--processes' is less than the number of system processors, system memory may create a bottleneck. Again, the program should not fail, but it will have less effective parallelization.
   5. If any of the files specified do not exist, an appropriate error message will be returned. In such a case, re-check the path names and consider using full paths.
 
-For information on the arguments that can be passed to the the simulation program (if using sogen-deterministic/deterministic) please see the README.md contained in that package or, if you have already complied that simulation program, navigate to the sogen-deterministic package directory and run
+For information on the arguments that can be passed to the the simulation program (if using sogen-deterministic/deterministic) please see 'sogen-deterministic/README.md' or, if you have already compiled that simulation program, navigate to the sogen-deterministic package directory and run
 	
 	"./deterministic -h".
 
@@ -158,6 +160,7 @@ For information on the arguments that can be passed to the the simulation progra
 Licensing:
 
 This is a Local Sensitivity Analysis progam, designed for use with the Deterministic simulator for zebrafish segmentation.
+
 Copyright (C) 2013 Ahmet Ay, Jack Holland, Adriana Sperlea, Sebastian Sangervasi
 
 This program is free software: you can redistribute it and/or modify
