@@ -7,19 +7,19 @@ Table of contents
 -----------------
 
 0: Compatibility and system requirements
-***********************************
-  0.0: Sensitivity progam requirements
+****************************************
+  +0.0: Sensitivity progam requirements
 
-  0.1: Simulation requirements
+  +0.1: Simulation requirements
 
 1: Compilation
-***********************************
-  1.0: Compiling with and without SCons
+**************
+  +1.0: Compiling with and without SCons
 
-  1.1: Compilation options
+  +1.1: Compilation options
 
 2: Running Sensitivity Analysis
-***********************************
+*******************************
   2.0: Overview of Local Sensitvity Analysis
 
   2.1: Command-line arguments
@@ -27,13 +27,13 @@ Table of contents
   2.2: Calling the program -- example 
 
 3: Creating figures
-***********************************
+*******************
 
 4: Authorship and licensing
-***********************************
+***************************
 
-0. Compatibility and system requirements
-***********************************
+0: Compatibility and system requirements
+****************************************
 
 0.0. Sensitivity progam requirements
 ***********************************
@@ -42,7 +42,7 @@ This program, s\_a, has been designed for Unix based machines. It has been teste
 The dependencies of s\_a are entirely standard C/C++ libraries. The default behavior makes numerous assumpitions about the machine it is running on, however these assumptions can be easily overwritten through appropriate use of commandline arguments.
 
 0.1. Simulation  requirements
-***********************************
+*****************************
 This package can be compiled independntly. However, to run the program there must be a valid executible file to be used for collecting simulation data (not included). 
 The format of how the external program accepts input and writes output files is inherently assumed by s\_a to match the format of sogen-deterministic/deterministic.
 
