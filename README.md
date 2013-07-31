@@ -7,21 +7,19 @@ Table of contents
 -----------------
 
 0: Compatibility and system requirements
-  
-0.0: Sensitivity progam requirements
+***********************************
+  0.0: Sensitivity progam requirements
 
-0.1: Simulation requirements
+  0.1: Simulation requirements
 
 1: Compilation
-
+***********************************
   1.0: Compiling with and without SCons
 
   1.1: Compilation options
 
-  
-
 2: Running Sensitivity Analysis
-
+***********************************
   2.0: Overview of Local Sensitvity Analysis
 
   2.1: Command-line arguments
@@ -29,11 +27,13 @@ Table of contents
   2.2: Calling the program -- example 
 
 3: Creating figures
+***********************************
 
 4: Authorship and licensing
+***********************************
 
 0. Compatibility and system requirements
-----------------------------------------
+***********************************
 
 0.0. Sensitivity progam requirements
 ***********************************
