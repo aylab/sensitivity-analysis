@@ -87,11 +87,11 @@ This program accomplishes the above calculations through the following steps:
   1. For each individual parameter, send the nominal parameter set with the perturbed value inserted appropriately. This would be p_jabove.
 4. For each feature (i.e. output function) returned in the simulation data:
   0. For each parameter, j:
-    0. Use the output values of the perturbed sets to calculate the finite difference, i.e. the derivative around the nominal parameter point (∆Y(p’)/∆p\_j above).
-    1. Calculate the non-dimensionalized sensitivity (S\_j above) using the finite difference and the nominal parameter value and output ( p’\_j/Y(p’) above ).
+    0.0. Use the output values of the perturbed sets to calculate the finite difference, i.e. the derivative around the nominal parameter point (∆Y(p’)/∆p\_j above).
+    0.1. Calculate the non-dimensionalized sensitivity (S\_j above) using the finite difference and the nominal parameter value and output ( p’\_j/Y(p’) above ).
   1. To get the normalized sensitivity:
-    0. Sum the non-dimensionalized sensitivity of the feature with respect to all parameters, (sum\_1:m{|S\_j|} above). 
-    1. Divide each parameter's sensitivity value by that sum. Optionally, multiply by 100 to give N\_j as a percentage.
+    1.0. Sum the non-dimensionalized sensitivity of the feature with respect to all parameters, (sum\_1:m{|S\_j|} above). 
+    1.1. Divide each parameter's sensitivity value by that sum. Optionally, multiply by 100 to give N\_j as a percentage.
 5. Write out these calculated values to files.
 
 2.2. Command-line arguments
@@ -147,7 +147,9 @@ Some notes about how this could go wrong:
   4. Running more processes requires more system memory, so it is possible that, even if the quantity specified by '--processes' is less than the number of system processors, system memory may create a bottleneck. Again, the program should not fail, but it will have less effective parallelization.
   5. If any of the files specified do not exist, an appropriate error message will be returned. In such a case, re-check the path names and consider using full paths.
 
-For information on the arguments that can be passed to the the simulation program (if using sogen-deterministic/deterministic) please see the README.md contained in that package or, if you have already complied that simulation program, navigate to the sogen-deterministic package directory and run "./deterministic -h".
+For information on the arguments that can be passed to the the simulation program (if using sogen-deterministic/deterministic) please see the README.md contained in that package or, if you have already complied that simulation program, navigate to the sogen-deterministic package directory and run
+	
+	"./deterministic -h".
 
 3. Creating figures
 -------------------
