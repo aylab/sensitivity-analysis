@@ -47,19 +47,19 @@ Table of contents
 ************************************
 **0.0. Sensitivity progam requirements**
 
-This program, s\_a, has been designed for Unix based machines. It has been tested on Fedora 18 with GCC version 4.7.2 and OSX 10.7 (Lion) with GCC 4.2.1 using 64-bit processors.
+This program, sensitivity, has been designed for Unix based machines. It has been tested on Fedora 18 with GCC version 4.7.2 and OSX 10.7 (Lion) with GCC 4.2.1 using 64-bit processors.
 
-The dependencies of s\_a are entirely standard C/C++ libraries. The default behavior makes numerous assumpitions about the machine it is running on, however these assumptions can be easily overwritten through appropriate use of commandline arguments.
+The dependencies of sensitivity are entirely standard C/C++ libraries. The default behavior makes numerous assumpitions about the machine it is running on, however these assumptions can be easily overwritten through appropriate use of commandline arguments.
 
 *****************************
 **0.1. Simulation	requirements**
 
 This package can be compiled independntly. However, to run the program there must be a valid executible file to be used for collecting simulation data (not included). 
-The format of how the external program accepts input and writes output files is inherently assumed by s\_a to match the format of sogen-deterministic/deterministic.
+The format of how the external program accepts input and writes output files is inherently assumed by sensitivity to match the format of sogen-deterministic/deterministic.
 
-To modify the manner in which s\_a sends data to the external executable, the functions simulate\_samples() and simulate\_nominal() in io.cpp would need to be customized.
+To modify the manner in which sensitivity sends data to the external executable, the functions simulate\_samples() and simulate\_nominal() in io.cpp would need to be customized.
 
-To modify the manner in which s\_a reads simulation results, the function load\_output() in io.cpp would need to be customized.
+To modify the manner in which sensitivity reads simulation results, the function load\_output() in io.cpp would need to be customized.
 
 For more information on this package's I/O behavior and communication with the simulation executable, see the README.md in sogen-deterministic.
 
@@ -73,7 +73,7 @@ To compile an application in its default configuration, open a terminal window a
 
 If SCons cannot be installed on the machine, instead make the appriprate call to the g++ compiler:
 
-	g++ -O2 -Wall -o s\_a analysis.cpp init.cpp io.cpp finite_differences.cpp
+	g++ -O2 -Wall -o sensitivity analysis.cpp init.cpp io.cpp finite_differences.cpp
 
 **************************	
 **1.1. Compilation options**
@@ -162,7 +162,7 @@ The following arguments may be passed when calling the sensitivity program:
  
 For example, the following may be a valid call to program:
 
-	./s\_a -c 2 -k 4 --processes 6 --percentage 100 -P 10 --random-seed 112358 -n ~/sensitivity-analysis/nominal.params -d	~/sensitivity-analysis/sensitivity\_data -D	~/sensitivity-analysis/simulation\_data -e ~/sogen-deterministic/deterministic --sim-args -u ~/sogen-deterministic/input.perturb
+	./sensitivity -c 2 -k 4 --processes 6 --percentage 100 -P 10 --random-seed 112358 -n ~/sensitivity-analysis/nominal.params -d	~/sensitivity-analysis/sensitivity\_data -D	~/sensitivity-analysis/simulation\_data -e ~/sogen-deterministic/deterministic --sim-args -u ~/sogen-deterministic/input.perturb
 
 where the short and long names may be interchanged with their long/short counterparts.
 
@@ -171,7 +171,7 @@ Some notes about how this could go wrong:
 0. This example assumes the file system supports the "~/" path prefix -- for safety, it may be necessary to use full paths for file and directory arguments. This is partiuclarly encouraged when running on a cluster.
 1. Becuase '-c 2' is included, the program will look for two nominal parameter sets to run. If the file specified by '-n' does not contain two parameter sets, the program will exit with an error message.
 2. The option '-k 4' specifies that the fourth line of the file should contain the first nominal parameter to use -- if there are less than four lines in the file the program will exit with an error message.
-3. The option '--processes 6' states that six instances of the simulation program (not including s\_a itself) may be run simulatneously. Each instance will be given the perturbed parameter sets for a single perturbed parameter. If your system has >= 6 processors, these simulations should run simultaneously. However, even if fewer processors exist the program will not fail, there will just be less effective parallelization.
+3. The option '--processes 6' states that six instances of the simulation program (not including sensitivity itself) may be run simulatneously. Each instance will be given the perturbed parameter sets for a single perturbed parameter. If your system has >= 6 processors, these simulations should run simultaneously. However, even if fewer processors exist the program will not fail, there will just be less effective parallelization.
 4. Running more processes requires more system memory, so it is possible that, even if the quantity specified by '--processes' is less than the number of system processors, system memory may create a bottleneck. Again, the program should not fail, but it will have less effective parallelization.
 5. If any of the files specified do not exist, an appropriate error message will be returned. In such a case, re-check the path names and consider using full paths.
 
@@ -200,7 +200,7 @@ The plot-sensitivity.py python script includes two plotting methods: 1) sensitiv
 
 These bar graphs display the sensitivity of a simulation output to each simulation parameter. The script generates these graphs by:
 
-1. making system calls to s\_a (repeatedly if necessary),
+1. making system calls to sensitivity (repeatedly if necessary),
 2. parsing the sensitivity output files,
 3. averaging the sensitivity values for each parameter accross nominal parameter sets,
 4. using the average to calculating the standard error for each parameter,
@@ -210,7 +210,7 @@ These bar graphs display the sensitivity of a simulation output to each simulati
 
 These are plots of points connected by lines where each line is a single nominal parameter set. The script generates these plots by:
 
-1. making system calls to s\_a for every nominal parameter set with the '--generate-only' argument so that the sensitivity values are not calculated,
+1. making system calls to sensitivity for every nominal parameter set with the '--generate-only' argument so that the sensitivity values are not calculated,
 2. parsing the simulation output files, i.e. the oscillation features of the zebrafish somitogenesis deterministic simulations,
 3. For every simualaiton parameter, plotting the simulation output value at successive perturbations of the parameter -- each output value is plotted as the perturbed value divided by the output vale of the nominal (unperturbed) parameter set.
 
@@ -219,7 +219,7 @@ These plots display the ratio between an simulation output value at a perturbed 
 *****************************
 **3.2: Command-line arguments**
 
-The following arguments may be passed in a command-line call to the python script. Some of them are the same as for s\_a, but most are distinct.
+The following arguments may be passed in a command-line call to the python script. Some of them are the same as for sensitivity, but most are distinct.
 
 	-n, --nominal-file     [filename]:The file to use for getting nominal parameter sets, default=../sensitivity-analysis/nominal.params.
 	
