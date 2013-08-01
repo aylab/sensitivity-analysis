@@ -187,8 +187,25 @@ The script that is relevent to this package is:
 	
 3.1: Overview of plot-sensitivity.py
 ************************************
+The plot-sensitivity.py python script includes two plotting methods: 1) sensitivity bar graphs, and 2) output value scatter-line plots.
 
+1) Sensitivity Bar Graphs
 
+These bar graphs display the sensitivity of a simulation output to each simulation parameter. The script generates these graphs by:
+1. making system calls to s\_a (repeatedly if necessary),
+2. parsing the sensitivity output files,
+3. averaging the sensitivity values for each parameter accross nominal parameter sets,
+4. using the average to calculating the standard error for each parameter,
+5. creating a bar graph for each simulation output in which the height of each bar is the avergage sensitivity to a particular input parameter accross nominal parameter sets and the error bars are the standard error values.
+
+2) Scatter-Line Plots
+
+These are plots of points connected by lines where each line is a single nominal parameter set. The script generates these plots by:
+1. making system calls to s\_a for every nominal parameter set with the '--generate-only' argument so that the sensitivity values are not calculated,
+2. parsing the simulation output files, i.e. the oscillation features of the zebrafish somitogenesis deterministic simulations,
+3. For every simualaiton parameter, plotting the simulation output value at successive perturbations of the parameter -- each output value is plotted as the perturbed value divided by the output vale of the nominal (unperturbed) parameter set.
+
+These plots display the ratio between an simulation output value at a perturbed parameter value
 3.2: Command-line arguments
 ***************************
 The following arguments may be passed in a command-line call to the python script. Some of them are the same as for s\_a, but most are distinct.
