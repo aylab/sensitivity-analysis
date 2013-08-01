@@ -161,6 +161,7 @@ For example, the following may be a valid call to program:
 where the short and long names may be interchanged with their long/short counterparts.
 
 Some notes about how this could go wrong:
+
 0. This example assumes the file system supports the "~/" path prefix -- for safety, it may be necessary to use full paths for file and directory arguments. This is partiuclarly encouraged when running on a cluster.
 1. Becuase '-c 2' is included, the program will look for two nominal parameter sets to run. If the file specified by '-n' does not contain two parameter sets, the program will exit with an error message.
 2. The option '-k 4' specifies that the fourth line of the file should contain the first nominal parameter to use -- if there are less than four lines in the file the program will exit with an error message.
@@ -191,6 +192,7 @@ The plot-sensitivity.py python script includes two plotting methods: 1) sensitiv
 1) Sensitivity Bar Graphs
 
 These bar graphs display the sensitivity of a simulation output to each simulation parameter. The script generates these graphs by:
+
 1. making system calls to s\_a (repeatedly if necessary),
 2. parsing the sensitivity output files,
 3. averaging the sensitivity values for each parameter accross nominal parameter sets,
@@ -200,6 +202,7 @@ These bar graphs display the sensitivity of a simulation output to each simulati
 2) Scatter-Line Plots
 
 These are plots of points connected by lines where each line is a single nominal parameter set. The script generates these plots by:
+
 1. making system calls to s\_a for every nominal parameter set with the '--generate-only' argument so that the sensitivity values are not calculated,
 2. parsing the simulation output files, i.e. the oscillation features of the zebrafish somitogenesis deterministic simulations,
 3. For every simualaiton parameter, plotting the simulation output value at successive perturbations of the parameter -- each output value is plotted as the perturbed value divided by the output vale of the nominal (unperturbed) parameter set.
