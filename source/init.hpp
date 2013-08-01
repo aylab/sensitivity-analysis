@@ -67,6 +67,7 @@ struct input_params{
 	char* sense_file;
 	char* norm_file;
 	char* data_dir;
+	char* nom_file;
 	char*dim_file;
 	char* sim_exec;
 	char** simulation_args;
@@ -91,7 +92,8 @@ struct input_params{
 		sense_file = (char*)"LSA_";
 		norm_file = (char*)"normalized_";
 		data_dir = NULL;
-		dim_file = (char*)"dim_";		
+		nom_file = (char*)"nominal_"; 	//This string is just used as the name to give to the nominal oscillation features file.
+		dim_file = (char*)"dim_";		//Similarly, this string is used to name the oscillation features file for each dimension (parameter) of the system with perturbations.
 		sim_exec = (char*) "../sogen-deterministic/deterministic";
 		simulation_args = NULL;
 		null_stream = NULL;
@@ -139,7 +141,7 @@ struct sim_set{
 		  {dim_1 - 10%, dim_1 - 5%, dim_1 + 5%, dim_1 + 10%}
 		  ...
 		  {dim_n - 10%, dim_n - 5%, dim_n + 5%, dim_n + 10%}  }
-		Where dim_i is the nominal value for the i'th parameter (and the percentages are for that particular parameter).
+		Where dim_i is the nominal value for the i'th parameter (and the percentages are of that particular parameter).
 		
 		July 25, 2013: Confirmed that this array is being filled with the correct values.
 		July 30, 2013: Added in an at_least_zero() check that will ensure no negative values will be used, even if the perturbation percentage is >= 100%. 		

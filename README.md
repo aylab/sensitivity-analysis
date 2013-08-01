@@ -7,16 +7,19 @@ Table of contents
 -----------------
 
 0: Compatibility and system requirements
+
 	0.0: Sensitivity progam requirements
 
 	0.1: Simulation requirements
 
 1: Compilation
+
 	1.0: Compiling with and without SCons
 
 	1.1: Compilation options
 
 2: Running Sensitivity Analysis
+
 	2.0: Overview of Local Sensitvity Analysis
 
 	2.1: Command-line arguments
@@ -24,10 +27,20 @@ Table of contents
 	2.2: Calling the program -- example 
 
 3: Creating figures
-	3.0: Scripts
+
+	3.0: Use sogen-scripts/plot-sensitivity.py
+	
+	3.1: Overview of plot-sensitivity.py
+	
+	3.2: Command-line arguments
+	
+	3.3: Running the script -- example
 
 4: Authorship and licensing
-	4.0: GNU GPL
+
+	4.0: Authors
+	
+	4.1: GNU GPL
 
 0: Compatibility and system requirements
 ----------------------------------------
@@ -58,7 +71,7 @@ To compile an application in its default configuration, open a terminal window a
 
 If SCons cannot be installed on the machine, instead make the appriprate call to the g++ compiler:
 
-	'g++ -O2 -Wall -o s\_a analysis.cpp init.cpp io.cpp finite_differences.cpp'
+	g++ -O2 -Wall -o s\_a analysis.cpp init.cpp io.cpp finite_differences.cpp
 	
 1.1. Compilation options
 ************************
@@ -90,7 +103,7 @@ This program accomplishes the above calculations through the following steps:
 0. Read in the nominal parameter set from an input file.
 1. Based input values for the max percentage by which to perturb values and the number of perturbed points to simulate, calculate the (decimal) amount by which to perturb each parameter.
 2. For each parameter:
-	0. Create an array of values that can hold all points between \[nominal value - (nominal value * max percentage) \] and \[nominal value + (nominal value * max percentage) \].
+	0. Create an array of values that can hold all points between [nominal value - (nominal value * max percentage) \] and [nominal value + (nominal value * max percentage) \].
 	1. Based on the nominal paramter value, fill in this array.
 3. Generate simulation data (e.g. oscillation features) by piping parameter sets to instances of the simulation program:
 	0. Send the nominal (unperturbed) set to get Y(p') as above.
@@ -107,43 +120,43 @@ This program accomplishes the above calculations through the following steps:
 ***************************
 The following arguments may be passed when calling the sensitivity program:
 
-	-n, --nominal-file	 [filename]	 : the relative name of the file from which the nominal parameter set should be read, default=nominal.params.
+	-n, --nominal-file             [filename] : the relative name of the file from which the nominal parameter set should be read, default=nominal.params.
 
-	-d, --sense-dir			[filename]	 : the relative name of the directory to which the sensitivity results will be stored, default=sensitivities.
+	-d, --sense-dir                [filename] : the relative name of the directory to which the sensitivity results will be stored, default=sensitivities.
 
-	-D, --data-dir			 [filename]	 : the relative name of the directory to which the raw simulation data will be stored, default=sim-data. WARNING: IF RUNNING MULTIPLE INSTANCES OF THIS PROGRAM (e.g. on cluster) EACH MUST HAVE A UNIQUE DATA DIRECTORY TO AVOID CONFLICT.
+	-D, --data-dir                 [filename] : the relative name of the directory to which the raw simulation data will be stored, default=sim-data. WARNING: IF RUNNING MULTIPLE INSTANCES OF THIS PROGRAM (e.g. on cluster) EACH MUST HAVE A UNIQUE DATA DIRECTORY TO AVOID CONFLICT.
 
-	-p, --percentage		 [float]			: the maximum percentage by which nominal values will be perturbed (+/-), default=5.
+	-p, --percentage               [float]    : the maximum percentage by which nominal values will be perturbed (+/-), default=5.
 
-	-P, --points				 [int]				: the number of data points to collect on either side (+/-) of the nominal set, default=10.
+	-P, --points                   [int]      : the number of data points to collect on either side (+/-) of the nominal set, default=10.
 
-	-c, --nominal-count	[int]				: the number of nominal sets to read from the file, default=1.
+	-c, --nominal-count	           [int]      : the number of nominal sets to read from the file, default=1.
 
-	-k, --skip					 [int]				: the number of nominal sets in the file to skip over, a.k.a. the index of the line you would like to start reading from, default=0.
+	-k, --skip                     [int]      : the number of nominal sets in the file to skip over, a.k.a. the index of the line you would like to start reading from, default=0.
 
-	-s, --random-seed		[int]				: the postivie integer value to be used as a seed in the random number generation for simulations, default is randomly generated based on system time and process id.
+	-s, --random-seed              [int]      : the postivie integer value to be used as a seed in the random number generation for simulations, default is randomly generated based on system time and process id.
 
-	-l, --processes			[int]				: the number of processes to which parameter sets can be sent for parallel data collection, default=2.
+	-l, --processes                [int]      : the number of processes to which parameter sets can be sent for parallel data collection, default=2.
 
-	-y, --recycle				[N/A]				: include this if the simulation output has already been generated FOR EXACTLY THE SAME FILES AND ARGUMENTS YOU ARE USING NOW, disabled by default
+	-y, --recycle                  [N/A]      : include this if the simulation output has already been generated FOR EXACTLY THE SAME FILES AND ARGUMENTS YOU ARE USING NOW, disabled by default
 
-	-g, --generate_only	[N/A]				: include this to generate oscillations features files for perturbed parameter values without calculating sensitivity. This is the opposite of recycle. Including this command in conjunction with --recycle will cause the program to do nothing, disabled by default.
+	-g, --generate_only            [N/A]      : include this to generate oscillations features files for perturbed parameter values without calculating sensitivity. This is the opposite of recycle. Including this command in conjunction with --recycle will cause the program to do nothing, disabled by default.
 
-	-z, --delete-data		[N/A]				: include this to delete oscillation features data when the program exits. This will preserve sensitivity directory but remove the directory specified by -D, disabled by default.
+	-z, --delete-data              [N/A]      : include this to delete oscillation features data when the program exits. This will preserve sensitivity directory but remove the directory specified by -D, disabled by default.
 
-	-q, --quiet					[N/A]				: include this to turn off printing messages to standard output, disabled by default.
+	-q, --quiet	                   [N/A]      : include this to turn off printing messages to standard output, disabled by default.
 
-	-e, --exec					 [path]			 : if included, the simulations are run by executing the program specified by path. The path argument should be the full path, but the default uses the relative path: "../sogen-deterministic/deterministic".
+	-e, --exec                     [path]     : if included, the simulations are run by executing the program specified by path. The path argument should be the full path, but the default uses the relative path: "../sogen-deterministic/deterministic".
 
-	-a, --sim-args			 [args]			 : if included, any argument after this will be passed to the simulation program. If -h is one of these arguments, the simulation help will be printed and the program will not run.
+	-a, --sim-args                 [args]     : if included, any argument after this will be passed to the simulation program. If -h is one of these arguments, the simulation help will be printed and the program will not run.
 
-	-h, --help					 [N/A]				: print out this help information.
+	-h, --help                     [N/A]      : print out this help information.
 
 2.3. Calling the program -- example
 *********************************** 
 For example, the following may be a valid call to program:
 
-	"./s\_a -c 2 -k 4 --processes 6 --percentage 100 -P 10 --random-seed 112358 -n ~/sensitivity-analysis/nominal.params -d	~/sensitivity-analysis/sensitivity\_data -D	~/sensitivity-analysis/simulation\_data -e ~/sogen-deterministic/deterministic --sim-args -u ~/sogen-deterministic/input.perturb"
+	./s\_a -c 2 -k 4 --processes 6 --percentage 100 -P 10 --random-seed 112358 -n ~/sensitivity-analysis/nominal.params -d	~/sensitivity-analysis/sensitivity\_data -D	~/sensitivity-analysis/simulation\_data -e ~/sogen-deterministic/deterministic --sim-args -u ~/sogen-deterministic/input.perturb
 
 where the short and long names may be interchanged with their long/short counterparts.
 
@@ -156,26 +169,88 @@ Some notes about how this could go wrong:
 	4. Running more processes requires more system memory, so it is possible that, even if the quantity specified by '--processes' is less than the number of system processors, system memory may create a bottleneck. Again, the program should not fail, but it will have less effective parallelization.
 	5. If any of the files specified do not exist, an appropriate error message will be returned. In such a case, re-check the path names and consider using full paths.
 
-For information on the arguments that can be passed to the the simulation program (if using sogen-deterministic/deterministic) please see 'sogen-deterministic/README.md' or, if you have already compiled that simulation program, navigate to the sogen-deterministic package directory and run
+For information on the arguments that can be passed to the the simulation program (if using sogen-deterministic/deterministic) please see 'sogen-deterministic/README.md' or, if you have already compiled that simulation program, navigate to the sogen-deterministic package directory and run:
 	
-	"./deterministic -h".
+	./deterministic -h
 
 3: Creating figures
 -------------------
 
-3.0: Scripts
-************
+3.0: Use sogen-scripts/plot-sensitivity.py
+******************************************
+This package by itself gathers data and calculates sensitivities but does not have a library for generating figures. 
 
+To create figures from the data this program generates, please use the 'sogen-scripts' package. This package includes numerous python scripts necessary for displaying Zebrafish Somitogenesis simulation data.
+The script that is relevent to this package is:
+
+	sogen-scripts/plot-sensitivity.py
+	
+3.1: Overview of plot-sensitivity.py
+************************************
+
+
+3.2: Command-line arguments
+***************************
+The following arguments may be passed in a command-line call to the python script. Some of them are the same as for s\_a, but most are distinct.
+
+	-n, --nominal-file     [filename]:The file to use for getting nominal parameter sets, default=../sensitivity-analysis/nominal.params.
+	
+	-d, --dir              [filename]:The directory to put all plots in, default ="all-sensitivities"
+	
+	-D, --data-dir         [filename]:The directory in which to store raw sensitivity data, default ="sense-for-plot"
+	
+	-o, --output           [filename]:The name of file(s) to use for plot images, default="sensitivity"
+	
+	-j, --job-name         [string]  :The name that should be used for the pbs job, default="PLOT_SA"
+	
+	-C, --cluster-name     [string]  :The name of the cluster on which to run simulations, if any, default=None.
+	
+	-N, --nodes            [int]     :The number of nodes to be utilized. Runs are done locally unless -N > 1, default=1.
+	
+	-f, --feature          [int]     :Index of feature, if only one feature should be plotted. Omit if all features should be plotted. 
+	
+	-p, --percent          [int]     :Max percentage by which to perturb nominal value, default=20.
+	
+	-P, --points           [int]     :Number of data points to collect between nominal and nominal + (max percent * nominal), default=4. 
+	
+	-l, --ppn              [int]     :Processors per node, a.k.a. processes to use in parallel for the analysis.
+	
+	-c, --nominal-count    [int]     :The number of nominal sets to use for sensitivity calculations. If this is greater than the number availible in the -n file, there will be errors. default=1.
+	
+	-e, --exec             [path]    :The path of the executable for performing sensitivity analysis, default=../sensitivity-analysis/s_a
+	
+	-s, --sim              [path]    :The path of the executable for running simulations, default=../sogen-deterministic/deterministic
+	
+	-g, --graph            [N/A]     :Include this if you would just like to generate graphs without running simulation. This assumes the appropriate files have already been generated based on the other command line arguments passed.
+	
+	-E, --elasticity       [N/A]     :Include this to plot (oscillation features)/(nominal feature value) as a scatter plot connected by lines (instead of sensitivity bar graphs). 
+	
+	-a, --args             [args]    :Any arguments passed beyond this argument will be passed verbatim to the sensitivity program.
+
+	-h, --help             [N/A]     :Display this help information.
+	
+3.3: Running the script -- example
+**********************************
+To generate bar graphs of the sensitivity of all feautures to all parameters, the following may be a valid call to the script:
+
+	python plot-sensitivity.py -n ~/sensitivity-analysis/nominal.params -d ~/sogen-scripts/sensitivity-plots -C biomath --percent 10 -P 2 -N 5 -c 10 --ppn 6 --exec ~/sensitivity-analysis/s_a --sim ~/sogen-deterministic/deterministic --args -s 112358 -a -M 1 -u ~/sogen-deterministic/input.perturb
+
+To generate line-connected scatter plots of oscillation features for various perturbations of input parameters:
+
+	python plot-sensitivity.py --elasticity -n ~/sensitivity-analysis/nominal.params -d ~/sogen-scripts/sensitivity-plots -C biomath -p 100 --points 10 -N 5 -c 10 --ppn 6 --exec ~/sensitivity-analysis/s_a --sim ~/sogen-deterministic/deterministic --args -s 112358 -a -M 1 -u ~/sogen-deterministic/input.perturb
+
+See the notes about calling the sensitivity analysis program for more information.
 
 4: Authorship and licensing
 ---------------------------
 
-4.0 GNU GPL
-***********
-
-This is a Local Sensitivity Analysis progam, designed for use with the Deterministic simulator for zebrafish segmentation.
+4.0: Authors
+************
 
 Copyright (C) 2013 Ahmet Ay, Jack Holland, Adriana Sperlea, Sebastian Sangervasi
+
+4.1: GNU GPL
+************
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -184,9 +259,9 @@ the Free Software Foundation, either version 3 of the License, or
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program.	If not, see <http://www.gnu.org/licenses/>.
+along with this program. If not, see <http://www.gnu.org/licenses/>.
 

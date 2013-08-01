@@ -257,7 +257,8 @@ void simulate_nominal(input_params& ip){
 		return;
 	}
 	char** child_args = (char**)mallocate(sizeof(char*)*ip.sim_args_num);
-	make_arg(0, ip.sim_args_num, ip.random_seed, pipes, ip.data_dir, (char*)"nominal", ip.simulation_args, child_args);
+	//make_arg(0, ip.sim_args_num, ip.random_seed, pipes, ip.data_dir, (char*)"nominal", ip.simulation_args, child_args);
+	make_arg(0, ip.sim_args_num, ip.random_seed, pipes, ip.data_dir, ip.nom_file, ip.simulation_args, child_args);
 
     pid_t simpid;
 	simpid = fork();

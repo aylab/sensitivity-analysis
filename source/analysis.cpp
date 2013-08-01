@@ -108,7 +108,7 @@ void generate_data(input_params& ip, sim_set& ss){
 void LSA_all_dims(input_params& ip, sim_set& ss){
 	//First, load the output for the nominal set against which other values will be compared. This call also handles counting the number of output features and holding on to the output features names.
 	int num_dependent;
-	char* file_name = make_name(ip.data_dir, (char*)"nominal", 0); //Make name just mallocates a string based on a directory+filename+integer combination.
+	char* file_name = make_name(ip.data_dir, ip.nom_file, 0); //Make name just mallocates a string based on a directory+filename+integer combination.
 	char*** output_names = new char**[1]; //Holds a pointer to an array of strings, each of which is the name of an output feature.
 	double** nominal_output = load_output(1, &num_dependent, file_name, output_names); //Load output puts the data created by generate_data into a double[j][i] where j is the index of an output feature and i is the index of the value of that feature at a particular perturbation.
 	unmake_file(file_name, ip.delete_data); //Deletes a the features file if ip.delete_data is true.
