@@ -45,13 +45,13 @@ Table of contents
 0: Compatibility and system requirements
 ----------------------------------------
 
-0.0. Sensitivity progam requirements
-***********************************
+**0.0. Sensitivity progam requirements**
+************************************
 This program, s\_a, has been designed for Unix based machines. It has been tested on Fedora 18 with GCC version 4.7.2 and OSX 10.7 (Lion) with GCC 4.2.1 using 64-bit processors.
 
 The dependencies of s\_a are entirely standard C/C++ libraries. The default behavior makes numerous assumpitions about the machine it is running on, however these assumptions can be easily overwritten through appropriate use of commandline arguments.
 
-0.1. Simulation	requirements
+**0.1. Simulation	requirements**
 *****************************
 This package can be compiled independntly. However, to run the program there must be a valid executible file to be used for collecting simulation data (not included). 
 The format of how the external program accepts input and writes output files is inherently assumed by s\_a to match the format of sogen-deterministic/deterministic.
@@ -65,7 +65,7 @@ For more information on this package's I/O behavior and communication with the s
 1.0. Compilation
 ----------------
 
-0.0. Compiling with and without SCons
+**0.0. Compiling with and without SCons**
 *************************************
 To compile an application in its default configuration, open a terminal window and navigate to the package's root directory. If SConstruct is installed on the machine, simply enter 'scons' to compile the source.
 
@@ -73,8 +73,8 @@ If SCons cannot be installed on the machine, instead make the appriprate call to
 
 	g++ -O2 -Wall -o s\_a analysis.cpp init.cpp io.cpp finite_differences.cpp
 	
-1.1. Compilation options
-************************
+**1.1. Compilation options**
+**************************
 All applications come with at least three compilation options, 'profile', 'debug', and 'memtrack'. By entering 'scons profile=1', 'scons debug=1', or 'scons memtrack=1', the application is compiled with compile and link flags designed for profiling, debugging, and memory tracking, respectively. Profiling adds the '-pg' compile and link flags, which adds extra code that enables gprof profiling analysis. Debugging adds the '-g' compile flag, which adds extra code that enables GDB debugging. Memory tracking adds the '-D MEMTRACK' compile flag, which adds a custom macro indicating the program should track its heap memory allocation. 
 
 For more information on these options, see "Debugging, profiling, and memory tracking" in 'sogen-deterministic/README.md'.
@@ -82,8 +82,8 @@ For more information on these options, see "Debugging, profiling, and memory tra
 2: Running Sensitivity Analysis
 -------------------------------
 
-2.0. Overview of Local Sensitivity Analysis
-*******************************************
+**2.0. Overview of Local Sensitivity Analysis**
+*********************************************
 The goal of Local Sensitivity Analysis is to quantify the degree to which a simulation is influenced by an input parameter. 
 
 If Y is the output function (amplitude, period, etc), p\_j is the j’th parameter, and p’ is the nominal parameter set, then non-dimensional sensitivity S\_j can be evaluated by:
@@ -96,8 +96,8 @@ To normalize the sensitivities across the parameter set, for m parameters, the f
 
 	N\_j = (S\_j) / (sum\_1:m{|S\_j|})
 
-2.1. Overview of the program
-****************************
+**2.1. Overview of the program**
+******************************
 This program accomplishes the above calculations through the following steps:
 
 0. Read in the nominal parameter set from an input file.
@@ -116,8 +116,8 @@ This program accomplishes the above calculations through the following steps:
 	1. Divide each parameter's sensitivity value by that sum. Optionally, multiply by 100 to give N\_j as a percentage.
 5. Write out these calculated values to files.
 
-2.2. Command-line arguments
-***************************
+**2.2. Command-line arguments**
+*****************************
 The following arguments may be passed when calling the sensitivity program:
 
 	-n, --nominal-file             [filename] : the relative name of the file from which the nominal parameter set should be read, default=nominal.params.
@@ -152,8 +152,8 @@ The following arguments may be passed when calling the sensitivity program:
 
 	-h, --help                     [N/A]      : print out this help information.
 
-2.3. Calling the program -- example
-*********************************** 
+**2.3. Calling the program -- example**
+************************************* 
 For example, the following may be a valid call to program:
 
 	./s\_a -c 2 -k 4 --processes 6 --percentage 100 -P 10 --random-seed 112358 -n ~/sensitivity-analysis/nominal.params -d	~/sensitivity-analysis/sensitivity\_data -D	~/sensitivity-analysis/simulation\_data -e ~/sogen-deterministic/deterministic --sim-args -u ~/sogen-deterministic/input.perturb
@@ -176,8 +176,8 @@ For information on the arguments that can be passed to the the simulation progra
 3: Creating figures
 -------------------
 
-3.0: Use sogen-scripts/plot-sensitivity.py
-******************************************
+**3.0: Use sogen-scripts/plot-sensitivity.py**
+********************************************
 This package by itself gathers data and calculates sensitivities but does not have a library for generating figures. 
 
 To create figures from the data this program generates, please use the 'sogen-scripts' package. This package includes numerous python scripts necessary for displaying Zebrafish Somitogenesis simulation data.
@@ -185,8 +185,8 @@ The script that is relevent to this package is:
 
 	sogen-scripts/plot-sensitivity.py
 	
-3.1: Overview of plot-sensitivity.py
-************************************
+**3.1: Overview of plot-sensitivity.py**
+**************************************
 The plot-sensitivity.py python script includes two plotting methods: 1) sensitivity bar graphs, and 2) output value scatter-line plots.
 
 1) Sensitivity Bar Graphs
@@ -208,8 +208,9 @@ These are plots of points connected by lines where each line is a single nominal
 3. For every simualaiton parameter, plotting the simulation output value at successive perturbations of the parameter -- each output value is plotted as the perturbed value divided by the output vale of the nominal (unperturbed) parameter set.
 
 These plots display the ratio between an simulation output value at a perturbed parameter value
-3.2: Command-line arguments
-***************************
+
+**3.2: Command-line arguments**
+*****************************
 The following arguments may be passed in a command-line call to the python script. Some of them are the same as for s\_a, but most are distinct.
 
 	-n, --nominal-file     [filename]:The file to use for getting nominal parameter sets, default=../sensitivity-analysis/nominal.params.
@@ -248,8 +249,8 @@ The following arguments may be passed in a command-line call to the python scrip
 
 	-h, --help             [N/A]     :Display this help information.
 	
-3.3: Running the script -- example
-**********************************
+**3.3: Running the script -- example**
+************************************
 To generate bar graphs of the sensitivity of all feautures to all parameters, the following may be a valid call to the script:
 
 	python plot-sensitivity.py -n ~/sensitivity-analysis/nominal.params -d ~/sogen-scripts/sensitivity-plots -C biomath --percent 10 -P 2 -N 5 -c 10 --ppn 6 --exec ~/sensitivity-analysis/s_a --sim ~/sogen-deterministic/deterministic --args -s 112358 -a -M 1 -u ~/sogen-deterministic/input.perturb
@@ -263,13 +264,13 @@ See the notes about calling the sensitivity analysis program for more informatio
 4: Authorship and licensing
 ---------------------------
 
-4.0: Authors
-************
+**4.0: Authors**
+**************
 
 Copyright (C) 2013 Ahmet Ay, Jack Holland, Adriana Sperlea, Sebastian Sangervasi
 
-4.1: GNU GPL
-************
+**4.1: GNU GPL**
+**************
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
