@@ -161,13 +161,12 @@ For example, the following may be a valid call to program:
 where the short and long names may be interchanged with their long/short counterparts.
 
 Some notes about how this could go wrong:
-	0. This example assumes the file system supports the "~/" path prefix -- for safety, it may be necessary to use full paths for file and directory arguments. This is partiuclarly encouraged when running on a cluster.
-	1. Becuase '-c 2' is included, the program will look for two nominal parameter sets to run. If the file specified by '-n' does not contain two parameter sets, the program will exit with an error message.
-	2. The option '-k 4' specifies that the fourth line of the file should contain the first nominal parameter to use -- if there are less than four lines in the file the program will exit with an error message.
-	3. The option '--processes 6' states that six instances of the simulation program (not including s\_a itself) may be run simulatneously. Each instance will be given the perturbed parameter sets for a single perturbed parameter. 
-		 If your system has >= 6 processors, these simulations should run simultaneously. However, even if fewer processors exist the program will not fail, there will just be less effective parallelization.
-	4. Running more processes requires more system memory, so it is possible that, even if the quantity specified by '--processes' is less than the number of system processors, system memory may create a bottleneck. Again, the program should not fail, but it will have less effective parallelization.
-	5. If any of the files specified do not exist, an appropriate error message will be returned. In such a case, re-check the path names and consider using full paths.
+0. This example assumes the file system supports the "~/" path prefix -- for safety, it may be necessary to use full paths for file and directory arguments. This is partiuclarly encouraged when running on a cluster.
+1. Becuase '-c 2' is included, the program will look for two nominal parameter sets to run. If the file specified by '-n' does not contain two parameter sets, the program will exit with an error message.
+2. The option '-k 4' specifies that the fourth line of the file should contain the first nominal parameter to use -- if there are less than four lines in the file the program will exit with an error message.
+3. The option '--processes 6' states that six instances of the simulation program (not including s\_a itself) may be run simulatneously. Each instance will be given the perturbed parameter sets for a single perturbed parameter. If your system has >= 6 processors, these simulations should run simultaneously. However, even if fewer processors exist the program will not fail, there will just be less effective parallelization.
+4. Running more processes requires more system memory, so it is possible that, even if the quantity specified by '--processes' is less than the number of system processors, system memory may create a bottleneck. Again, the program should not fail, but it will have less effective parallelization.
+5. If any of the files specified do not exist, an appropriate error message will be returned. In such a case, re-check the path names and consider using full paths.
 
 For information on the arguments that can be passed to the the simulation program (if using sogen-deterministic/deterministic) please see 'sogen-deterministic/README.md' or, if you have already compiled that simulation program, navigate to the sogen-deterministic package directory and run:
 	
