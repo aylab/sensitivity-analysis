@@ -36,11 +36,17 @@ Table of contents
 	
 * 3.3: Running the script -- example
 
-4: Authorship and licensing
+4: Modifying the code
 
-* 4.0: Authors
+* 4.0: Adding command-line arguments
+
+* 4.1: Modifying the simulation program
+
+5: Authorship and licensing
+
+* 5.0: Authors
 	
-* 4.1: GNU GPL
+* 5.1: GNU GPL
 
 0: Compatibility and system requirements
 ----------------------------------------
@@ -331,16 +337,106 @@ To generate line-connected scatter plots of oscillation features for various per
 
 See the notes about calling the sensitivity analysis program for more information.
 
-4: Authorship and licensing
+
+4: Modifying the code
+-----------------------
+
+If you are user who has an advanced understanding of C/C++ and the code contained in this package, we encourage you to thuroughly read this section before attempting to customize the program.
+
+If you are a user who has an advanced understanding of C/C++ but not the code contained in this package, please reread sections 0 through 9.
+
+If you ar a user who does not have an advanced understanding of C/C++, please open your web browser to <http://www.cplusplus.com/files/tutorial.pdf> and read pages 0 through 138.
+
+**************************************
+**4.0: Adding command-line arguments**
+
+Parsing of command-line argument is handled entirely in 'sensitivity-analysis/source/init.cpp' in the function:
+
+	void accept_params (int num_args, char** args, input_params& ip)
+	
+If you would like to add a comand-line argument to the senstivity program simply add an "else if" statement to the main conditional like so:
+
+```
+...
+}else if (strcmp(option, "-?") == 0 || strcmp(option, "--your-option") == 0) {
+	ensure_nonempty(option, value);
+	your_variable = value;
+} else ...
+```
+
+You should replace 'your-option' with the command you would like to add and '?'  with a single-character short version. Please ensure that these strings are unique, i.e. they do not conflict with any previously assigned commands. Please do not ovewrite the default commands.
+
+You should also replace 'your\_variable' with the variable/object you would like to use to store the value passed as an argument. The most convenient method of passing this variable throughout the program is by making it an instance variable of the input\_params struct. To do this, simply open 'sensitivity-analysis/source/init.hpp' and add your instance variable to the input\_params struct. You may also want to set a default value for you variable, in which case you should add this assignment to the input_params constructor and destrctor. For example:
+
+```
+struct input_params{
+	TYPE your_variable_name;
+	bool sim_args;
+	bool quiet;	
+	...
+	input_params(){
+		your_variable_name = default_value;
+		quiet = false;
+		sim_args = false;
+		...
+	}
+	~input_params(){
+		your_destruction_method( your_variable_name );
+		if(nominal != NULL) delete[] nominal;
+	}
+};
+```
+
+You may then reference your variable in all functions that take 'input_params& ip' as a parameter by entering:
+
+	ip.your_variable_name
+
+
+**************************************
+**4.1: Modifying the simulation program**
+
+The code has been made with as much modularity as possible. If you would like to use an alternative simulation program you have two options:
+
+**Low-Modification Option:**
+
+Make a simulation program executible that takes the the same command-line arguments as 'sogen-deterministic/simulation'. This program should also create the same output file format as is specified in section 4.3.2. 
+
+While this requires you to conform to very specific bounds, if you create a simulation program in this way you will only need to call 'sensitivity-analysis/sensitivity' with the argument '-e' or '--executable' followed by your simulation program and the sensitivity program will run with the appropriate behavior.
+
+**High-Modification Option:**
+
+If you are willing to modify the source code of 'sensitivity-analysis/sensitivity' it is possible create custom simulation program calls and file formats by modifying 'io.cpp' and 'io.hpp'. The functions that would need to be rewritten for you own needs are as follows.
+
+For changing how simulations are called:
+
+* 
+	void simulate_samples(int , input_params& , sim_set&  )
+* 
+	void simulate_nominal(input_params& );
+
+For changing how simulation results are read from file:
+
+* 
+	double** load_output(int, int*, char*, char*** );
+
+For changing how sensitivity calculations are written to file:
+
+* 
+	void write_sensitivity(int , int , char** , double** , char*  );
+	
+Please store a backup of the original package before any modifications and proceed with caution.
+
+
+5: Authorship and licensing
 ---------------------------
 
 **************
-**4.0: Authors**
+**5.0: Authors**
 
 Copyright (C) 2013 Ahmet Ay, Jack Holland, Adriana Sperlea, Sebastian Sangervasi
 
 **************
-**4.1: GNU GPL**
+**5.1: GNU GPL**
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

@@ -34,8 +34,11 @@ double** load_output(int, int*, char*, char*** );
 //File output:
 void write_sensitivity(int , int , char** , double** , char*  );
 
-//Piping functions:
+//Simulation execution functions:
 void simulate_samples(int , input_params& , sim_set&  );
+void simulate_nominal(input_params& );
+
+//Simulation execution helper functions:
 char*** make_all_args(int , input_params& ,int** );
 void make_arg(int , int , int, int* , char* , char* , char** , char** );
 char* make_name(char* , char* , int );
@@ -46,7 +49,6 @@ void del_pipes(int , int** , bool );
 void segs_per_sim(int , int , int* );
 bool write_info(int , int, int);
 bool write_dim_sets(int , int , double* , sim_set& );
-void simulate_nominal(input_params& );
 bool write_nominal(input_params& , int );
 bool check_status(int , int , int* , char** );
 
