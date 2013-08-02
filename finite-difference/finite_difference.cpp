@@ -1,7 +1,7 @@
 /*
 Finite difference calculator with varying orders of accuracy,
 Designed for use with the sensitivity-analysis package,
-for the Deterministic simulator of zebrafish segmentation
+for the deterministic simulator of zebrafish segmentation
 Copyright (C) 2013 Ahmet Ay, Jack Holland, Adriana Sperlea, Sebastian Sangervasi
 
 This program is free software: you can redistribute it and/or modify

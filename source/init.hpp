@@ -29,16 +29,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <errno.h>		//(Some libraries use error codes that are useful for checking things, like mkdir)
 
 #include "memory.h" 	//(Memory tracking functions.)
+#include "macros.hpp"	//(macros)
 using namespace std;
-
-//Character checking macros used for parsing (by file_io.cpp)
-#define is_num(c) (('1' <= c && c <= '9') || (c == '0') || (c == '.') || (c == 'e'))
-#define alph_num_slash( car ) ( ('a' <= car && car <= 'z') || ('A' <= car && car <= 'Z') || ('1' <= car && car <= '9') || (car == '0') || (car == '/') || (car == ' '))
-//Handy math macros
-#define len_num(num) ( log10(num+1)+1 )
-#define abs(num) ( ( num < 0 ? -1*num : num) )
-//This macro is useful for zeroing-out negative values so that parmeter values will never be negative.
-#define at_least_zero(num) (num > 0.0 ? num : 0)
 
 //Declaring this here so it can be used by the input_params destructor.
 void unmake_dir(char*);
@@ -93,7 +85,7 @@ struct input_params{
 		data_dir = NULL;
 		nom_file = (char*)"nominal_"; 	//This string is just used as the name to give to the nominal oscillation features file.
 		dim_file = (char*)"dim_";		//Similarly, this string is used to name the oscillation features file for each dimension (parameter) of the system with perturbations.
-		sim_exec = (char*) "../sogen-deterministic/deterministic";
+		sim_exec = (char*) "../sogen-deterministic/simulation";
 		simulation_args = NULL;
 		null_stream = NULL;
 		failure = NULL;
@@ -101,12 +93,14 @@ struct input_params{
 	}
 	
 	~input_params(){
-		if(delete_data){
-			unmake_dir(data_dir);
-		}
-		if(data_dir != NULL) mfree(data_dir);
 		if(nominal != NULL) delete[] nominal;
 		if(simulation_args != NULL) delete[] simulation_args;
+		if(data_dir != NULL){
+			if(delete_data){
+				unmake_dir(data_dir);
+			}
+			mfree(data_dir);
+		}
 	}
 };
 

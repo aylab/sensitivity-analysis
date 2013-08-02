@@ -18,11 +18,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ANALYSIS_HPP
 #define ANALYSIS_HPP
 
-//	This macro is used when checking infinite values. See the check_num function in analysis.cpp.
-#define INF_SUBSTITUTE 500
-//This macro function is used to take away the dimensionality of sensitivity values. See the summary of sensitivity analysis at the beginnign of analysis.cpp.
-#define non_dim_sense(nom_param, nom_out, dout_dparam) ( ((double)nom_param / (double)nom_out) * (double)dout_dparam )
-
 //Function declarations.
 void generate_data(input_params&, sim_set&);
 void LSA_all_dims(input_params& , sim_set& );

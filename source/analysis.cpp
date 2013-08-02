@@ -30,7 +30,8 @@ To normalize the sensitivities across the parameter set, for m parameters, the f
 #include "init.hpp"
 #include "analysis.hpp"
 #include "io.hpp"
-#include "finite_difference.hpp"
+#include "../finite-difference/finite_difference.hpp"
+#include "macros.hpp"
 
 using namespace std;
 
@@ -118,9 +119,10 @@ void LSA_all_dims(input_params& ip, sim_set& ss){
 	double** lsa = new double*[ip.dims];
 	int i = 0;
 	for(; i < ip.dims; i++){
-		// Get output for this particular dimension
+		// Get simulation output for this particular dimension
 		file_name = make_name(ip.data_dir, ip.dim_file, i);
 		dim_output = load_output(ss.sets_per_dim, &num_dependent,file_name, NULL);
+		//Remove the simulation data file if ip.delete_data was set to true.
 		unmake_file(file_name, ip.delete_data);
 		mfree(file_name);
 		// Fills LSA array with derivative values
@@ -130,6 +132,7 @@ void LSA_all_dims(input_params& ip, sim_set& ss){
 		for (int j = 0; j < num_dependent; j++){
 			lsa[i][j] = non_dim_sense(ip.nominal[i], nominal_output[j][0], lsa[i][j]); 
 		}
+		//Delete the raw data.
 		del_double_2d(num_dependent, dim_output);
 	}
 	//Write out the sensitivity and normalized sensitivity to the correct directory/files
@@ -143,10 +146,11 @@ void LSA_all_dims(input_params& ip, sim_set& ss){
 	write_sensitivity(ip.dims, num_dependent, output_names[0], lsa, file_name);
 	mfree(file_name);
 	
-	//Delete the nominal data and ouput names.
+	//Delete the nominal data and output names.
 	del_double_2d(num_dependent, nominal_output);
 	del_char_2d(num_dependent, output_names[0]);
 	delete[] output_names;
+	//Delete the sensitivity data. This could be returned to main() if it is needed for something else, but at this point it has been written to file and should no longer be needed.
 	del_double_2d(ip.dims, lsa);
 	return;
 }

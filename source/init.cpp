@@ -17,7 +17,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "init.hpp"
-#include "finite_difference.hpp"
 
 using namespace std;
 
@@ -225,7 +224,7 @@ void usage(const char* message, int error){
                                      disabled by default\n\
 -e, --exec           [path]       : if included, the simulations are run by executing the program\n\
                                      specified by path. The path argument should be the full path,\n\
-                                     but the default uses the relative path: \n\"../sogen-deterministic/deterministic\n\".\n\
+                                     but the default uses the relative path: \n\"../sogen-deterministic/simulation\n\".\n\
 -a, --sim-args       [args]       : if included, any argument after this will be passed to the simulation\n\
                                      program. If -h is one of these arguments, the simulation help will be\n\
                                      printed and the program will not run.\n\
@@ -260,20 +259,21 @@ void make_dir(char* dir){
 	}
 }
 
-//Deletes a directory that is empty. Could have the functionality to recursively remove contents if not empty, but doesn't currently.
+//Deletes a directory that is empty. This is used by the destructor of input_params (if -z was passed as an argument) to delete the oscillation features files after they have been processed. The files within the directory should have been deleted in the main loop of LSA_all_dims().
 void unmake_dir(char* dir){
 	int made = mkdir((const char*)dir, S_IRWXU);
 	if( (-1 == made && errno == EEXIST) || made == 0){
 		if( -1 == rmdir((const char*)dir)){
-			cerr << "Could not remove directory." << endl;		
+			cerr << "Could not remove simulation data directory." << endl;
+			return;		
 		}		
 	} else{
-		usage("This can't be happening", errno);
+		unmake_dir(dir);
 	}
 	return;
 }
 
-//Removes a file if remove is true, otherwise does nothing. Should put some error checking here.
+//Removes a file if remove is true, otherwise does nothing. This is used in the main loop of LSA_all_dims() to delete simulation data files after the have been processed.
 void unmake_file(char* file_name, bool remove){
 	if(!remove){
 		return;

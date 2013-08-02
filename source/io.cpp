@@ -19,7 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "init.hpp"
 #include "io.hpp"
-#define MAX_NUM_FEATS 150
+#include "macros.hpp"
+
 using namespace std;
 
 void read_nominal(input_params& ip){
