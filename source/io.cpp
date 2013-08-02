@@ -100,7 +100,6 @@ double** load_output(int num_values, int* num_types, char* file_name, char*** ou
 	bool name_store = (output_names != NULL);
 	if(name_store){
 		(*output_names) = new char*[MAX_NUM_FEATS];
-		(*output_names)[0] = new char[50];
 	}
 	//An index for putting characters within the output names array
 	int o_n_index = 0;
@@ -110,15 +109,17 @@ double** load_output(int num_values, int* num_types, char* file_name, char*** ou
 			output_types ++;
 			//With a new comma, this assumes that another output type will be filled in.
 			if(name_store && output_types < MAX_NUM_FEATS){
-				(*output_names)[output_types] = new char[50];
-				o_n_index = 0;
+				o_n_index = 0; //Still taking feature names, so reset the string index to the beginning.
 			} else{
-				o_n_index = 50;
+				o_n_index = 50; //output_names must be full, so ensure that it will not be touched further.
 			}
 			
 		} else{
 			if (o_n_index < 48 && name_store && alph_num_slash(c)){
 				//cout << c << " "; 
+				if(o_n_index == 0){
+					(*output_names)[output_types] = new char[50];
+				}
 				(*output_names)[output_types][o_n_index] = c;
 				(*output_names)[output_types][o_n_index+1] = '\0';
 				o_n_index ++;
@@ -129,10 +130,7 @@ double** load_output(int num_values, int* num_types, char* file_name, char*** ou
 	}
 	//Ensure that at most MAX_NUM_FEATS features are used for the rest of the processing.
 	output_types = min(output_types, MAX_NUM_FEATS);
-	//Because the above loop creates a new item in output_names when a comma is found, one extra allocation will happen so the last allocation needs to be deleted.
-	if(name_store){
-		delete[] (*output_names)[output_types];
-	}
+
 	//Fill in the function parameter with the output_types count.
 	*num_types = output_types;
 	//Initialize the arrays of values for each output type, fill them 
@@ -171,7 +169,7 @@ void write_sensitivity(int dims, int output_types, char** output_names, double**
 	for(int i = 0; i < output_types; i++){
 		file_out << output_names[i] << ',';
 	}
-
+	file_out.precision(30);
 	for (int i = 0; i < dims; i++ ){
 		file_out << "\n" << i << ',';
 		for ( int j = 0; j < output_types; j++ ){
