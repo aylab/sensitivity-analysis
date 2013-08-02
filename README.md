@@ -8,39 +8,39 @@ Table of contents
 
 0: Compatibility and system requirements
 
-*0.0: Sensitivity progam requirements
+* 0.0: Sensitivity progam requirements
 
-*0.1: Simulation requirements
+* 0.1: Simulation requirements
 
 1: Compilation
 
-*1.0: Compiling with and without SCons
+* 1.0: Compiling with and without SCons
 
-*1.1: Compilation options
+* 1.1: Compilation options
 
 2: Running Sensitivity Analysis
 
-*2.0: Overview of Local Sensitvity Analysis
+* 2.0: Overview of Local Sensitvity Analysis
 
-*2.1: Command-line arguments
+* 2.1: Command-line arguments
 
-*2.2: Calling the program -- example 
+* 2.2: Calling the program -- example 
 
 3: Creating figures
 
-*3.0: Use sogen-scripts/plot-sensitivity.py
+* 3.0: Use sogen-scripts/plot-sensitivity.py
 	
-*3.1: Overview of plot-sensitivity.py
+* 3.1: Overview of plot-sensitivity.py
 	
-*3.2: Command-line arguments
+* 3.2: Command-line arguments
 	
-*3.3: Running the script -- example
+* 3.3: Running the script -- example
 
 4: Authorship and licensing
 
-*4.0: Authors
+* 4.0: Authors
 	
-*4.1: GNU GPL
+* 4.1: GNU GPL
 
 0: Compatibility and system requirements
 ----------------------------------------
