@@ -22,8 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 void generate_data(input_params&, sim_set&);
 void LSA_all_dims(input_params& , sim_set& );
 double* fin_dif_one_dim(int, int, double, double**);
-void normalize(int , int t, double** );
-double check_num(double );
+void normalize(int , int , double** );
 void del_double_2d(int , double** );
 void del_char_2d(int , char** );
 #endif

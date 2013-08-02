@@ -88,7 +88,7 @@ set,post sync wildtype,post per wildtype,post amp wildtype,post per wildtype/wt,
 0,0.999999999999999888977697537484,29.8797435897436045593167364132,56.0505555846975624945116578601,1,1,0,0,0,-nan,-nan,PASSED
 1,1,30.2323076923076676791879435768,166.255079755418790909970994107,1,1,0,0,0,-nan,-nan,PASSED
 	
-	where the number of features can be arbitrary but 1) all values must be comma-seperated with no spaces, 2) the names line must contain a name for every feature, 3) the last value in non-name lines must be followed by a comma, but can have any string after that before the new line, 4) The maximum number of features that can be read is set by the macro MAX_NUM_FEATS and is currently 150. 
+	where the number of features can be arbitrary but 0) at most MAX_NUM_FEATS will be read, 1) all values must be comma-seperated with no spaces, 2) the names line must contain a name for every feature, 3) the last value in non-name lines must be followed by a comma, but can have any string after that before the new line, 4) The maximum number of features that can be read is set by the macro MAX_NUM_FEATS and is currently 150. 
 	Also important is the fact that there should be no name for the "PASSED" or "FAILED" column which needs to be ignored.
 */
 double** load_output(int num_values, int* num_types, char* file_name, char*** output_names){
@@ -109,8 +109,12 @@ double** load_output(int num_values, int* num_types, char* file_name, char*** ou
 		if( c == ','){
 			output_types ++;
 			//With a new comma, this assumes that another output type will be filled in.
-			if(name_store) (*output_names)[output_types] = new char[50];
-			o_n_index = 0;
+			if(name_store && output_types < MAX_NUM_FEATS){
+				(*output_names)[output_types] = new char[50];
+				o_n_index = 0;
+			} else{
+				o_n_index = 50;
+			}
 			
 		} else{
 			if (o_n_index < 48 && name_store && alph_num_slash(c)){
@@ -123,8 +127,12 @@ double** load_output(int num_values, int* num_types, char* file_name, char*** ou
 			
 		}
 	}
+	//Ensure that at most MAX_NUM_FEATS features are used for the rest of the processing.
+	output_types = min(output_types, MAX_NUM_FEATS)
 	//Because the above loop creates a new item in output_names when a comma is found, one extra allocation will happen so the last allocation needs to be deleted.
-	if(name_store) delete[] (*output_names)[output_types];
+	if(name_store){
+		delete[] (*output_names)[output_types];
+	}
 	//Fill in the function parameter with the output_types count.
 	*num_types = output_types;
 	//Initialize the arrays of values for each output type, fill them 
@@ -136,10 +144,8 @@ double** load_output(int num_values, int* num_types, char* file_name, char*** ou
 				out[j] = new double[num_values];
 			}
 			fscanf(file_pointer, "%lf,", out[j] + i);
-			if(isinf(out[j][i] != 0)){
-				out[j][i] = 500;
-			}
-			//cout << "\nNUMBER: " <<"("<<i<<","<<j<<")"<<"  " << out[j][i] << endl;
+			//Check for infinity or nan
+			out[j][i] = check_num(out[j][i])
 		}
 		if(i != num_values-1){
 			fscanf(file_pointer, "%*s\n");

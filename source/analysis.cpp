@@ -200,18 +200,6 @@ void normalize(int dims, int num_dependent, double** lsa_values){
 	}
 }
 
-/*	These checks are primarily for the sensivitity of period -- when there are damped oscillations the period may be measured as INFINITY, in which case the sensitivity may become infinity.
-	In the case of a an "infinite" value (e.g. period), we choose to treat the infinite value as finite but higher than any functioning value, i.e. the INF_SUBSTITUTE macro.
-*/
-double check_num(double num){
-	if(isinf(num)){
-		return INF_SUBSTITUTE;
-	}else if (isnan(num)){
-		return 0;
-	}
-	return num;
-}
-
 /*	Methods for deleting arrays.
 */
 void del_double_2d(int rows, double** victim){

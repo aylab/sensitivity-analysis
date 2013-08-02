@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef MACROS_HPP
 #define MACROS_HPP
 
-//This macro specifies the maximum number of features that 
+//This macro specifies the maximum number of features that may be read from a simulation output file. If there are more features than this quantitiy in the output file they will be ignored and their sensitivity will not be calculated. 
 #define MAX_NUM_FEATS 150
 
 //	This macro is used when checking infinite values. See the check_num function in analysis.cpp.
@@ -38,6 +38,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #define len_num(num) ( log10(num+1)+1 )
 #define abs(num) ( ( num < 0 ? -1*num : num) )
+#define min(alpha, beta) (alpha < beta ? alpha : beta)
 
 //This macro function is used to take away the dimensionality of sensitivity values. See the summary of sensitivity analysis at the beginning of analysis.cpp.
 #define non_dim_sense(nom_param, nom_out, dout_dparam) ( ((double)nom_param / (double)nom_out) * (double)dout_dparam )

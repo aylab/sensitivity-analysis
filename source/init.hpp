@@ -163,5 +163,5 @@ void ensure_nonempty (const char* , const char* );
 void cout_switch(bool , input_params& );
 void usage(const char*, int);
 void make_dir(char*);
-
+double check_num(double );
 #endif
