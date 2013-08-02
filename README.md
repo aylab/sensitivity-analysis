@@ -45,17 +45,16 @@ Table of contents
 0: Compatibility and system requirements
 ----------------------------------------
 ************************************
-**0.0. Sensitivity progam requirements**
+**0.0: Sensitivity progam requirements**
 
 This program, sensitivity, has been designed for Unix based machines. It has been tested on Fedora 18 with GCC version 4.7.2 and OSX 10.7 (Lion) with GCC 4.2.1 using 64-bit processors.
 
 The dependencies of sensitivity are entirely standard C/C++ libraries. The default behavior makes numerous assumpitions about the machine it is running on, however these assumptions can be easily overwritten through appropriate use of commandline arguments.
 
 *****************************
-**0.1. Simulation	requirements**
+**0.1: Simulation	requirements**
 
-This package can be compiled independntly. However, to run the program there must be a valid executible file to be used for collecting simulation data (not included). 
-The format of how the external program accepts input and writes output files is inherently assumed by sensitivity to match the format of sogen-deterministic/deterministic.
+This package can be compiled independntly. However, to run the program there must be a valid executible file to be used for collecting simulation data (not included). The format of how the external program accepts input and writes output files is inherently assumed by sensitivity to match the format of sogen-deterministic/simulation.
 
 To modify the manner in which sensitivity sends data to the external executable, the functions simulate\_samples() and simulate\_nominal() in io.cpp would need to be customized.
 
@@ -76,7 +75,7 @@ If SCons cannot be installed on the machine, instead make the appriprate call to
 	g++ -O2 -Wall -o sensitivity analysis.cpp init.cpp io.cpp finite_differences.cpp
 
 **************************	
-**1.1. Compilation options**
+**1.1: Compilation options**
 
 All applications come with at least three compilation options, 'profile', 'debug', and 'memtrack'. By entering 'scons profile=1', 'scons debug=1', or 'scons memtrack=1', the application is compiled with compile and link flags designed for profiling, debugging, and memory tracking, respectively. Profiling adds the '-pg' compile and link flags, which adds extra code that enables gprof profiling analysis. Debugging adds the '-g' compile flag, which adds extra code that enables GDB debugging. Memory tracking adds the '-D MEMTRACK' compile flag, which adds a custom macro indicating the program should track its heap memory allocation. 
 
@@ -85,7 +84,7 @@ For more information on these options, see "Debugging, profiling, and memory tra
 2: Running Sensitivity Analysis
 -------------------------------
 *********************************************
-**2.0. Overview of Local Sensitivity Analysis**
+**2.0: Overview of Local Sensitivity Analysis**
 
 The goal of Local Sensitivity Analysis is to quantify the degree to which a simulation is influenced by an input parameter. 
 
@@ -100,7 +99,7 @@ To normalize the sensitivities across the parameter set, for m parameters, the f
 	N_j = (S_j) / (sum_1:m{|S_j|})
 
 ******************************
-**2.1. Overview of the program**
+**2.1: Overview of the program**
 
 This program accomplishes the above calculations through the following steps:
 
@@ -121,7 +120,7 @@ This program accomplishes the above calculations through the following steps:
 5. Write out these calculated values to files.
 
 *****************************
-**2.2. Command-line arguments**
+**2.2: Command-line arguments**
 
 The following arguments may be passed when calling the sensitivity program:
 
@@ -151,7 +150,7 @@ The following arguments may be passed when calling the sensitivity program:
 
 	-q, --quiet	                   [N/A]      : include this to turn off printing messages to standard output, disabled by default.
 
-	-e, --exec                     [path]     : if included, the simulations are run by executing the program specified by path. The path argument should be the full path, but the default uses the relative path: "../sogen-deterministic/deterministic".
+	-e, --exec                     [path]     : if included, the simulations are run by executing the program specified by path. The path argument should be the full path, but the default uses the relative path: "../sogen-deterministic/simulation".
 
 	-a, --sim-args                 [args]     : if included, any argument after this will be passed to the simulation program. If -h is one of these arguments, the simulation help will be printed and the program will not run.
 
@@ -178,6 +177,7 @@ The following three lines represent an example file:
 This program reads results of simulations from the output files created by the simulation program. If the sensitivity program is run with the standard simulation program, this file format is already created properly and can be read by the simulation without any user modifications. The creation of this format is explicitly defined in sogen-deterministic/README.md, but a summary of what is necessary for the sensitivity program to read such a file properly is as follows:
 
 Some requirements of the simulation output file:
+
 1. The number of features can be arbitrary, but: 
 2. The maximum number of features that can be read is set by the macro MAX_NUM_FEATS in "macros.hpp" and is 150 by default. 
 3. All values must be comma-seperated with no spaces, 
@@ -221,7 +221,7 @@ parameter,post sync wildtype,post per wildtype,post amp wildtype,post per wildty
  
 For example, the following may be a valid call to program:
 
-	~/sensitivity-analysis/sensitivity -c 2 -k 4 --processes 6 --percentage 100 -P 10 --random-seed 112358 -n ~/sensitivity-analysis/nominal.params -d	~/sensitivity-analysis/sensitivity_data -D	~/sensitivity-analysis/simulation_data -e ~/sogen-deterministic/deterministic --sim-args -u ~/sogen-deterministic/input.perturb
+	~/sensitivity-analysis/sensitivity -c 2 -k 4 --processes 6 --percentage 100 -P 10 --random-seed 112358 -n ~/sensitivity-analysis/nominal.params -d	~/sensitivity-analysis/sensitivity_data -D	~/sensitivity-analysis/simulation_data -e ~/sogen-deterministic/simulation --sim-args -u ~/sogen-deterministic/input.perturb
 
 where the short and long names may be interchanged with their long/short counterparts.
 
@@ -234,9 +234,9 @@ Some notes about how this could go wrong:
 4. Running more processes requires more system memory, so it is possible that, even if the quantity specified by '--processes' is less than the number of system processors, system memory may create a bottleneck. Again, the program should not fail, but it will have less effective parallelization.
 5. If any of the files specified do not exist, an appropriate error message will be returned. In such a case, re-check the path names and consider using full paths.
 
-For information on the arguments that can be passed to the the simulation program (if using sogen-deterministic/deterministic) please see 'sogen-deterministic/README.md' or, if you have already compiled that simulation program, navigate to the sogen-deterministic package directory and run:
+For information on the arguments that can be passed to the the simulation program (if using sogen-deterministic/simulation) please see 'sogen-deterministic/README.md' or, if you have already compiled that simulation program, navigate to the sogen-deterministic package directory and run:
 	
-	./deterministic -h
+	./simulation -h
 
 3: Creating figures
 -------------------
@@ -308,7 +308,7 @@ The following arguments may be passed in a command-line call to the python scrip
 	
 	-e, --exec             [path]    :The path of the executable for performing sensitivity analysis, default=~/sensitivity-analysis/sens/sensitivity-analysis/sensitivity-analysis/s_a
 	
-	-s, --sim              [path]    :The path of the executable for running simulations, default=../sogen-deterministic/deterministic
+	-s, --sim              [path]    :The path of the executable for running simulations, default=../sogen-deterministic/simulation
 	
 	-g, --graph            [N/A]     :Include this if you would just like to generate graphs without running simulation. This assumes the appropriate files have already been generated based on the other command line arguments passed.
 	
@@ -323,11 +323,11 @@ The following arguments may be passed in a command-line call to the python scrip
 
 To generate bar graphs of the sensitivity of all feautures to all parameters, the following may be a valid call to the script:
 
-	python plot-sensitivity.py -n ~/sensitivity-analysis/nominal.params -d ~/sogen-scripts/sensitivity-plots -C biomath --percent 10 -P 2 -N 5 -c 10 --ppn 6 --exec ~/sensitivity-analysis/s_a --sim ~/sogen-deterministic/deterministic --args -s 112358 -a -M 1 -u ~/sogen-deterministic/input.perturb
+	python plot-sensitivity.py -n ~/sensitivity-analysis/nominal.params -d ~/sogen-scripts/sensitivity-plots -C biomath --percent 10 -P 2 -N 5 -c 10 --ppn 6 --exec ~/sensitivity-analysis/s_a --sim ~/sogen-deterministic/simulation --args -s 112358 -a -M 1 -u ~/sogen-deterministic/input.perturb
 
 To generate line-connected scatter plots of oscillation features for various perturbations of input parameters:
 
-	python plot-sensitivity.py --elasticity -n ~/sensitivity-analysis/nominal.params -d ~/sogen-scripts/sensitivity-plots -C biomath -p 100 --points 10 -N 5 -c 10 --ppn 6 --exec ~/sensitivity-analysis/s_a --sim ~/sogen-deterministic/deterministic --args -s 112358 -a -M 1 -u ~/sogen-deterministic/input.perturb
+	python plot-sensitivity.py --elasticity -n ~/sensitivity-analysis/nominal.params -d ~/sogen-scripts/sensitivity-plots -C biomath -p 100 --points 10 -N 5 -c 10 --ppn 6 --exec ~/sensitivity-analysis/s_a --sim ~/sogen-deterministic/simulation --args -s 112358 -a -M 1 -u ~/sogen-deterministic/input.perturb
 
 See the notes about calling the sensitivity analysis program for more information.
 
