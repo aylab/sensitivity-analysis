@@ -86,9 +86,8 @@ struct input_params{
 	 	processes = 2;
 	 	num_nominal = 1;
 	 	line_skip = 0;
-	 	dims = -1;
 		nominal_file = (char*)"nominal.params";
-		sense_dir = (char*)"sensitivities";
+		sense_dir = (char*)"SA-data";
 		sense_file = (char*)"LSA_";
 		norm_file = (char*)"normalized_";
 		data_dir = NULL;
