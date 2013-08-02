@@ -48,6 +48,6 @@ bool write_info(int , int, int);
 bool write_dim_sets(int , int , double* , sim_set& );
 void simulate_nominal(input_params& );
 bool write_nominal(input_params& , int );
-bool check_status(int , int , int* , char* );
+bool check_status(int , int , int* , char** );
 
 #endif 

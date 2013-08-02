@@ -32,8 +32,8 @@ void read_nominal(input_params& ip){
 		ip.nominal = new double[ip.dims];
 	}
 	//Skips over any lines that have already been used as nominal sets. Then increments the number of lines that will need to be skipped over in the future.
-	skip_lines( file_pointer, ip.line_skip);
-	ip.line_skip ++;
+	skip_lines( file_pointer, ip.set_skip);
+	ip.set_skip ++;
 	//A call to the fill_doubles founction with an error check.
 	if(! fill_doubles(file_pointer, ip.dims, ip.nominal)){
 		cerr << "There are less than " << ip.dims << " values in the file " << ip.nominal_file << "\n";	
@@ -74,9 +74,14 @@ bool fill_doubles(FILE* file_pointer, int param_num, double* nominal){
 	return true;
 }
 
-void skip_lines( FILE* file_pointer, int line_skip){
-	for(int i = 0; i < line_skip; i++){
-		fscanf(file_pointer, "%*s");
+void skip_lines( FILE* file_pointer, int set_skip){
+	char pound = '\0';
+	for(int i = 0; i < set_skip; i++){
+		fscanf(file_pointer,"%c", &pound);
+		if(pound == '#'){
+			i--;
+		} 
+		fscanf(file_pointer, "%*s\n");
 	}
 }
 
@@ -245,7 +250,7 @@ void simulate_samples(int first_dim, input_params& ip, sim_set& ss ){
     for(int i = 0; i < ip.processes; i++){ 
 		int status = 0; 
 		waitpid(simpids[i], &status, WUNTRACED);
-		check_status(status, simpids[i], &ip.failcode, ip.failure);
+		check_status(status, simpids[i], &ip.failcode, &(ip.failure));
 	}
 	//Children are done, so we know we can delete the argument array.
 	del_args(ip.processes, ip.sim_args_num,child_args);
@@ -297,7 +302,7 @@ void simulate_nominal(input_params& ip){
 	//Waiting on child and checking their exit status.		
 	int status; 
 	waitpid(simpid, &status, WUNTRACED);
-	check_status(status, simpid, &ip.failcode, ip.failure);
+	check_status(status, simpid, &ip.failcode, &(ip.failure));
 	//Children are done, so we know we can delete the argument array.
 	del_arg( ip.sim_args_num, child_args);
 	del_pipes(1, &pipes, true);
@@ -409,7 +414,7 @@ void segs_per_sim(int segments, int processes, int* distribution){
 	It returns false if there was an error with the child process, in which case it allocates a message for failure and assigns failcode to be an appropriate status, or the pid of the failed child. 
 	The "#ifdef WCOREDUMP" is necessary to check whether the OS running the program has an implementation for checking for core dumps.
 */
-bool check_status(int status, int simpid, int* failcode, char* failure){
+bool check_status(int status, int simpid, int* failcode, char** failure){
 	if(WIFEXITED(status) && WEXITSTATUS(status) != 6){
 		cout << "Child (" << simpid << ") exited properly with status: " << WEXITSTATUS(status) << "\n";
 		return true;	
@@ -418,18 +423,18 @@ bool check_status(int status, int simpid, int* failcode, char* failure){
 			*failcode = WTERMSIG(status);
 			#ifdef WCOREDUMP
 			if(WCOREDUMP(status)){
-				failure = copy_str("!!! Failure: child experienced core dump !!!");
+				*failure = copy_str("!!! Failure: child experienced core dump !!!");
 			} else{
-				failure = copy_str("!!! Failure: child received signal stop !!!");
+				*failure = copy_str("!!! Failure: child received signal stop !!!");
 			}
 			#else
-				failure = copy_str("!!! Failure: child received some kind of signal. Exact status is uncertain because your OS does not support core dump reporting.\n");
+				*failure = copy_str("!!! Failure: child received some kind of signal. Exact status is uncertain because your OS does not support core dump reporting.\n");
 			#endif
 		} else if(WIFSTOPPED(status)){
-			failure = copy_str("!!! Failure: child stopped by delivery of a signal !!!");
+			*failure = copy_str("!!! Failure: child stopped by delivery of a signal !!!");
 			*failcode = WSTOPSIG(status);
 		} else{
-			failure = copy_str("!!! Failure: child process did not exit properly !!!");
+			*failure = copy_str("!!! Failure: child process did not exit properly !!!");
 			*failcode = simpid;
 		}
 	}

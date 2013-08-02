@@ -47,7 +47,7 @@ struct input_params{
 	int processes;
 	int sim_args_num;
 	int num_nominal;
-	int line_skip;
+	int set_skip;
 	int dims;
 	double percentage; //Max percentage by which we will perturb parameters +/-
 	int points; //Number of points between the nominal and the max percentage +/- to generate data for
@@ -77,7 +77,7 @@ struct input_params{
 	 	points = 2;
 	 	processes = 2;
 	 	num_nominal = 1;
-	 	line_skip = 0;
+	 	set_skip = 0;
 		nominal_file = (char*)"nominal.params";
 		sense_dir = (char*)"SA-data";
 		sense_file = (char*)"LSA_";

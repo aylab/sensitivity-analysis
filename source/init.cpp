@@ -66,8 +66,8 @@ void accept_params (int num_args, char** args, input_params& ip) {
 				}
 			}else if (strcmp(option, "-k") == 0 || strcmp(option, "--skip") == 0) {
 				ensure_nonempty(option, value);
-				ip.line_skip = atoi(value);
-				if (ip.line_skip < 0) {
+				ip.set_skip = atoi(value);
+				if (ip.set_skip < 0) {
 					usage("You must use a postivie integer for the number of nominal sets you would like to skip.", 0);
 				}
 			}else if (strcmp(option, "-s") == 0 || strcmp(option, "--random-seed") == 0) {
@@ -203,7 +203,7 @@ void usage(const char* message, int error){
                                      default=10\n\
 -c, --nominal-count  [int]        : the number of nominal sets to read from the file, default=1\n\
 -k, --skip           [int]        : the number of nominal sets in the file to skip over, a.k.a. the\n\
-                                     index of the line you would like to start reading from, default=0\n\
+                                     index of the line you would like to start reading from (excluding comments), default=0\n\
 -s, --random-seed    [int]        : the postivie integer value to be used as a seed in the random\n\
                                      number generation for simulations, default is randomly generated\n\
                                      based on system time and process id\n\

@@ -91,7 +91,7 @@ The goal of Local Sensitivity Analysis is to quantify the degree to which a simu
 
 If Y is the output function (amplitude, period, etc), p\_j is the j’th parameter, and p’ is the nominal parameter set, then non-dimensional sensitivity S\_j can be evaluated by:
 
-	S_ j = (p’_j/Y(p’)) * (∆Y(p’)/∆p_j)
+	S_j = (p’_j/Y(p’)) * (∆Y(p’)/∆p_j)
 
 Here, ∆ refers to taking the delta of a partial derivative, but is approximate because we are evaluating the output at finitely many points.
 
@@ -157,12 +157,66 @@ The following arguments may be passed when calling the sensitivity program:
 
 	-h, --help                     [N/A]      : print out this help information.
 
+**********************************
+**2.3: Input file format**
+
+Sensitivity analysis requires at least one nominal parameter set as input. For strictly local analysis, this set should be one that successfully expresses the features desired for the system. For more global analysis it is recommended the nominal parameter sets be plentiful and varying -- using well-distributed parameter sampling algorithms such as Latin Hypercube Sampling is preferable. However, the nominal parameter sets should not yeild undefined behavior (e.g. infinite or non-numerical feauture values) as this is likely to render sensitivity calculations futile. Assuming the appropriate nominal parameter sets have been collected, the following describes the format in which they may be passed to the sensitivity program:
+
+A parameter sets file consists of a list of parameter sets. Each parameter set is placed on its own line, with each parameter separated by a comma. There is not a comma after the final parameter set. Each parameter must be included and have a floating point or integral value. Blank lines and lines beginning with "#" are ignored. There must be at least one parameter set per file. There is no limit to the number of parameter sets allowed in a single file. Recall that you may specify which parameter set to start with using '-k' or '--skip' and how many sets to use with '-c' or '--nominal-count'.
+
+The following three lines represent an example file:
+```
+# This is a comment
+63.049748,34.955167,0,42.993889,0,44.600336,0.429514,0.453927,0,0.279120,0,0.335253,45.227915,30.430273,0,46.391646,0,22.217098,0.157011,0.338070,0,0.307667,0,0.274870,0.019982,0.000370,0,0.026413,0,0.008877,0,0.027406,0,0,0,0,0.005284,0,0,0.219352,0.032981,0,0.051730,0,0.175033,0,0.116019,0,0,0,0,0.006626,0,0,0.278811,0.269840,0,0.279624,0,0.285013,0,0.238326,0,0,0,0,0.242239,0,0,11.017495,9.139970,0,0.000000,0,7.329024,0.426847,1.210969,0,0.596138,0,12.461520,361.441083,485.384224,0,0,0,0,499.577384
+63.000647,33.757737,0,43.849951,0,47.332097,0.434420,0.455262,0,0.274844,0,0.346678,43.338772,30.019011,0,54.822609,0,25.281511,0.141475,0.315663,0,0.345098,0,0.269280,0.018546,0.003612,0,0.028153,0,0.008334,0,0.025200,0,0,0,0,0.011394,0,0,0.170959,0.041615,0,0.044836,0,0.237797,0,0.248760,0,0,0,0,0.017808,0,0,0.280718,0.310334,0,0.343655,0,0.210100,0,0.233876,0,0,0,0,0.214772,0,0,10.916983,9.443056,0,0.000000,0,7.742257,0.445980,1.035695,0,0.578762,0,12.446215,231.836670,477.034572,0,0,0,0,540.815524
+```
+
+**********************************
+**2.3: Simulation output file format**
+
+This program reads results of simulations from the output files created by the simulation program. If the sensitivity program is run with the standard simulation program, this file format is already created properly and can be read by the simulation without any user modifications. The creation of this format is explicitly defined in sogen-deterministic/README.md, but a summary of what is necessary for the sensitivity program to read such a file properly is as follows:
+
+Some requirements of the simulation output file:
+1. The number of features can be arbitrary, but: 
+2. The maximum number of features that can be read is set by the macro MAX_NUM_FEATS in "macros.hpp" and is 150 by default. 
+3. All values must be comma-seperated with no spaces, 
+4. The names line must contain a name for every feature, 
+5. The last value in non-name lines must be followed by a comma, but can have any string after that before the new line, 
+7. If a trailing column should be ignored (e.g. the PASSED column below) it should not be given a name in the first line.
+
+The following three lines represent an example file:
+'''
+set,post sync wildtype,post per wildtype,post amp wildtype,post per wildtype/wt,post amp wildtype/wt,ant sync wildtype,ant per wildtype,ant amp wildtype,ant per wildtype/wt,ant amp wildtype/wt,
+0,0.999999999999999888977697537484,29.8797435897436045593167364132,56.0505555846975624945116578601,1,1,0,0,0,-nan,-nan,PASSED
+1,1,30.2323076923076676791879435768,166.255079755418790909970994107,1,1,0,0,0,-nan,-nan,PASSED
+'''
+
+**********************************
+**2.4: Sensitivity output file format**
+
+The final output of the sensitivity calculation comes in two files with the same format. Both files are stored in a directory that is by default named "SA-data/" though this can be modified with the commands '-d' or '--sense-dir'. In this directory there will be two files for every nominal set that was sent to the sensitivity program: "LSA\_n" and "normalized\_n" where "_n" refers to the n'th nominal sent. The former file contains the absolute, dimensionless sensitivity values while the latter contains the normalized sensitivities as percentages (S\_j and N\_j as described in section 2.0). 
+
+The format of these files is consistent with the format of the simulation output file format, with the sensitivity/normalized-senstivity values in place of the original feature values. The following lines are an example of an absolute sensitivity output file:
+
+'''
+parameter,post sync wildtype,post per wildtype,post amp wildtype,post per wildtype/wt,post amp wildtype/wt,ant sync wildtype,ant per wildtype,ant amp wildtype,ant per wildtype/wt,ant amp wildtype/wt,post sync her7 mutant,post per her7 mutant,post amp her7 mutant,post per her7 mutant/wt,post amp her7 mutant/wt,ant sync her7 mutant,ant per her7 mutant,ant amp her7 mutant,ant per her7 mutant/wt,ant amp her7 mutant/wt,
+0,-0.00743137894005018763421421823523,0.00504250156260815669134744965163,1.00289462409731400249768284993,0,0,-nan,-nan,-nan,-nan,-nan,0.314146856034850818772952152358,1.42485765964805244365720682254,33.4309214627357746962843521032,1.41979284043465892040103426552,31.9698126042106274269372079289,-nan,-nan,-nan,-nan,-nan,
+1,-0.00918263623745127141595467890056,0.0275346684530147697844704168801,-0.15316488780164577709896889246,0,0,-nan,-nan,-nan,-nan,-nan,0,0.024457034470068562959088609432,0,-0.00308045224363138981857335174652,0.153196075811236037678142452023,-nan,-nan,-nan,-nan,-nan,
+
+'''
+
+The following line are an example of a normalized sensitivity output file:
+
+'''
+
+'''
+
 *************************************
-**2.3. Calling the program -- example**
+**2.5: Calling the program -- example**
  
 For example, the following may be a valid call to program:
 
-	./sensitivity -c 2 -k 4 --processes 6 --percentage 100 -P 10 --random-seed 112358 -n ~/sensitivity-analysis/nominal.params -d	~/sensitivity-analysis/sensitivity_data -D	~/sensitivity-analysis/simulation_data -e ~/sogen-deterministic/deterministic --sim-args -u ~/sogen-deterministic/input.perturb
+	~/sensitivity-analysis/sensitivity -c 2 -k 4 --processes 6 --percentage 100 -P 10 --random-seed 112358 -n ~/sensitivity-analysis/nominal.params -d	~/sensitivity-analysis/sensitivity_data -D	~/sensitivity-analysis/simulation_data -e ~/sogen-deterministic/deterministic --sim-args -u ~/sogen-deterministic/input.perturb
 
 where the short and long names may be interchanged with their long/short counterparts.
 
@@ -204,7 +258,9 @@ These bar graphs display the sensitivity of a simulation output to each simulati
 2. parsing the sensitivity output files,
 3. averaging the sensitivity values for each parameter accross nominal parameter sets,
 4. using the average to calculating the standard error for each parameter,
-5. creating a bar graph for each simulation output in which the height of each bar is the avergage sensitivity to a particular input parameter accross nominal parameter sets and the error bars are the standard error values.
+5. creating a bar graph for each simulation output in which the height of each bar is the average sensitivity to a particular input parameter accross nominal parameter sets and the error bars are the standard error values.
+
+This method will create two images for each feature: a bar graph of the normalized sensitivities and a bar graph of the absolute sensitivities. These graphs will be stored in files titled "[feature name].png" and "absolute_[feature name].png", respectively. The feature names will come from the original simulation output data, with the exception that all special characters will be converted to underscores in the file name (though the full feature name will be used as the title on the graph, verbatim).
 
 2) Scatter-Line Plots
 
@@ -214,14 +270,14 @@ These are plots of points connected by lines where each line is a single nominal
 2. parsing the simulation output files, i.e. the oscillation features of the zebrafish somitogenesis deterministic simulations,
 3. For every simualaiton parameter, plotting the simulation output value at successive perturbations of the parameter -- each output value is plotted as the perturbed value divided by the output vale of the nominal (unperturbed) parameter set.
 
-These plots display the ratio between an simulation output value at a perturbed parameter value
+These plots display the ratio between an simulation output value at a perturbed parameter value.
 
 *****************************
 **3.2: Command-line arguments**
 
 The following arguments may be passed in a command-line call to the python script. Some of them are the same as for sensitivity, but most are distinct.
 
-	-n, --nominal-file     [filename]:The file to use for getting nominal parameter sets, default=../sensitivity-analysis/nominal.params.
+	-n, --nominal-file     [filename]:The file to use for getting nominal parameter sets, default=~/sensitivity-analysis/sens/sensitivity-analysis/sensitivity-analysis/nominal.params.
 	
 	-d, --dir              [filename]:The directory to put all plots in, default ="all-sensitivities"
 	
@@ -245,7 +301,7 @@ The following arguments may be passed in a command-line call to the python scrip
 	
 	-c, --nominal-count    [int]     :The number of nominal sets to use for sensitivity calculations. If this is greater than the number availible in the -n file, there will be errors. default=1.
 	
-	-e, --exec             [path]    :The path of the executable for performing sensitivity analysis, default=../sensitivity-analysis/s_a
+	-e, --exec             [path]    :The path of the executable for performing sensitivity analysis, default=~/sensitivity-analysis/sens/sensitivity-analysis/sensitivity-analysis/s_a
 	
 	-s, --sim              [path]    :The path of the executable for running simulations, default=../sogen-deterministic/deterministic
 	

@@ -41,7 +41,7 @@ int main(int argc, char** argv){
 	//Setup the parameter struct based on arguments. See init.cpp & init.hpp
 	input_params ip;
 	accept_params(argc, argv, ip);
-	//Loop for processign multiple nominal parameter sets. Each step of the loop will do all of the sensitivity analysis based on one nominal parameter set, then increment ip.line_skip which will cause proceeding steps of the loop to read other nominal sets from the input file.
+	//Loop for processign multiple nominal parameter sets. Each step of the loop will do all of the sensitivity analysis based on one nominal parameter set, then increment ip.set_skip which will cause proceeding steps of the loop to read other nominal sets from the input file.
 	for(int which_nominal = 0; which_nominal < ip.num_nominal;  which_nominal ++){
 		//Read in the nominal parameter set from file.
 		read_nominal(ip);
@@ -136,13 +136,13 @@ void LSA_all_dims(input_params& ip, sim_set& ss){
 		del_double_2d(num_dependent, dim_output);
 	}
 	//Write out the sensitivity and normalized sensitivity to the correct directory/files
-	file_name = make_name(ip.sense_dir, ip.sense_file, ip.line_skip - 1);
+	file_name = make_name(ip.sense_dir, ip.sense_file, ip.set_skip - 1);
 	write_sensitivity(ip.dims, num_dependent, output_names[0], lsa, file_name);
 	mfree(file_name);
 	
 	//This call modifies lsa in place, so after the call to normalize(), lsa contains the normalized sensitivities.
 	normalize(ip.dims, num_dependent, lsa);
-	file_name = make_name(ip.sense_dir, ip.norm_file, ip.line_skip - 1);
+	file_name = make_name(ip.sense_dir, ip.norm_file, ip.set_skip - 1);
 	write_sensitivity(ip.dims, num_dependent, output_names[0], lsa, file_name);
 	mfree(file_name);
 	
