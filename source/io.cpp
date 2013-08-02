@@ -128,7 +128,7 @@ double** load_output(int num_values, int* num_types, char* file_name, char*** ou
 		}
 	}
 	//Ensure that at most MAX_NUM_FEATS features are used for the rest of the processing.
-	output_types = min(output_types, MAX_NUM_FEATS)
+	output_types = min(output_types, MAX_NUM_FEATS);
 	//Because the above loop creates a new item in output_names when a comma is found, one extra allocation will happen so the last allocation needs to be deleted.
 	if(name_store){
 		delete[] (*output_names)[output_types];
@@ -145,7 +145,7 @@ double** load_output(int num_values, int* num_types, char* file_name, char*** ou
 			}
 			fscanf(file_pointer, "%lf,", out[j] + i);
 			//Check for infinity or nan
-			out[j][i] = check_num(out[j][i])
+			out[j][i] = check_num(out[j][i]);
 		}
 		if(i != num_values-1){
 			fscanf(file_pointer, "%*s\n");
