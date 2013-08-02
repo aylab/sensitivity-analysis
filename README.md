@@ -183,13 +183,14 @@ Some requirements of the simulation output file:
 3. All values must be comma-seperated with no spaces, 
 4. The names line must contain a name for every feature, 
 5. The last value in non-name lines must be followed by a comma, but can have any string after that before the new line, 
-7. If a trailing column should be ignored (e.g. the PASSED column below) it should not be given a name in the first line.
+7. If a trailing column should be ignored it should not be given a name in the first line.
 
 The following three lines represent an example file:
+
 ```
-set,post sync wildtype,post per wildtype,post amp wildtype,post per wildtype/wt,post amp wildtype/wt,ant sync wildtype,ant per wildtype,ant amp wildtype,ant per wildtype/wt,ant amp wildtype/wt,
-0,0.999999999999999888977697537484,29.8797435897436045593167364132,56.0505555846975624945116578601,1,1,0,0,0,-nan,-nan,PASSED
-1,1,30.2323076923076676791879435768,166.255079755418790909970994107,1,1,0,0,0,-nan,-nan,PASSED
+set,post sync wildtype,post per wildtype,post amp wildtype,post per wildtype/wt,post amp wildtype/wt,
+0,0.999999999999999888977697537484,29.8797435897436045593167364132,56.0505555846975624945116578601,1,1,
+1,1,30.2323076923076676791879435768,166.255079755418790909970994107,1,1,
 ```
 
 **********************************
@@ -202,21 +203,17 @@ The format of these files is consistent with the format of the simulation output
 The following lines are an example of an absolute sensitivity output file:
 
 ```
-
 parameter,post sync wildtype,post per wildtype,post amp wildtype,post per wildtype/wt,post amp wildtype/wt,
 0,-0.00743137894005018763421421823523,0.00504250156260815669134744965163,1.00289462409731400249768284993,0,0,
 1,-0.00918263623745127141595467890056,0.0275346684530147697844704168801,-0.15316488780164577709896889246,0,0,
-
 ```
 
 The following line are an example of a normalized sensitivity output file:
 
 ```
-
 parameter,post sync wildtype,post per wildtype,post amp wildtype,post per wildtype/wt,post amp wildtype/wt,
 0,1.44836748675782578388293586613,0.422484791108310275831172475591,18.6174946777228882410781807266,0,0,
 1,1.78968558545324518682662073843,2.30698563107465703936327372503,2.84331615201126997050096179009,0,0,
-
 ```
 
 *************************************
