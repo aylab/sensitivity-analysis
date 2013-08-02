@@ -91,13 +91,13 @@ The goal of Local Sensitivity Analysis is to quantify the degree to which a simu
 
 If Y is the output function (amplitude, period, etc), p\_j is the j’th parameter, and p’ is the nominal parameter set, then non-dimensional sensitivity S\_j can be evaluated by:
 
-	S_ j = (p’\_j/Y(p’)) * (∆Y(p’)/∆p\_j)
+	S_ j = (p’_j/Y(p’)) * (∆Y(p’)/∆p_j)
 
 Here, ∆ refers to taking the delta of a partial derivative, but is approximate because we are evaluating the output at finitely many points.
 
 To normalize the sensitivities across the parameter set, for m parameters, the following gives a quantitative measure of ranking:
 
-	N\_j = (S\_j) / (sum\_1:m{|S\_j|})
+	N_j = (S_j) / (sum_1:m{|S_j|})
 
 ******************************
 **2.1. Overview of the program**
@@ -162,7 +162,7 @@ The following arguments may be passed when calling the sensitivity program:
  
 For example, the following may be a valid call to program:
 
-	./sensitivity -c 2 -k 4 --processes 6 --percentage 100 -P 10 --random-seed 112358 -n ~/sensitivity-analysis/nominal.params -d	~/sensitivity-analysis/sensitivity\_data -D	~/sensitivity-analysis/simulation\_data -e ~/sogen-deterministic/deterministic --sim-args -u ~/sogen-deterministic/input.perturb
+	./sensitivity -c 2 -k 4 --processes 6 --percentage 100 -P 10 --random-seed 112358 -n ~/sensitivity-analysis/nominal.params -d	~/sensitivity-analysis/sensitivity_data -D	~/sensitivity-analysis/simulation_data -e ~/sogen-deterministic/deterministic --sim-args -u ~/sogen-deterministic/input.perturb
 
 where the short and long names may be interchanged with their long/short counterparts.
 
