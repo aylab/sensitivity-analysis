@@ -196,18 +196,25 @@ set,post sync wildtype,post per wildtype,post amp wildtype,post per wildtype/wt,
 
 The final output of the sensitivity calculation comes in two files with the same format. Both files are stored in a directory that is by default named "SA-data/" though this can be modified with the commands '-d' or '--sense-dir'. In this directory there will be two files for every nominal set that was sent to the sensitivity program: "LSA\_n" and "normalized\_n" where "_n" refers to the n'th nominal sent. The former file contains the absolute, dimensionless sensitivity values while the latter contains the normalized sensitivities as percentages (S\_j and N\_j as described in section 2.0). 
 
-The format of these files is consistent with the format of the simulation output file format, with the sensitivity/normalized-senstivity values in place of the original feature values. The following lines are an example of an absolute sensitivity output file:
+The format of these files is consistent with the format of the simulation output file format, with the sensitivity/normalized-senstivity values in place of the original feature values. The one difference is that the first column will refer to which parameter the sensitiviy value is for. 
+
+The following lines are an example of an absolute sensitivity output file:
 
 '''
-parameter,post sync wildtype,post per wildtype,post amp wildtype,post per wildtype/wt,post amp wildtype/wt,ant sync wildtype,ant per wildtype,ant amp wildtype,ant per wildtype/wt,ant amp wildtype/wt,post sync her7 mutant,post per her7 mutant,post amp her7 mutant,post per her7 mutant/wt,post amp her7 mutant/wt,ant sync her7 mutant,ant per her7 mutant,ant amp her7 mutant,ant per her7 mutant/wt,ant amp her7 mutant/wt,
-0,-0.00743137894005018763421421823523,0.00504250156260815669134744965163,1.00289462409731400249768284993,0,0,-nan,-nan,-nan,-nan,-nan,0.314146856034850818772952152358,1.42485765964805244365720682254,33.4309214627357746962843521032,1.41979284043465892040103426552,31.9698126042106274269372079289,-nan,-nan,-nan,-nan,-nan,
-1,-0.00918263623745127141595467890056,0.0275346684530147697844704168801,-0.15316488780164577709896889246,0,0,-nan,-nan,-nan,-nan,-nan,0,0.024457034470068562959088609432,0,-0.00308045224363138981857335174652,0.153196075811236037678142452023,-nan,-nan,-nan,-nan,-nan,
+
+parameter,post sync wildtype,post per wildtype,post amp wildtype,post per wildtype/wt,post amp wildtype/wt,
+0,-0.00743137894005018763421421823523,0.00504250156260815669134744965163,1.00289462409731400249768284993,0,0,
+1,-0.00918263623745127141595467890056,0.0275346684530147697844704168801,-0.15316488780164577709896889246,0,0,
 
 '''
 
 The following line are an example of a normalized sensitivity output file:
 
 '''
+
+parameter,post sync wildtype,post per wildtype,post amp wildtype,post per wildtype/wt,post amp wildtype/wt,
+0,1.44836748675782578388293586613,0.422484791108310275831172475591,18.6174946777228882410781807266,0,0,
+1,1.78968558545324518682662073843,2.30698563107465703936327372503,2.84331615201126997050096179009,0,0,
 
 '''
 
@@ -270,7 +277,7 @@ These are plots of points connected by lines where each line is a single nominal
 2. parsing the simulation output files, i.e. the oscillation features of the zebrafish somitogenesis deterministic simulations,
 3. For every simualaiton parameter, plotting the simulation output value at successive perturbations of the parameter -- each output value is plotted as the perturbed value divided by the output vale of the nominal (unperturbed) parameter set.
 
-These plots display the ratio between an simulation output value at a perturbed parameter value.
+These plots display the ratio between an simulation output value at a perturbed parameter value. This method will create an image for every parameter's effect on every simulation output feature. The files are titled "[index of parameter]on[index of feature]_[feature name].png". For example, the file "10on2\_posterior\_amplitude\_wildtype.png" would refer the the effect of parameter #10 on feature #2 which is named "posterior amplitude wildtype". As before, feature names come from the original simulation output with special characters (e.g. white space) replaced with underscores.
 
 *****************************
 **3.2: Command-line arguments**
