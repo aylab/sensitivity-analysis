@@ -1,1 +1,0 @@
-./sensitivity -p 2 -P 1 -l 3 -a -G 1200 -x 2 -w 2 -y 1 -u /home/aylab/Documents/sogen-deterministic/input.perturb
