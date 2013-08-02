@@ -165,6 +165,7 @@ Sensitivity analysis requires at least one nominal parameter set as input. For s
 A parameter sets file consists of a list of parameter sets. Each parameter set is placed on its own line, with each parameter separated by a comma. There is not a comma after the final parameter set. Each parameter must be included and have a floating point or integral value. Blank lines and lines beginning with "#" are ignored. There must be at least one parameter set per file. There is no limit to the number of parameter sets allowed in a single file. Recall that you may specify which parameter set to start with using '-k' or '--skip' and how many sets to use with '-c' or '--nominal-count'.
 
 The following three lines represent an example file:
+
 ```
 # This is a comment
 63.049748,34.955167,0,42.993889,0,44.600336,0.429514,0.453927,0,0.279120,0,0.335253,45.227915,30.430273,0,46.391646,0,22.217098,0.157011,0.338070,0,0.307667,0,0.274870,0.019982,0.000370,0,0.026413,0,0.008877,0,0.027406,0,0,0,0,0.005284,0,0,0.219352,0.032981,0,0.051730,0,0.175033,0,0.116019,0,0,0,0,0.006626,0,0,0.278811,0.269840,0,0.279624,0,0.285013,0,0.238326,0,0,0,0,0.242239,0,0,11.017495,9.139970,0,0.000000,0,7.329024,0.426847,1.210969,0,0.596138,0,12.461520,361.441083,485.384224,0,0,0,0,499.577384
@@ -185,11 +186,11 @@ Some requirements of the simulation output file:
 7. If a trailing column should be ignored (e.g. the PASSED column below) it should not be given a name in the first line.
 
 The following three lines represent an example file:
-'''
+```
 set,post sync wildtype,post per wildtype,post amp wildtype,post per wildtype/wt,post amp wildtype/wt,ant sync wildtype,ant per wildtype,ant amp wildtype,ant per wildtype/wt,ant amp wildtype/wt,
 0,0.999999999999999888977697537484,29.8797435897436045593167364132,56.0505555846975624945116578601,1,1,0,0,0,-nan,-nan,PASSED
 1,1,30.2323076923076676791879435768,166.255079755418790909970994107,1,1,0,0,0,-nan,-nan,PASSED
-'''
+```
 
 **********************************
 **2.4: Sensitivity output file format**
@@ -200,23 +201,23 @@ The format of these files is consistent with the format of the simulation output
 
 The following lines are an example of an absolute sensitivity output file:
 
-'''
+```
 
 parameter,post sync wildtype,post per wildtype,post amp wildtype,post per wildtype/wt,post amp wildtype/wt,
 0,-0.00743137894005018763421421823523,0.00504250156260815669134744965163,1.00289462409731400249768284993,0,0,
 1,-0.00918263623745127141595467890056,0.0275346684530147697844704168801,-0.15316488780164577709896889246,0,0,
 
-'''
+```
 
 The following line are an example of a normalized sensitivity output file:
 
-'''
+```
 
 parameter,post sync wildtype,post per wildtype,post amp wildtype,post per wildtype/wt,post amp wildtype/wt,
 0,1.44836748675782578388293586613,0.422484791108310275831172475591,18.6174946777228882410781807266,0,0,
 1,1.78968558545324518682662073843,2.30698563107465703936327372503,2.84331615201126997050096179009,0,0,
 
-'''
+```
 
 *************************************
 **2.5: Calling the program -- example**
