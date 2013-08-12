@@ -1,5 +1,5 @@
 /*
-Local Sensitivity Analysis progam, designed for use with the Deterministic simulator for zebrafish segmentation.
+Sensitivity analysis for simulations
 Copyright (C) 2013 Ahmet Ay, Jack Holland, Adriana Sperlea, Sebastian Sangervasi
 
 This program is free software: you can redistribute it and/or modify
@@ -16,11 +16,17 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+io.hpp contains function declarations for io.cpp.
+*/
+
 #ifndef IO_HPP
 #define IO_HPP
-//include <library> 	//(What the library is for)
+
 #include <fcntl.h>		//(Needed to check on open pipes when closing them.)
-#include <sys/wait.h>	//(Waiting on processes to finish and reading their return status. )
+#include <sys/wait.h>	//(Waiting on processes to finish and reading their return status.)
+
+#include "init.hpp"
 
 using namespace std;
 /* Function declarations */
@@ -52,4 +58,5 @@ bool write_dim_sets(int , int , double* , sim_set& );
 bool write_nominal(input_params& , int );
 bool check_status(int , int , int* , char** );
 
-#endif 
+#endif
+

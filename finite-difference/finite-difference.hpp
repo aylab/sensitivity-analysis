@@ -18,6 +18,13 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+finite-difference.hpp contains function declarations, macros, and structs for finite-difference.cpp.
+*/
+
+#ifndef FINITE_DIFFERENCE_HPP
+#define FINITE_DIFFERENCE_HPP
+
 //This if checks to see if the sensitivity analysis init.hpp file has already been included -- if so, these libraries don't need to be included again.
 #ifndef INIT_HPP
 #include <stdlib.h>
@@ -26,11 +33,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <errno.h>
 #endif
 
-#ifndef FINITE_DIFFERENCE_HPP
-#define FINITE_DIFFERENCE_HPP
-
-/*	Min and max accuracy macros and a nested boolean function that returns min if num<min, max if max<num, and num otherwise.
-*/
+//Min and max accuracy macros and a nested boolean function that returns min if num<min, max if max<num, and num otherwise.
 #define ACC_MAX 8
 #define ACC_MIN 2
 #define minmax(min, num, max) ( min >= num ? min : ( max < num ? max : num))
@@ -53,6 +56,7 @@ Accuracy
 6	 				−1/60	3/20	−3/4	0		3/4		−3/20	1/60	 
 8			1/280	−4/105	1/5		−4/5	0		4/5		−1/5	4/105	−1/280
 */
+
 using namespace std;
 
 //Struct declaration -- this struct takes care of holding the correct coefficients based on the accuracy value given.
@@ -90,9 +94,11 @@ struct fin_dif_coef{
 		}
 			
 	}
+	
 	~fin_dif_coef(){
 		delete[] this->coef;
 	}
+	
 	//This just loops through the macro coef values and puts them in the coef array.
 	void fill(double* source){
 		this->coef = new double[this->accuracy];
@@ -102,9 +108,10 @@ struct fin_dif_coef{
 	}
 };
 
-//Function declarations for finite_difference.cpp:
+//Function declarations for finite-difference.cpp:
 double finite_difference(int num_points, double step_size, double* function_values);
 void fdy_fdx(int accuracy, double delta_independent, double* dependent, double* fin_dif_output, double* round_error);
 double sum_num(double* dependent, fin_dif_coef& fdc);
 
 #endif
+

@@ -12,12 +12,15 @@
 *.la
 *.a
 
-#Temporary files
+# Temporary files
 *~
 
-#Executable
-*sensitivity	
+# Executable
+sensitivity
 
-#Something annoying
+# Something annoying
 *.sconsign*
 
+# Directories
+simulation_data
+sensitivity_data

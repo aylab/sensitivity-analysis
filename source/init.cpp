@@ -1,5 +1,5 @@
 /*
-Local Sensitivity Analysis progam, designed for use with the Deterministic simulator for zebrafish segmentation.
+Sensitivity analysis for simulations
 Copyright (C) 2013 Ahmet Ay, Jack Holland, Adriana Sperlea, Sebastian Sangervasi
 
 This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,13 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "init.hpp"
+/*
+init.cpp contains initialization functions used before actual sensitivity analysis occurs.
+*/
+
+#include "init.hpp" // Function declarations
+
+#include "analysis.hpp"
 
 using namespace std;
 
@@ -114,9 +120,12 @@ void accept_params (int num_args, char** args, input_params& ip) {
 				ip.sim_args_num = num_args - i  + 9;
 				sim_args_index = 9;
 				i--;
+			} else if (strcmp(option, "-l") == 0 || strcmp(option, "--licensing") == 0) {
+				licensing();
+				i--;
 			} else if (strcmp(option, "-h") == 0 || strcmp(option, "--help") == 0) {
-				const char* mess = "Welcome to the help options.\n Possible command line arguments are:\n"; 
-				usage(mess,0);	
+				const char* message = "Welcome to the help options.\n Possible command line arguments are:\n"; 
+				usage(message, 0);
 				i--;
 			} else{
 				const char* message_0 = "'";
@@ -172,7 +181,7 @@ void ensure_nonempty (const char* flag, const char* arg) {
 
 /*	Function for turning quit mode on/off by redirecting cout.
 */
-void cout_switch(bool turn_off, input_params& ip){
+void cout_switch (bool turn_off, input_params& ip){
 	if(turn_off){
 		ip.cout_orig = cout.rdbuf();
 		ip.null_stream = new ofstream("/dev/null");
@@ -182,64 +191,6 @@ void cout_switch(bool turn_off, input_params& ip){
 	}
 }
 
-void usage(const char* message, int error){
-	cout << message << endl;
-	if(error){
-		cerr << "\tError: " << error << endl;
-	}
-	cout << "Usage: [-option [value]]. . . [--option [value]]. . ." << endl;	
-	cout << "\
--n, --nominal-file   [filename]   : the relative name of the file from which the nominal parameter set should\n\
-                                     be read, default=nominal.params\n\
--d, --sense-dir      [filename]   : the relative name of the directory to which the sensitivity results\n\
-                                     will be stored, default=sensitivities\n\
--D, --data-dir       [filename]   : the relative name of the directory to which the raw simulation data\n\
-                                     will be stored, default=sim-data\n\
-                                     WARNING: IF RUNNING MULTIPLE INSTANCES OF THIS PROGRAM (e.g. on cluster)\n\
-                                     EACH MUST HAVE A UNIQUE DATA DIRECTORY TO AVOID CONFLICT.\n\
--p, --percentage     [float]      : the maximum percentage by which nominal values will be perturbed (+/-),\n\
-                                     default=5\n\
--P, --points         [int]        : the number of data points to collect on either side (+/-) of the nominal set,\n\
-                                     default=10\n\
--c, --nominal-count  [int]        : the number of nominal sets to read from the file, default=1\n\
--k, --skip           [int]        : the number of nominal sets in the file to skip over, a.k.a. the\n\
-                                     index of the line you would like to start reading from (excluding comments), default=0\n\
--s, --random-seed    [int]        : the postivie integer value to be used as a seed in the random\n\
-                                     number generation for simulations, default is randomly generated\n\
-                                     based on system time and process id\n\
--l, --processes      [int]        : the number of processes to which parameter sets can be sent for\n\
-                                     parallel data collection, default=2\n\
--y, --recycle        [N/A]        : include this if the simulation output has already been\n\
-                                     generated FOR EXACTLY THE SAME FILES AND ARGUMENTS YOU\n\
-                                     ARE USING NOW, disabled by default\n\
--g, --generate_only  [N/A]        : include this to generate oscillations features files for\n\
-                                     perturbed parameter values without calculating sensitivity.\n\
-                                     This is the opposite of recycle. Including this command in\n\
-                                     conjunction with --recycle will cause the program to do nothing,\n\
-                                     disabled by default.\n\
--z, --delete-data    [N/A]        : include this to delete oscillation features data when the program\n\
-                                     exits. This will preserve sensitivity directory but remove the\n\
-                                     directory specified by -D, disabled by default.\n\
--q, --quiet          [N/A]        : include this to turn off printing messages to standard output,\n\
-                                     disabled by default\n\
--e, --exec           [path]       : if included, the simulations are run by executing the program\n\
-                                     specified by path. The path argument should be the full path,\n\
-                                     but the default uses the relative path: \n\"../sogen-deterministic/simulation\n\".\n\
--a, --sim-args       [args]       : if included, any argument after this will be passed to the simulation\n\
-                                     program. If -h is one of these arguments, the simulation help will be\n\
-                                     printed and the program will not run.\n\
--h, --help           [N/A]        : print out this help menu.\n" ;
-	cout << endl << "Example: ./sensitivity -c 2 -k 4 -l 6 -p 100 -P 10 -s 112358 -n ~/sensitivity-analysis/nominal.params -d  ~/sensitivity-analysis/sensitivity_data  -D  ~/sensitivity-analysis/simulation_data  -e ~/sogen-deterministic/deterministic --sim-args -u ~/sogen-deterministic/input.perturb" << endl;
-	exit(error);
-}
-
-/* copy_str copies the given string, allocating enough memory for the new string
-	parameters:
-		str: the string to copy
-	returns: a pointer to the new string
-	notes:
-	todo:
-*/
 char* copy_str (const char* str) {
 	char* newstr = (char*)mallocate(sizeof(char) * strlen(str) + 1);
 	return strcpy(newstr, str);
@@ -253,14 +204,14 @@ void init_seed (input_params& ip) {
 }
 
 //Safely creates a directory and checks for success.
-void make_dir(char* dir){
+void make_dir (char* dir) {
 	if(-1 == mkdir((const char*)dir, S_IRWXU) && errno != EEXIST){
 		usage("Could not make directory.", errno);
 	}
 }
 
 //Deletes a directory that is empty. This is used by the destructor of input_params (if -z was passed as an argument) to delete the oscillation features files after they have been processed. The files within the directory should have been deleted in the main loop of LSA_all_dims().
-void unmake_dir(char* dir){
+void unmake_dir (char* dir) {
 	int made = mkdir((const char*)dir, S_IRWXU);
 	if( (-1 == made && errno == EEXIST) || made == 0){
 		if( -1 == rmdir((const char*)dir)){
@@ -274,7 +225,7 @@ void unmake_dir(char* dir){
 }
 
 //Removes a file if remove is true, otherwise does nothing. This is used in the main loop of LSA_all_dims() to delete simulation data files after the have been processed.
-void unmake_file(char* file_name, bool remove){
+void unmake_file (char* file_name, bool remove) {
 	if(!remove){
 		return;
 	}
@@ -285,7 +236,7 @@ void unmake_file(char* file_name, bool remove){
 /*	These checks are primarily for the sensivitity of period -- when there are damped oscillations the period may be measured as INFINITY, in which case the sensitivity may become infinity.
 	In the case of a an "infinite" value (e.g. period), we choose to treat the infinite value as finite but higher than any functioning value, i.e. the INF_SUBSTITUTE macro.
 */
-double check_num(double num){
+double check_num (double num) {
 	if(isinf(num)){
 		return INF_SUBSTITUTE;
 	}else if (isnan(num)){

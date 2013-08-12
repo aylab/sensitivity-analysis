@@ -18,7 +18,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "finite_difference.hpp"
+/*
+finite-difference.cpp contains functionality for a finite difference calculator.
+*/
+
+#include "finite-difference.hpp" // Function declarations
 
 using namespace std;
 
@@ -32,7 +36,7 @@ using namespace std;
 		dependent[i] = y_i = f( x_i ) = f( independent[i] )
 	where f(x) is the output function for which we are calculating the finite difference.
 */
-void fdy_fdx(int accuracy, double delta_independent, double* dependent, double* fin_dif_output, double* round_error){
+void fdy_fdx (int accuracy, double delta_independent, double* dependent, double* fin_dif_output, double* round_error) {
 	fin_dif_coef fdc(accuracy);
 	double numerator = sum_num(dependent, fdc);
 	double fin_dif;
@@ -58,7 +62,7 @@ Each term is scaled by the appropriate coefficient as determined by the fin_dif_
 If each term of the sum is infinite, this returns a sum of zero -- i.e. the function values are not changing.
 If the numerator contains at least one finite and one infinite value, the sum returns INFINITY -- i.e. infinite slope.
 */
-double sum_num(double* dependent, fin_dif_coef& fdc){
+double sum_num (double* dependent, fin_dif_coef& fdc) {
 	double numerator = 0;
 	double next = 0;
 	int inf = 0;
@@ -84,7 +88,7 @@ double sum_num(double* dependent, fin_dif_coef& fdc){
 /*	A wrapper function for taking the minimum arguments and returning the finite difference, 
 disregarding error -- this is dangerous.
 */
-double finite_difference(int num_points, double step_size, double* function_values){
+double finite_difference (int num_points, double step_size, double* function_values) {
 	int output_shift = 0;
 	num_points -= num_points % 2;
 	if(num_points > ACC_MAX){

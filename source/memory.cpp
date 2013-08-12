@@ -1,5 +1,5 @@
 /*
-Deterministic simulator for zebrafish segmentation
+Sensitivity analysis for simulations
 Copyright (C) 2013 Ahmet Ay, Jack Holland, Adriana Sperlea, Sebastian Sangervasi
 
 This program is free software: you can redistribute it and/or modify
@@ -21,10 +21,12 @@ memory.cpp contains functions related to memory management. All memory related f
 Many features and functions are enabled only when scons-compiling with 'memtrack=1', which defines the MEMTRACK macro used for memory tracking.
 */
 
-#include "memory.h"
 #ifndef INIT_HPP
-#include <iostream>		//(Reading/writing files, and for setting cout in quiet mode.)
+	#include <iostream>	// (Reading/writing files, and for setting cout in quiet mode.)
 #endif
+
+#include "memory.hpp"
+
 using namespace std;
 
 // Variables the memory tracker uses to keep track of heap usage

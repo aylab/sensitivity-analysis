@@ -1,5 +1,5 @@
 /*	
-Local Sensitivity Analysis progam, designed for use with the Deterministic simulator for zebrafish segmentation.
+Sensitivity analysis for simulations
 Copyright (C) 2013 Ahmet Ay, Jack Holland, Adriana Sperlea, Sebastian Sangervasi
 
 This program is free software: you can redistribute it and/or modify
@@ -16,14 +16,18 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+io.cpp contains functions for input and output of files and pipes. All I/O related functions should be placed in this file.
+*/
+
+#include "io.hpp" // Function declarations
 
 #include "init.hpp"
-#include "io.hpp"
 #include "macros.hpp"
 
 using namespace std;
 
-void read_nominal(input_params& ip){
+void read_nominal (input_params& ip) {
 	//Opens the file for reading.
 	FILE* file_pointer = fopen(ip.nominal_file, "r");
 	//If this is the first nominal set that is read, we need to set our count of how many parameters there are and initiatlize the nominal array
@@ -44,7 +48,7 @@ void read_nominal(input_params& ip){
 	fclose(file_pointer);
 }
 
-int count_params(FILE* file_pointer){
+int count_params (FILE* file_pointer) {
 	int count = 0;
 	bool  in_num = false;
 	char c = '\0';
@@ -61,7 +65,7 @@ int count_params(FILE* file_pointer){
 	return count;	
 }
 
-bool fill_doubles(FILE* file_pointer, int param_num, double* nominal){
+bool fill_doubles (FILE* file_pointer, int param_num, double* nominal) {
 	int result = 0;
 	for(int i = 0; i < param_num; i++){
 		result = fscanf(file_pointer, "%lf%*[,;\t ]", nominal+i); 
@@ -74,7 +78,7 @@ bool fill_doubles(FILE* file_pointer, int param_num, double* nominal){
 	return true;
 }
 
-void skip_lines( FILE* file_pointer, int set_skip){
+void skip_lines (FILE* file_pointer, int set_skip) {
 	char pound = '\0';
 	for(int i = 0; i < set_skip; i++){
 		fscanf(file_pointer,"%c", &pound);
@@ -96,7 +100,7 @@ set,post sync wildtype,post per wildtype,post amp wildtype,post per wildtype/wt,
 	where the number of features can be arbitrary but 0) at most MAX_NUM_FEATS will be read, 1) all values must be comma-seperated with no spaces, 2) the names line must contain a name for every feature, 3) the last value in non-name lines must be followed by a comma, but can have any string after that before the new line, 4) The maximum number of features that can be read is set by the macro MAX_NUM_FEATS and is currently 150. 
 	Also important is the fact that there should be no name for the "PASSED" or "FAILED" column which needs to be ignored.
 */
-double** load_output(int num_values, int* num_types, char* file_name, char*** output_names){
+double** load_output (int num_values, int* num_types, char* file_name, char*** output_names) {
 	//Open the file for reading.
 	FILE* file_pointer = fopen(file_name, "r");
 	//Count how many types of output there are, and fill keep track of their (possibly partial) names.
@@ -162,7 +166,7 @@ double** load_output(int num_values, int* num_types, char* file_name, char*** ou
 	The first line of the file contains the same names that were taken from oscillation features file(s) that was made by deterministic.
 	The file contains a line for each simulation parameter, with a sensitviti
 */
-void write_sensitivity(int dims, int output_types, char** output_names, double** lsa_values, char* file_name ){
+void write_sensitivity (int dims, int output_types, char** output_names, double** lsa_values, char* file_name) {
 	ofstream file_out;
 	double x;
 	file_out.open(file_name);
@@ -189,14 +193,14 @@ return;
 }
 
 /*
-	The rest of the code is used for piping to/from deterministic.
+	The rest of the code is used for piping to/from the simulation.
 */
 
 /*	This funciton takes care of running the simulation by forking and executing (execv)
 by calling ../deterministic. The parameter sets are passed to child processes and the results of
 the simulations are passed back via a read/write pipe pair for each child.
 */
-void simulate_samples(int first_dim, input_params& ip, sim_set& ss ){	
+void simulate_samples (int first_dim, input_params& ip, sim_set& ss) {	
     int* pipes[ip.processes];
     if(!make_pipes(ip.processes, pipes)){
     	ip.failure = copy_str("!!! Failure: could not pipe !!!\n");
@@ -257,9 +261,8 @@ void simulate_samples(int first_dim, input_params& ip, sim_set& ss ){
 	del_pipes(ip.processes, pipes, true); 
 }
 
-/*	This function is very similar to the above, except that it is designed for only writing out only one parameter set -- the nominal parameter set.
-*/
-void simulate_nominal(input_params& ip){
+//This function is very similar to the above, except that it is designed for only writing out only one parameter set -- the nominal parameter set.
+void simulate_nominal (input_params& ip) {
 	int* pipes = new int[2];
 	if (pipe(pipes) == -1) {
 		delete[] pipes;
@@ -311,9 +314,8 @@ void simulate_nominal(input_params& ip){
 
 /*	This function establishes a communication pipe from the parent to each simulation child for the passing of parameter sets and results.
 	The communication is handled by writing to file descriptors whose values are simply integers.
-	The array pipes is two-dimensional because it contains an array that contains a read-end and a write-end file descriptor for each child process, e.g. pipes = { {child_1_read, child_1_write}, {child_2_read, child_2_write} }
-*/
-bool make_pipes(int processes, int** pipes){
+	The array pipes is two-dimensional because it contains an array that contains a read-end and a write-end file descriptor for each child process, e.g. pipes = { {child_1_read, child_1_write}, {child_2_read, child_2_write} } */
+bool make_pipes (int processes, int** pipes) {
 	for(int i = 0; i < processes; i++){
 		pipes[i] = new int[2];
 		if (pipe(pipes[i]) == -1) {
@@ -325,7 +327,7 @@ bool make_pipes(int processes, int** pipes){
 }
 /* 	Closes the reading end of each pipe and deletes the data needed to store them.
 	Child processes (../deterministic) are responsible for closing the writing end, but this will try to close them in case of child failure.*/
-void del_pipes(int processes, int** pipes, bool close_write){
+void del_pipes (int processes, int** pipes, bool close_write) {
 	for(int i = 0; i < processes && pipes[i] != NULL; i++){
 		close(pipes[i][0]);
 		if(close_write && fcntl(pipes[i][1], F_GETFD ) != -1) close(pipes[i][1]);
@@ -335,10 +337,8 @@ void del_pipes(int processes, int** pipes, bool close_write){
 
 /*	mallocates an array of char** that are needed for passing arguments to the execv call for each child simulation. 
 	It fills in the appropriate argument space with the file descriptor of the pipe the children will read/write with.
-	make_arg is just a sub-function that handles the work for one argument.
-*/
-char*** make_all_args(int first_dim, input_params& ip,int** pipes){
-
+	make_arg is just a sub-function that handles the work for one argument. */
+char*** make_all_args (int first_dim, input_params& ip,int** pipes) {
 	char*** child_args = (char***)mallocate(sizeof(char**)*ip.processes);
 	for(int i = 0; i < ip.processes; i++){
 		child_args[i] = (char**)mallocate(sizeof(char*)*ip.sim_args_num);
@@ -346,7 +346,7 @@ char*** make_all_args(int first_dim, input_params& ip,int** pipes){
 	}
 	return child_args;
 }
-void make_arg(int dim_num, int sim_args_num, int seed, int* pipes, char* dir_name, char* dim_name, char** simulation_args, char** destination){
+void make_arg (int dim_num, int sim_args_num, int seed, int* pipes, char* dir_name, char* dim_name, char** simulation_args, char** destination) {
 	int pipe_loc = 0;
 	int strlen_num;	
 	for(int j = 0; j < sim_args_num; j++){
@@ -370,7 +370,7 @@ void make_arg(int dim_num, int sim_args_num, int seed, int* pipes, char* dir_nam
 }
 
 /* This mallocates a string that can fit a full directory path, file name, and an integer for uniqe identification of the file. It then sprintf's to fill in the correct characters.*/
-char* make_name(char* dir, char* file, int num){
+char* make_name (char* dir, char* file, int num) {
 	int num_len = 0;
 	num = abs(num);
 	if(num > 0){
@@ -384,7 +384,7 @@ char* make_name(char* dir, char* file, int num){
 }
 
 /*	Deleting the arguments that were used.*/
-void del_args(int processes, int sim_args_num, char*** child_args){
+void del_args (int processes, int sim_args_num, char*** child_args) {
 	for(int i = 0; i < processes; i++){
 		del_arg(sim_args_num, child_args[i]);
 	}
@@ -401,7 +401,7 @@ void del_arg(int sim_args_num, char** arg){
 /*	Determines how many parameter sets shoudl be passed to each child by distributing them evenly. If the
 	number of children does not divide the number of sets, the remainder r is distributed among the first r children.
 */
-void segs_per_sim(int segments, int processes, int* distribution){
+void segs_per_sim (int segments, int processes, int* distribution) {
 	int remainder = segments % processes;
 	for(int i = 0; i < processes; i++){
 		distribution[i] = (remainder > 0 ? segments/processes + 1 : segments/processes);
@@ -414,7 +414,7 @@ void segs_per_sim(int segments, int processes, int* distribution){
 	It returns false if there was an error with the child process, in which case it allocates a message for failure and assigns failcode to be an appropriate status, or the pid of the failed child. 
 	The "#ifdef WCOREDUMP" is necessary to check whether the OS running the program has an implementation for checking for core dumps.
 */
-bool check_status(int status, int simpid, int* failcode, char** failure){
+bool check_status (int status, int simpid, int* failcode, char** failure) {
 	if(WIFEXITED(status) && WEXITSTATUS(status) != 6){
 		cout << "Child (" << simpid << ") exited properly with status: " << WEXITSTATUS(status) << "\n";
 		return true;	
@@ -448,7 +448,7 @@ bool check_status(int status, int simpid, int* failcode, char** failure){
 /*	This function is necessary for writing to the pipe specified by fd how many parameters the simulation should use and how many sets are going to be sent.
 	This information is assumed to come in exactly this format (two successive integers in a pipe) by sogen-deterministic/deterministic.
 */
-bool write_info(int fd, int dims, int sets_per_dim){
+bool write_info (int fd, int dims, int sets_per_dim) {
 	//Send the number of parameters that are used for each simulation .
 	char* int_str = (char*)mallocate(sizeof(int));
 	memcpy(int_str, &dims, sizeof(int));
@@ -469,7 +469,7 @@ bool write_info(int fd, int dims, int sets_per_dim){
 /*	After the necessary information has been sent to the simulation program, this function writes a byte stream to the pipe (fd) that contains the double values to use as simulation parameters.
 	The format in which the simulations reads and stores these values is determined by the integers it received from write_info() and the structure of the simulation program itself.
 */
-bool write_dim_sets(int fd, int dim, double* nominal, sim_set& ss){
+bool write_dim_sets (int fd, int dim, double* nominal, sim_set& ss) {
 	double nom_hold = nominal[dim];
 	double* inserts = ss.dim_sets[dim];
 	bool good_write = true;
@@ -489,7 +489,7 @@ bool write_dim_sets(int fd, int dim, double* nominal, sim_set& ss){
 
 /*	This function wraps write_info() and write_dim_sets() together for the simple case of writing only the nominal parameter set. 
 */
-bool write_nominal(input_params& ip, int fd){
+bool write_nominal (input_params& ip, int fd) {
 	if(!write_info(fd, ip.dims, 1)) return false;
 	return ((int)sizeof(double)*ip.dims == write(fd, ip.nominal, sizeof(double)*ip.dims) );
 }

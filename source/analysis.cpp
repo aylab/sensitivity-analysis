@@ -1,5 +1,5 @@
 /*
-Local Sensitivity Analysis progam, designed for use with the Deterministic simulator for zebrafish segmentation.
+Sensitivity analysis for simulations
 Copyright (C) 2013 Ahmet Ay, Jack Holland, Adriana Sperlea, Sebastian Sangervasi
 
 This program is free software: you can redistribute it and/or modify
@@ -17,6 +17,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
+analysis.cpp contains the main functionality for performing sensitivity analysis.
+*/
+
+/*
 Summary of sensitivity analysis:
 
 If Y is the output function (amplitude, period, etc), p_ j is the j’th parameter, and p’ is the nominal parameter set, then non-dimensional LSA_all_dims S_ j can be evaluated by:
@@ -27,17 +31,17 @@ To normalize the sensitivities across the parameter set, for m parameters, the f
 
 */
 
+#include "analysis.hpp" // Function declarations
+
 #include "init.hpp"
-#include "analysis.hpp"
 #include "io.hpp"
-#include "../finite-difference/finite_difference.hpp"
+#include "../finite-difference/finite-difference.hpp"
 #include "macros.hpp"
 
 using namespace std;
 
-/*	The main() function does standard c++ main things -- it calls functions to initialze parameters based on commandline arguments, then distrbiutes the work to functions that perform the gathering of data and analysis.
-*/
-int main(int argc, char** argv){
+//The main() function does standard c++ main things -- it calls functions to initialze parameters based on commandline arguments, then distrbiutes the work to functions that perform the gathering of data and analysis.
+int main (int argc, char** argv) {
 	//Setup the parameter struct based on arguments. See init.cpp & init.hpp
 	input_params ip;
 	accept_params(argc, argv, ip);
@@ -84,7 +88,7 @@ int main(int argc, char** argv){
 	The sim_set struct handles the work of how perterbations of parameter sets should be stored,
 	the simulate_samples() function in io.cpp takes care of the execution and parallelization. See init.hpp & io.cpp
 */
-void generate_data(input_params& ip, sim_set& ss){
+void generate_data (input_params& ip, sim_set& ss) {
 	//Run the simulation on the nominal set 
 	simulate_nominal(ip);
 	
@@ -106,7 +110,7 @@ void generate_data(input_params& ip, sim_set& ss){
 	It then normalizes the sensitivities of each feature to each parameter based on the parameter's fraction of the total sensitivity from all parameters. (See the normalize() function)
 	This also makes the calls to write out the information to appropriate files. See io.cpp
 */
-void LSA_all_dims(input_params& ip, sim_set& ss){
+void LSA_all_dims (input_params& ip, sim_set& ss) {
 	//First, load the output for the nominal set against which other values will be compared. This call also handles counting the number of output features and holding on to the output features names.
 	int num_dependent;
 	char* file_name = make_name(ip.data_dir, ip.nom_file, 0); //Make name just mallocates a string based on a directory+filename+integer combination.
@@ -160,7 +164,7 @@ void LSA_all_dims(input_params& ip, sim_set& ss){
 	See finite_difference.cpp & .hpp
 	Note that the int accuracy is/should be equal to the length of each array within dependent_values -- i.e. it is equal to how many pertubation points were made by generate_data. 
 */
-double* fin_dif_one_dim(int accuracy, int num_dependent, double independent_step, double** dependent_values){
+double* fin_dif_one_dim (int accuracy, int num_dependent, double independent_step, double** dependent_values) {
 	double round_error = 0;
 	double* fin_dif = new double[num_dependent];
 
@@ -183,7 +187,7 @@ double* fin_dif_one_dim(int accuracy, int num_dependent, double independent_step
 /*	Calling this function performs a normalization by taking the sum of lsa values accross each parameter then then divides individual parameter sensitivity values by the sum and multiplies by 100 to give a percentage of total sensitivity.
 	The input double array is modified in place.
 */
-void normalize(int dims, int num_dependent, double** lsa_values){
+void normalize (int dims, int num_dependent, double** lsa_values) {
 	double sum = 1;
 	for( int i = 0; i < num_dependent; i++){
 		sum = 0;
@@ -200,19 +204,56 @@ void normalize(int dims, int num_dependent, double** lsa_values){
 	}
 }
 
-/*	Methods for deleting arrays.
-*/
-void del_double_2d(int rows, double** victim){
-	for(int i = 0; i < rows; i++){
-		delete[] victim[i];
-	}
-	delete[] victim;
-}
-void del_char_2d(int rows, char** victim){
+//Methods for deleting arrays.
+void del_double_2d (int rows, double** victim) {
 	for(int i = 0; i < rows; i++){
 		delete[] victim[i];
 	}
 	delete[] victim;
 }
 
+void del_char_2d (int rows, char** victim) {
+	for(int i = 0; i < rows; i++){
+		delete[] victim[i];
+	}
+	delete[] victim;
+}
+
+void usage (const char* message, int error) {
+	cout << message << endl;
+	if(error){
+		cerr << "\tError: " << error << endl;
+	}
+	cout << "Usage: [-option [value]]. . . [--option [value]]. . ." << endl;	
+	cout << "-n, --nominal-file   [filename]   : the relative name of the file from which the nominal parameter set should be read, default=nominal.params" << endl;
+	cout << "-d, --sense-dir      [filename]   : the relative name of the directory to which the sensitivity results will be stored, default=sensitivities" << endl;
+	cout << "-D, --data-dir       [filename]   : the relative name of the directory to which the raw simulation data will be stored, default=sim-data" << endl;
+	cout << "-p, --percentage     [float]      : the maximum percentage by which nominal values will be perturbed (+/-), min=0, max=100, default=5" << endl;
+	cout << "-P, --points         [int]        : the number of data points to collect on either side (+/-) of the nominal set, min=1, default=10" << endl;
+	cout << "-c, --nominal-count  [int]        : the number of nominal sets to read from the file, min=1, default=1" << endl;
+	cout << "-k, --skip           [int]        : the number of lines in the nominal sets file to skip over (excluding comments), min=0, default=0" << endl;
+	cout << "-s, --random-seed    [int]        : the seed to generate random numbers, min=1, default=generated from the time and process ID" << endl;
+	cout << "-l, --processes      [int]        : the number of processes to which parameter sets can be sent for parallel data collection, min=1, default=2" << endl;
+	cout << "-y, --recycle        [N/A]        : include this if the simulation output has already been generated for exactly the same configuration used now, default=unused" << endl;
+	cout << "-g, --generate-only  [N/A]        : generate oscillations features files for perturbed parameter values without calculating sensitivity, default=unused" << endl;
+	cout << "-z, --delete-data    [N/A]        : delete oscillation features data, specified by -D or --data-dir, when the program exits, default=unused" << endl;
+	cout << "-q, --quiet          [N/A]        : hide the terminal output, default=unused" << endl;
+	cout << "-e, --exec           [directory]  : the relative directory of the simulation executable, default=../sogen-deterministic/" << endl;
+	cout << "-a, --sim-args       [args]       : every argument following this will be sent to the deterministic simulation" << endl;
+	cout << "-l, --licensing      [N/A]        : view licensing information (no simulations will be run)" << endl;
+	cout << "-h, --help           [N/A]        : view usage information (i.e. this)" << endl;
+	cout << endl << "Example: ./sensitivity -c 2 -k 4 -l 6 -p 100 -P 10 -s 112358 -n ~/sensitivity-analysis/nominal.params -d  ~/sensitivity-analysis/sensitivity_data  -D  ~/sensitivity-analysis/simulation_data  -e ~/sogen-deterministic/deterministic --sim-args -u ~/sogen-deterministic/input.perturb" << endl;
+	exit(error);
+}
+
+void licensing () {
+	cout << endl;
+	cout << "Stochastically ranked evolutionary strategy sampler for zebrafish segmentation" << endl;
+	cout << "Copyright (C) 2013 Ahmet Ay (aay@colgate.edu), Jack Holland (jholland@colgate.edu), Adriana Sperlea (asperlea@colgate.edu), Sebastian Sangervasi (ssangervasi@colgate.edu)" << endl;
+	cout << "This program comes with ABSOLUTELY NO WARRANTY" << endl;
+	cout << "This is free software, and you are welcome to redistribute it under certain conditions;" << endl;
+	cout << "You can use this code and modify it as you wish under the condition that you refer to the article: \"Short-lived Her proteins drive robust synchronized oscillations in the zebrafish segmentation clock\" (Development 2013 140:3244-3253; doi:10.1242/dev.093278)" << endl;
+	cout << endl;
+	exit(0);
+}
 

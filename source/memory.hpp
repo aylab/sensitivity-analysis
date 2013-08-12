@@ -1,5 +1,5 @@
 /*
-Deterministic simulator for zebrafish segmentation
+Sensitivity analysis for simulations
 Copyright (C) 2013 Ahmet Ay, Jack Holland, Adriana Sperlea, Sebastian Sangervasi
 
 This program is free software: you can redistribute it and/or modify
@@ -20,8 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 memory.h contains function declarations for memory.cpp.
 */
 
-#ifndef MEMORY_H
-#define MEMORY_H
+#ifndef MEMORY_HPP
+#define MEMORY_HPP
 
 #include <cstdlib> //(Needed for size_t)
 #define EXIT_MEMORY_ERROR 1

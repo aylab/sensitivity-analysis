@@ -1,5 +1,5 @@
 /*
-Local Sensitivity Analysis progam, designed for use with the Deterministic simulator for zebrafish segmentation.
+Sensitivity analysis for simulations
 Copyright (C) 2013 Ahmet Ay, Jack Holland, Adriana Sperlea, Sebastian Sangervasi
 
 This program is free software: you can redistribute it and/or modify
@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/stat.h>	//(Used for file and directory checking and making)
 #include <errno.h>		//(Some libraries use error codes that are useful for checking things, like mkdir)
 
-#include "memory.h" 	//(Memory tracking functions.)
+#include "memory.hpp" 	//(Memory tracking functions.)
 #include "macros.hpp"	//(macros)
 using namespace std;
 
@@ -161,7 +161,6 @@ void init_seed (input_params& );
 void accept_params (int , char** , input_params& );
 void ensure_nonempty (const char* , const char* );
 void cout_switch(bool , input_params& );
-void usage(const char*, int);
 void make_dir(char*);
 double check_num(double );
 #endif

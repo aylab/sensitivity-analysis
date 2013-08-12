@@ -28,4 +28,4 @@ elif ARGUMENTS.get('memtrack', 0):
 
 env = Environment(CXX='g++')
 env.Append(CXXFLAGS=compile_flags, LINKFLAGS=link_flags)
-env.Program(target='sensitivity', source=['source/analysis.cpp', 'source/init.cpp', 'source/io.cpp', 'source/memory.cpp', 'finite-difference/finite_difference.cpp'])
+env.Program(target='sensitivity', source=['source/analysis.cpp', 'source/init.cpp', 'source/io.cpp', 'source/memory.cpp', 'finite-difference/finite-difference.cpp'])

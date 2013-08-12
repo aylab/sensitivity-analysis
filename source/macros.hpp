@@ -1,5 +1,5 @@
 /*
-Local Sensitivity Analysis progam, designed for use with the Deterministic simulator for zebrafish segmentation.
+Sensitivity analysis for simulations
 Copyright (C) 2013 Ahmet Ay, Jack Holland, Adriana Sperlea, Sebastian Sangervasi
 
 This program is free software: you can redistribute it and/or modify
@@ -16,8 +16,9 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/*	This file is used for consolodating the macros used by analysis.cpp, init.hpp, io.cpp.
-	This file does not contain any of the macros used by finite_difference.cpp/hpp because those files are intended to make up an independent library.
+/*
+macros.hpp is used for consolodating the macros used by analysis.cpp, init.hpp, io.cpp.
+This file does not contain any of the macros used by finite-difference.cpp/hpp because those files are intended to make up an independent library.
 */
 
 #ifndef MACROS_HPP
@@ -47,3 +48,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define at_least_zero(num) (num > 0.0 ? num : 0)
 
 #endif
+
