@@ -30,6 +30,10 @@ using namespace std;
 void read_nominal (input_params& ip) {
 	//Opens the file for reading.
 	FILE* file_pointer = fopen(ip.nominal_file, "r");
+	if (file_pointer == NULL) {
+		cout << "Could not open the output file.\n";
+		exit(1);
+	}
 	//If this is the first nominal set that is read, we need to set our count of how many parameters there are and initiatlize the nominal array
 	if(ip.dims < 1){
 		ip.dims = count_params(file_pointer);
@@ -70,10 +74,8 @@ bool fill_doubles (FILE* file_pointer, int param_num, double* nominal) {
 	for(int i = 0; i < param_num; i++){
 		result = fscanf(file_pointer, "%lf%*[,;\t ]", nominal+i); 
 		if ( 1 != result){
-			//cout << "res: " << result << "\n";
 			return false;
 		}
-		//cout << nominal[i] << "\n";
 	}
 	return true;
 }
