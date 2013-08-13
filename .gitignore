@@ -24,3 +24,8 @@ sensitivity
 # Directories
 simulation_data
 sensitivity_data
+sim-result*
+plots*
+
+# Data files
+*.params
