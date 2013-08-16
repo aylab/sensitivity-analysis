@@ -85,7 +85,7 @@ struct input_params{
 		data_dir = NULL;
 		nom_file = (char*)"nominal_"; 	//This string is just used as the name to give to the nominal oscillation features file.
 		dim_file = (char*)"dim_";		//Similarly, this string is used to name the oscillation features file for each dimension (parameter) of the system with perturbations.
-		sim_exec = (char*) "../sogen-deterministic/simulation";
+		sim_exec = (char*) "../simulation/simulation";
 		simulation_args = NULL;
 		null_stream = NULL;
 		failure = NULL;
