@@ -239,7 +239,7 @@ void usage (const char* message, int error) {
 	cout << "-z, --delete-data    [N/A]        : delete oscillation features data, specified by -D or --data-dir, when the program exits, default=unused" << endl;
 	cout << "-q, --quiet          [N/A]        : hide the terminal output, default=unused" << endl;
 	cout << "-e, --exec           [directory]  : the relative directory of the simulation executable, default=../simulation/" << endl;
-	cout << "-a, --sim-args       [args]       : every argument following this will be sent to the deterministic simulation" << endl;
+	cout << "-a, --sim-args       [N/A]        : arguments following this will be sent to the deterministic simulation" << endl;
 	cout << "-l, --licensing      [N/A]        : view licensing information (no simulations will be run)" << endl;
 	cout << "-h, --help           [N/A]        : view usage information (i.e. this)" << endl;
 	cout << endl << "Example: ./sensitivity -c 2 -k 4 -l 6 -p 100 -P 10 -s 112358 -n ~/sensitivity-analysis/nominal.params -d ~/sensitivity-analysis/sensitivity_data -D  ~/sensitivity-analysis/simulation_data -e ~/sogen-deterministic/deterministic --sim-args -u ~/sogen-deterministic/input.perturb" << endl;
