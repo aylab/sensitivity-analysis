@@ -60,7 +60,7 @@ void accept_params (int num_args, char** args, input_params& ip) {
 				ip.nominal_file = value;
 			} else if (strcmp(option, "-D") == 0 || strcmp(option, "--data-dir") == 0) {
 				ensure_nonempty(option, value);
-				ip.data_dir = value;
+				ip.data_dir = copy_str((const char*)value);
 			} else if (strcmp(option, "-d") == 0 || strcmp(option, "--sense-dir") == 0) {
 				ensure_nonempty(option, value);
 				ip.sense_dir = value;
